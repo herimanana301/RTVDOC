@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  IconSearch,
+  IconUser,
   IconHome2,
   IconReceipt2,
   IconTicket,
@@ -23,9 +23,13 @@ import {
   rem,
 } from "@mantine/core";
 import General from "../general/General";
+import Clients from "../clients/Clients";
+import Facture from "../facture/Facture";
+import Commande from "../commande/Commande";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
+  { link: "", label: "Clients", icon: IconUser },
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
   { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
@@ -153,7 +157,7 @@ export default function Navigation() {
         </Header>
       }
     >
-      <General />
+      {active === "Général" ? <General /> : active === "Clients" ? <Clients /> : active === "Factures" ? <Facture/> : active==="Bons de commandes" ? <Commande/> : null }
     </AppShell>
   );
 }
