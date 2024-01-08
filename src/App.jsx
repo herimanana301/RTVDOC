@@ -17,6 +17,11 @@ function App() {
       path: "/neworder",
       element: <Neworder />,
     },
+    {
+    path: "/newinvoice",
+      element: <Neworder />,
+    }
+
   ]);
   return (
     <>
