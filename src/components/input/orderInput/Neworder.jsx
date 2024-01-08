@@ -11,7 +11,7 @@ import {
   rem,
   FileInput,
 } from "@mantine/core";
-import ContactIcons from "./ContactIcons.jsx";
+import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import { useState } from "react";
 import {
@@ -125,7 +125,7 @@ const useStyles = createStyles((theme) => {
   };
 });
 
-export default function Newinput() {
+export default function Neworder() {
   const { classes } = useStyles();
   const [datas, setDatas] = useState([
     { title: "Nom complet", description: "", icon: IconUser },

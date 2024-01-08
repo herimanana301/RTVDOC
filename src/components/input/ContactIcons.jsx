@@ -16,13 +16,6 @@ import {
   IconCalendarTime,
 } from "@tabler/icons-react";
 
-const MOCKDATA = [
-  { title: "Email", description: "hello@mantine.dev", icon: IconAt },
-  { title: "Phone", description: "+49 (800) 335 35 35", icon: IconPhone },
-  { title: "Address", description: "844 Morris Park avenue", icon: IconMapPin },
-  { title: "Working hours", description: "8 a.m. – 11 p.m.", icon: IconSun },
-];
-
 const useStyles = createStyles((theme, { variant }) => ({
   wrapper: {
     display: "flex",
@@ -84,7 +77,7 @@ function ContactIcon({
   );
 }
 
-export function ContactIconsList({ data = MOCKDATA, variant }) {
+export function ContactIconsList({ data, variant }) {
   const items = data.map((item, index) => (
     <ContactIcon key={index} variant={variant} {...item} />
   ));
