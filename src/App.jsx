@@ -18,7 +18,7 @@ function App() {
       element: <Neworder />,
     },
     {
-    path: "/newinvoice",
+    path: "/newrh",
       element: <Neworder />,
     }
 
