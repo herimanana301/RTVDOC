@@ -33,7 +33,7 @@ const data = [
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
   { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
-];
+]; // ajout de menu
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -157,7 +157,16 @@ export default function Navigation() {
         </Header>
       }
     >
-      {active === "Général" ? <General /> : active === "Clients" ? <Clients /> : active === "Factures" ? <Facture/> : active==="Bons de commandes" ? <Commande/> : null }
+      {active === "Général" ? (
+        <General />
+      ) : active === "Clients" ? (
+        <Clients />
+      ) : active === "Factures" ? (
+        <Facture />
+      ) : active === "Bons de commandes" ? (
+        <Commande />
+      ) : null}
+      {/* Permet de gérer l'affichage des composants par rapport au menu selectionné*/}
     </AppShell>
   );
 }
