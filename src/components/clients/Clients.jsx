@@ -8,17 +8,23 @@ import {
   ScrollArea,
   Group,
   Text,
-  Avatar,
+  Modal,
 } from "@mantine/core";
+import checked from "../../assets/icons/checked.gif";
+import wrong from "../../assets/icons/wrong.gif";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx
 export default function Clients() {
+  const [opened, setOpened] = useState(false);
+  const [confirmation, setConfirmation] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     total: 1,
   });
+  const [idClient, setIdClient] = useState("");
+  const [deleteUser, setDeleteUser] = useState(false);
   const [datas, setDatas] = useState([]);
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
@@ -37,6 +43,31 @@ export default function Clients() {
         console.error(error);
       });
   }, []);
+  const deletedUser = async (id) => {
+    await axios
+      .delete(`http://localhost:1337/api/clients/${id}`)
+      .then((response) => {
+        if (response) {
+          setDeleteUser(true);
+          setDatas((prevData) => {
+            const newData = prevData.filter((data) => data.id != idClient);
+            return newData;
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  const openModal = (id) => {
+    setIdClient(id);
+    setOpened(true);
+  };
+  useEffect(() => {
+    if (confirmation) {
+      deletedUser(idClient);
+    }
+  }, [confirmation]);
   const rows = datas.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
@@ -70,12 +101,19 @@ export default function Clients() {
           <Link
             to={{
               pathname: `/client/${item.id}`,
-              state: { clientDatas: true },
             }}
+            state={{ clientDatas: item.attributes }}
           >
             <Button style={{ backgroundColor: "orange" }}>Modifer</Button>
           </Link>
-          <Button style={{ backgroundColor: "red" }}>Supprimer</Button>
+          <Button
+            onClick={() => {
+              openModal(item.id);
+            }}
+            style={{ backgroundColor: "red" }}
+          >
+            Supprimer
+          </Button>
         </Group>
       </td>
     </tr>
@@ -84,7 +122,7 @@ export default function Clients() {
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Button component="a" href="/newclient">
+        <Button component="a" href="/client">
           + Nouveau
         </Button>
         <Autocomplete
@@ -141,6 +179,73 @@ export default function Clients() {
           </thead>
           <tbody>{rows}</tbody>
         </Table>
+        <Modal
+          opened={opened}
+          onClose={() => setOpened(false)}
+          transitionProps={{
+            transition: "fade",
+            duration: "600",
+            timingFunction: "ease",
+          }}
+        >
+          {deleteUser ? (
+            <div
+              style={{
+                fontFamily: `Greycliff CF`,
+                display: "flex",
+                justifyContent: "space-evenly",
+                flexDirection: "row",
+                alignItems: "center",
+                paddingBottom: "4rem",
+                fontSize: "1rem",
+              }}
+            >
+              <img src={checked} alt="checked" />
+              <span>Suppresion bien effectué</span>
+              <Button
+                onClick={() => {
+                  setOpened(false);
+                }}
+                style={{ backgroundColor: "orange" }}
+              >
+                OK
+              </Button>
+            </div>
+          ) : (
+            <div
+              style={{
+                fontFamily: `Greycliff CF`,
+                display: "flex",
+                justifyContent: "space-evenly",
+                flexDirection: "row",
+                alignItems: "center",
+                paddingBottom: "4rem",
+                fontSize: "1rem",
+              }}
+            >
+              <img src={wrong} alt="checked" />
+              <span>Êtes-vous sûr de supprimer ce client ?</span>
+              <Group>
+                <Button
+                  onClick={() => {
+                    setConfirmation(true);
+                  }}
+                  style={{ backgroundColor: "orange" }}
+                >
+                  Oui
+                </Button>
+                <Button
+                  onClick={() => {
+                    setOpened(false);
+                  }}
+                  style={{ backgroundColor: "lightgrey" }}
+                >
+                  Non
+                </Button>
+              </Group>
+            </div>
+          )}
+        </Modal>
       </ScrollArea>
     </>
   );

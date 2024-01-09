@@ -138,16 +138,15 @@ const useStyles = createStyles((theme) => {
 });
 // fin partie style
 export default function NewClient() {
+  const { classes } = useStyles(); // utilisation des style déclaré précédemment
   const { id } = useParams(); /*
   permet de recupérer ce qui a été passé comme valeur dans "/client/:id", 
   le nom de variable destructuré doit avoir le même nom 
   que ce qui été mis lors de la déclaration du lien
   */
   const clientDatas = useLocation();
-  console.log(clientDatas);
-  const { classes } = useStyles(); // utilisation des style déclaré précédemment
   const currentClient = clientDatas.state
-    ? clientDatas.state.clientsDatas
+    ? clientDatas.state.clientDatas
     : null;
   const [datas, setDatas] = useState([
     { title: "Raison social", description: "", icon: IconUser }, // les données saisies sont stocké dans description
@@ -169,6 +168,9 @@ export default function NewClient() {
       icon: IconFileBarcode,
     },
   ]); // Stockage des données
+  const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
+  const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
+
   const updateDescription = (index, newDescription) => {
     /*
     la fonction qui permet de mettre à jour les données dans state objet "datas"
@@ -183,9 +185,6 @@ export default function NewClient() {
       return newDatas;
     });
   };
-  const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
-  const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
-
   const submitButton = async () => {
     await axios
       .post("http://localhost:1337/api/clients", {
@@ -212,7 +211,37 @@ export default function NewClient() {
         setSubmitError(true);
       });
   }; // requête pour soumettre les données vers STRAPI
-
+  const updateClient = async () => {
+    await axios
+      .put(`http://localhost:1337/api/clients/${id}`, {
+        data: {
+          raisonsocial: datas[0].description,
+          adresse: datas[3].description,
+          email: datas[1].description,
+          phonenumber: datas[2].description,
+          NIF: datas[4].description,
+          STAT: datas[5].description,
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        response.status === 200 && setOpened(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        setSubmitError(true);
+      });
+  };
+  useEffect(() => {
+    if (id) {
+      updateDescription(0, currentClient.raisonsocial);
+      updateDescription(1, currentClient.email);
+      updateDescription(2, currentClient.phonenumber);
+      updateDescription(3, currentClient.adresse);
+      updateDescription(4, currentClient.NIF);
+      updateDescription(5, currentClient.STAT);
+    }
+  }, []);
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -229,7 +258,7 @@ export default function NewClient() {
           onSubmit={(event) => event.preventDefault()}
         >
           <Text fz="lg" fw={700} className={classes.title}>
-            Nouveau client
+            {id ? "Modifier le client" : "Nouveau client"}
           </Text>
 
           <div className={classes.fields}>
@@ -286,7 +315,7 @@ export default function NewClient() {
               <Button
                 type="submit"
                 className={classes.control}
-                onClick={submitButton}
+                onClick={id ? updateClient : submitButton}
               >
                 Enregistrer
               </Button>
@@ -305,12 +334,18 @@ export default function NewClient() {
           {submitError ? (
             <div className={classes.popup}>
               <img src={wrong} alt="checked" />
-              <span>Erreur lors de l'enregistrement</span>
+              <span>
+                {id
+                  ? "Erreur lors de la mise à jour"
+                  : "Erreur lors de l'enregistrement"}
+              </span>
             </div>
           ) : (
             <div className={classes.popup}>
               <img src={checked} alt="checked" />
-              <span>Client bien enregistré</span>
+              <span>
+                {id ? "Données clients à jour" : "Client bien enregistré"}
+              </span>
             </div>
           )}
         </Modal>
