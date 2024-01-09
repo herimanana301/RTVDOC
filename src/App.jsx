@@ -14,7 +14,7 @@ function App() {
       element: <NewClient />,
     },
     {
-      path: "/client/:id",
+      path: "/client/:id", // mise en place du params pour permettre de passer des données via le lien
       element: <NewClient />,
     },
     {
