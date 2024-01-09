@@ -10,7 +10,7 @@ import {
   Modal,
 } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
-import ContactIcons from "./ContactIcons.jsx";
+import ContactIcons from "../input/ContactIcons";
 
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import { useState } from "react";
@@ -136,7 +136,7 @@ const useStyles = createStyles((theme) => {
   };
 });
 // fin partie style
-export default function NewClient() {
+export default function NewPersonal() {
   const { classes } = useStyles(); // utilisation des style déclaré précédemment
   const [datas, setDatas] = useState([
     { title: "Raison social", description: "", icon: IconUser }, // données stocké dans description

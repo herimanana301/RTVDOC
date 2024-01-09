@@ -5,6 +5,7 @@ import {
   IconReceipt2,
   IconTicket,
   IconFiles,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 
 import {
@@ -26,6 +27,7 @@ import General from "../general/General";
 import Clients from "../clients/Clients";
 import Facture from "../facture/Facture";
 import Commande from "../commande/Commande";
+import Personal from "../personal/Personal_view";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
@@ -33,6 +35,7 @@ const data = [
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
   { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
+  { link: "", label: "Personnels", icon: IconUsersGroup },
 ];
 
 const useStyles = createStyles((theme) => ({
@@ -157,7 +160,7 @@ export default function Navigation() {
         </Header>
       }
     >
-      {active === "Général" ? <General /> : active === "Clients" ? <Clients /> : active === "Factures" ? <Facture/> : active==="Bons de commandes" ? <Commande/> : null }
+      {active === "Général" ? <General /> : active === "Clients" ? <Clients /> : active === "Factures" ? <Facture/> : active==="Bons de commandes" ? <Commande/> : active === "Personnels" ? <Personal/>: null }
     </AppShell>
   );
 }

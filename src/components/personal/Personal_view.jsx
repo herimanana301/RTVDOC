@@ -13,7 +13,7 @@ import {
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 
-export default function Clients() {
+export default function Personal_view() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [pageInfo, setPageInfo] = useState({
     page: 1,
@@ -25,7 +25,7 @@ export default function Clients() {
   };
   useEffect(() => {
     axios
-      .get("http://192.168.88.12:1337/api/clients/")
+      .get("http://192.168.88.12:1337/api/personnels/")
       .then((response) => {
         console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
@@ -41,17 +41,27 @@ export default function Clients() {
   const rows = datas.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
-        <Group gap="sm">
-          <div>
-            <Text fz="sm" fw={500}>
-              {item.attributes.raisonsocial}
+        <Group spacing="sm">
+          <Avatar size={30} src={item.avatar} radius={30} />
+          <Text fz="sm" fw={500}>
+            {item.attributes.nom}<br/>
+
+            <Text fz="xs" c="dimmed">
+            {item.attributes.prenom}
             </Text>
-          </div>
+            
+          </Text>
         </Group>
+      </td>
+
+      <td>
+        <Text fz="xs" c="dimmed">
+          {item.attributes.adresse}
+        </Text>
       </td>
       <td>
         <Text fz="xs" c="dimmed">
-          {item.attributes.phonenumber}
+          {item.attributes.contact}
         </Text>
       </td>
       <td>
@@ -60,18 +70,22 @@ export default function Clients() {
         </Text>
       </td>
       <td>
-        <Text fz="sm" fw={500}>
-          {item.attributes.adresse}
+        <Text fz="xs" c="dimmed">
+          {item.attributes.poste}
         </Text>
       </td>
-      <td>{item.attributes.NIF}</td>
-      <td>{item.attributes.STAT}</td>
+      <td>
+        <Text fz="xs" c="dimmed">
+          {item.attributes.status}
+        </Text>
+      </td>
+
     </tr>
   ));
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Button component="a" href="/newclient">
+        <Button component="a" href="/newpersonal">
           + Nouveau
         </Button>
         <Autocomplete
@@ -114,13 +128,12 @@ export default function Clients() {
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
-              <th> Nom (ou Raison social) </th>
-              <th>Numéro tel</th>
-              <th>Adresse email</th>
+              <th>Identité</th>
               <th>Adresse</th>
-              <th>NIF</th>
-              <th>STAT</th>
-              <th />
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Poste</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
