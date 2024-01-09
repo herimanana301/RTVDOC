@@ -119,7 +119,7 @@ export default function Clients() {
               <th>Adresse email</th>
               <th>Adresse</th>
               <th>NIF</th>
-              <th>STAT</th>
+              <th>STATE</th>
               <th />
             </tr>
           </thead>

@@ -17,6 +17,11 @@ function App() {
       path: "/neworder",
       element: <Neworder />,
     },
+    {
+    path: "/newrh",
+      element: <Neworder />,
+    }
+
   ]);
   return (
     <>
