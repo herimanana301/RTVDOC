@@ -9,11 +9,12 @@ import {
   rem,
   Modal,
 } from "@mantine/core";
+import { useParams, useLocation } from "react-router-dom";
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "./ContactIcons.jsx";
 
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   IconPhone,
   IconMapPin,
@@ -137,9 +138,19 @@ const useStyles = createStyles((theme) => {
 });
 // fin partie style
 export default function NewClient() {
+  const { id } = useParams(); /*
+  permet de recupérer ce qui a été passé comme valeur dans "/client/:id", 
+  le nom de variable destructuré doit avoir le même nom 
+  que ce qui été mis lors de la déclaration du lien
+  */
+  const clientDatas = useLocation();
+  console.log(clientDatas);
   const { classes } = useStyles(); // utilisation des style déclaré précédemment
+  const currentClient = clientDatas.state
+    ? clientDatas.state.clientsDatas
+    : null;
   const [datas, setDatas] = useState([
-    { title: "Raison social", description: "", icon: IconUser }, // données stocké dans description
+    { title: "Raison social", description: "", icon: IconUser }, // les données saisies sont stocké dans description
     { title: "Email", description: "", icon: IconAt },
     { title: "Téléphone", description: "", icon: IconPhone },
     {
@@ -158,8 +169,11 @@ export default function NewClient() {
       icon: IconFileBarcode,
     },
   ]); // Stockage des données
-
   const updateDescription = (index, newDescription) => {
+    /*
+    la fonction qui permet de mettre à jour les données dans state objet "datas"
+    */
+
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas];
       newDatas[index] = {

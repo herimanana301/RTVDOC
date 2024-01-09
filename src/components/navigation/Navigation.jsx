@@ -166,7 +166,7 @@ export default function Navigation() {
       ) : active === "Bons de commandes" ? (
         <Commande />
       ) : null}
-      {/* Permet de gérer l'affichage des composants par rapport au menu selectionné*/}
+      {/* Permet de gérer l'affichage des composants par rapport au menu selectionné  */}
     </AppShell>
   );
 }

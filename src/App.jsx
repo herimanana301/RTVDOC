@@ -10,7 +10,11 @@ function App() {
       element: <Navigation />,
     },
     {
-      path: "/newclient",
+      path: "/client",
+      element: <NewClient />,
+    },
+    {
+      path: "/client/:id",
       element: <NewClient />,
     },
     {

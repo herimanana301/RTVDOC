@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
-
+import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx
 export default function Clients() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [pageInfo, setPageInfo] = useState({
@@ -27,7 +27,6 @@ export default function Clients() {
     axios
       .get("http://localhost:1337/api/clients/")
       .then((response) => {
-        console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
         setPageInfo((prevdata) => ({
           ...prevdata,
@@ -66,8 +65,22 @@ export default function Clients() {
       </td>
       <td>{item.attributes.NIF}</td>
       <td>{item.attributes.STAT}</td>
+      <td>
+        <Group>
+          <Link
+            to={{
+              pathname: `/client/${item.id}`,
+              state: { clientDatas: true },
+            }}
+          >
+            <Button style={{ backgroundColor: "orange" }}>Modifer</Button>
+          </Link>
+          <Button style={{ backgroundColor: "red" }}>Supprimer</Button>
+        </Group>
+      </td>
     </tr>
-  ));
+  )); // Structuration et affichage des données reçues
+
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -120,6 +133,9 @@ export default function Clients() {
               <th>Adresse</th>
               <th>NIF</th>
               <th>STAT</th>
+              <th style={{ display: "flex", justifyContent: "center" }}>
+                Action
+              </th>
               <th />
             </tr>
           </thead>
