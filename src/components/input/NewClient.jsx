@@ -27,6 +27,8 @@ import {
 import axios from "axios";
 import checked from "../../assets/icons/checked.gif";
 import wrong from "../../assets/icons/wrong.gif";
+
+//Partie style, négligable à comprendre
 const useStyles = createStyles((theme) => {
   const BREAKPOINT = theme.fn.smallerThan("sm");
 
@@ -133,11 +135,11 @@ const useStyles = createStyles((theme) => {
     },
   };
 });
-
+// fin partie style
 export default function NewClient() {
-  const { classes } = useStyles();
+  const { classes } = useStyles(); // utilisation des style déclaré précédemment
   const [datas, setDatas] = useState([
-    { title: "Raison social", description: "", icon: IconUser },
+    { title: "Raison social", description: "", icon: IconUser }, // données stocké dans description
     { title: "Email", description: "", icon: IconAt },
     { title: "Téléphone", description: "", icon: IconPhone },
     {
@@ -155,7 +157,8 @@ export default function NewClient() {
       description: "",
       icon: IconFileBarcode,
     },
-  ]);
+  ]); // Stockage des données
+
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas];
@@ -166,9 +169,9 @@ export default function NewClient() {
       return newDatas;
     });
   };
-  const [opened, setOpened] = useState(false);
-  const [submitError, setSubmitError] = useState(false);
-  const [pathFile, setPathFile] = useState("");
+  const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
+  const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
+
   const submitButton = async () => {
     await axios
       .post("http://localhost:1337/api/clients", {
@@ -187,14 +190,14 @@ export default function NewClient() {
         const updatedDatas = datas.map((element) => ({
           ...element,
           description: "",
-        }));
+        })); // remet à vide la clé "description" une fois l'envoie des données effectué
         setDatas(updatedDatas);
       })
       .catch((error) => {
         console.error(error);
         setSubmitError(true);
       });
-  };
+  }; // requête pour soumettre les données vers STRAPI
 
   return (
     <Paper shadow="md" radius="lg">
@@ -265,71 +268,6 @@ export default function NewClient() {
                 onChange={(e) => updateDescription(5, e.target.value)}
               />
             </SimpleGrid>
-            <Text size="md" style={{ paddingTop: rem(15) }}>
-              Photo de profil
-            </Text>
-            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-              <Dropzone
-                onDrop={(files) => {
-                  setPathFile(files[0].path);
-                  set;
-                }}
-                maxSize={5 * 1024 ** 2}
-                accept={[
-                  "image/png",
-                  "image/jpeg",
-                  "image/sgv+xml",
-                  "image/gif",
-                ]}
-              >
-                <Group
-                  justify="center"
-                  gap="xl"
-                  mih={220}
-                  style={{ pointerEvents: "none" }}
-                >
-                  <Dropzone.Accept>
-                    <IconUpload
-                      style={{
-                        width: rem(52),
-                        height: rem(52),
-                        color: "var(--mantine-color-blue-6)",
-                      }}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Accept>
-                  <Dropzone.Reject>
-                    <IconX
-                      style={{
-                        width: rem(52),
-                        height: rem(52),
-                        color: "var(--mantine-color-red-6)",
-                      }}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Reject>
-                  <Dropzone.Idle>
-                    <IconPhoto
-                      style={{
-                        width: rem(52),
-                        height: rem(52),
-                        color: "var(--mantine-color-dimmed)",
-                      }}
-                      stroke={1.5}
-                    />
-                  </Dropzone.Idle>
-
-                  <div>
-                    <Text size="xl" inline>
-                      {pathFile.length > 0
-                        ? pathFile
-                        : "Glissez ici ou cliquez ici pour soumettre des fichiers"}
-                    </Text>
-                  </div>
-                </Group>
-              </Dropzone>
-            </SimpleGrid>
-
             <Group position="right" mt="md">
               <Button
                 type="submit"

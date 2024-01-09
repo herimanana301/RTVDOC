@@ -42,11 +42,6 @@ export default function Clients() {
     <tr key={item.attributes.NIF}>
       <td>
         <Group gap="sm">
-          <Avatar
-            size={40}
-            src="http://localhost:1337/uploads/flat_750x_075_f_pad_750x1000_f8f8f8_be7d36a2d5.jpg"
-            radius={40}
-          />
           <div>
             <Text fz="sm" fw={500}>
               {item.attributes.raisonsocial}
