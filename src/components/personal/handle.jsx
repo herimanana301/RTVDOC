@@ -7,13 +7,15 @@ import {
   SimpleGrid,
   createStyles,
   rem,
-  Modal,
+  Modal
 } from "@mantine/core";
+import { useParams, useLocation } from "react-router-dom";
+import { DatePickerInput } from '@mantine/dates';
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "../input/ContactIcons";
 
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   IconPhone,
   IconMapPin,
@@ -42,11 +44,10 @@ const useStyles = createStyles((theme) => {
         theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
       borderRadius: theme.radius.lg,
       padding: rem(4),
-      border: `${rem(1)} solid ${
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[8]
-          : theme.colors.gray[2]
-      }`,
+      border: `${rem(1)} solid ${theme.colorScheme === "dark"
+        ? theme.colors.dark[8]
+        : theme.colors.gray[2]
+        }`,
 
       [BREAKPOINT]: {
         flexDirection: "column",
@@ -138,28 +139,61 @@ const useStyles = createStyles((theme) => {
 // fin partie style
 export default function NewPersonal() {
   const { classes } = useStyles(); // utilisation des style déclaré précédemment
+  const { id } = useParams(); /*
+  permet de recupérer ce qui a été passé comme valeur dans "/personal/:id", 
+  le nom de variable destructuré doit avoir le même nom 
+  que ce qui été mis lors de la déclaration du lien
+  */
+  const personalDatas = useLocation();
+  const currentPersonal = personalDatas.state
+    ? personalDatas.state.personalDatas
+    : null;
+    
   const [datas, setDatas] = useState([
-    { title: "Raison social", description: "", icon: IconUser }, // données stocké dans description
+    { title: "Identité", description: "", icon: IconUser }, // les données saisies sont stocké dans description
+    { title: "Contact", description: "", icon: IconPhone },
     { title: "Email", description: "", icon: IconAt },
-    { title: "Téléphone", description: "", icon: IconPhone },
     {
       title: "Adresse",
       description: "",
       icon: IconMapPin,
     },
     {
-      title: "NIF",
+      title: "Poste",
       description: "",
       icon: IconFileBarcode,
     },
-    {
-      title: "STAT",
-      description: "",
-      icon: IconFileBarcode,
-    },
+
   ]); // Stockage des données
 
+  const [inputValues, setInputValues] = useState({
+    nom: "",
+    departement: "",
+    salaire: "",
+    dateEmbauche: new Date(),
+  });
+
+  const resetInputs = () => {
+    setInputValues({
+      nom: "",
+      departement: "",
+      salaire: "",
+      // Réinitialise les valeurs après envoi
+    });
+  };
+
+  const handleInputChange = (fieldName, value) => {
+    setInputValues({ ...inputValues, [fieldName]: value });
+  };
+
+  const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
+  const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
+
   const updateDescription = (index, newDescription) => {
+    /*
+    la fonction qui permet de mettre à jour les données dans state objet "datas"
+    */
+
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas];
       newDatas[index] = {
@@ -169,19 +203,19 @@ export default function NewPersonal() {
       return newDatas;
     });
   };
-  const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
-  const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
-
   const submitButton = async () => {
     await axios
-      .post("http://192.168.88.12:1337/api/clients", {
+      .post("http://localhost:1337/api/personnels", {
         data: {
-          raisonsocial: datas[0].description,
+          nom: inputValues.nom,
+          prenom: datas[0].description,
           adresse: datas[3].description,
-          email: datas[1].description,
-          phonenumber: datas[2].description,
-          NIF: datas[4].description,
-          STAT: datas[5].description,
+          contact: datas[1].description,
+          email: datas[2].description,
+          departement: inputValues.departement,
+          poste: datas[4].description,
+          salaire: inputValues.salaire,
+          // dateEmbauche: inputValues.dateEmbauche,
         },
       })
       .then((response) => {
@@ -192,12 +226,52 @@ export default function NewPersonal() {
           description: "",
         })); // remet à vide la clé "description" une fois l'envoie des données effectué
         setDatas(updatedDatas);
+        resetInputs();
       })
       .catch((error) => {
         console.error(error);
         setSubmitError(true);
       });
   }; // requête pour soumettre les données vers STRAPI
+  const updatePersonal = async () => {
+    await axios
+      .put(`http://localhost:1337/api/personnels/${id}`, {
+        data: {
+          nom: inputValues.nom,
+          prenom: datas[0].description,
+          adresse: datas[3].description,
+          contact: datas[1].description,
+          email: datas[2].description,
+          departement: inputValues.departement,
+          poste: datas[4].description,
+          salaire: inputValues.salaire,
+          // dateEmbauche: inputValues.dateEmbauche,
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        response.status === 200 && setOpened(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        setSubmitError(true);
+      });
+  };
+  useEffect(() => {
+    if (id) {
+      inputValues.nom = currentPersonal.nom;
+      inputValues.departement = currentPersonal.departement;
+      inputValues.salaire = currentPersonal.salaire;
+      // inputValues.dateEmbauche = currentPersonal.dateEmbauche;
+
+      updateDescription(0, currentPersonal.prenom);
+      updateDescription(3, currentPersonal.adresse);
+      updateDescription(1, currentPersonal.contact);
+      updateDescription(2, currentPersonal.email);
+      updateDescription(4, currentPersonal.poste);
+
+    }
+  }, []);
 
   return (
     <Paper shadow="md" radius="lg">
@@ -215,21 +289,36 @@ export default function NewPersonal() {
           onSubmit={(event) => event.preventDefault()}
         >
           <Text fz="lg" fw={700} className={classes.title}>
-            Nouveau client
+            {id ? "Modifier le personnel" : "Nouveau personnel"}
           </Text>
 
           <div className={classes.fields}>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
-                label="Raison social"
-                placeholder="Ex: RTV SOAFIA"
-                value={datas[0].description}
-                onChange={(e) => updateDescription(0, e.target.value)}
+                label="Nom"
+                placeholder="Nom du personnel"
+                value={inputValues.nom}
+                onChange={(e) => handleInputChange('nom', e.target.value)}
                 required
               />
               <TextInput
                 label="Adresse mail"
                 placeholder="herimanana@bluepix.mg"
+                value={datas[2].description}
+                onChange={(e) => updateDescription(2, e.target.value)}
+              />
+            </SimpleGrid>
+            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <TextInput
+                label="Prénom"
+                placeholder="Prénom du personnel"
+                value={datas[0].description}
+                onChange={(e) => updateDescription(0, e.target.value)}
+                required
+              />
+              <TextInput
+                label="Contact"
+                placeholder="ex : 034*****53"
                 value={datas[1].description}
                 onChange={(e) => updateDescription(1, e.target.value)}
                 required
@@ -237,42 +326,53 @@ export default function NewPersonal() {
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
-                label="Numéro de téléphone"
-                placeholder="Numéro de téléphone"
-                value={datas[2].description}
-                onChange={(e) => updateDescription(2, e.target.value)}
-              />
-            </SimpleGrid>
-            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-              <TextInput
                 mt="md"
                 label="Adresse"
-                placeholder="Adresse de l'entreprise client"
+                placeholder="Adresse du personnel"
                 value={datas[3].description}
                 onChange={(e) => updateDescription(3, e.target.value)}
+                required
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 mt="md"
-                label="NIF"
+                label="Département"
+                placeholder=""
+                value={inputValues.departement}
+                onChange={(e) => handleInputChange('departement', e.target.value)}
+              />
+              <TextInput
+                mt="md"
+                label="Poste"
                 placeholder=""
                 value={datas[4].description}
                 onChange={(e) => updateDescription(4, e.target.value)}
+                required
+              />
+            </SimpleGrid>
+            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+
+              <DatePickerInput
+                clearable
+                valueFormat="DD MMM YYYY"
+                defaultValue={inputValues.dateEmbauche}
+                label="Date d'embauche"
+                placeholder="January 10, 2026"
+                onChange={(date) => handleInputChange('dateEmbauche', date)}
               />
               <TextInput
-                mt="md"
-                label="STAT"
-                placeholder=""
-                value={datas[5].description}
-                onChange={(e) => updateDescription(5, e.target.value)}
+                label="Salaire"
+                placeholder="Salaire du personnel"
+                value={inputValues.salaire}
+                onChange={(e) => handleInputChange('salaire', e.target.value)}
               />
             </SimpleGrid>
             <Group position="right" mt="md">
               <Button
                 type="submit"
                 className={classes.control}
-                onClick={submitButton}
+                onClick={id ? updatePersonal : submitButton}
               >
                 Enregistrer
               </Button>
@@ -291,12 +391,18 @@ export default function NewPersonal() {
           {submitError ? (
             <div className={classes.popup}>
               <img src={wrong} alt="checked" />
-              <span>Erreur lors de l'enregistrement</span>
+              <span>
+                {id
+                  ? "Erreur lors de la mise à jour"
+                  : "Erreur lors de l'enregistrement"}
+              </span>
             </div>
           ) : (
             <div className={classes.popup}>
               <img src={checked} alt="checked" />
-              <span>Client bien enregistré</span>
+              <span>
+                {id ? "Données personnel à jour" : "Personnel bien enregistré"}
+              </span>
             </div>
           )}
         </Modal>

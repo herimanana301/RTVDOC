@@ -11,7 +11,11 @@ function App() {
       element: <Navigation />,
     },
     {
-      path: "/newclient",
+      path: "/client",
+      element: <NewClient />,
+    },
+    {
+      path: "/client/:id", // mise en place du params pour permettre de passer des données via le lien
       element: <NewClient />,
     },
     {
@@ -19,7 +23,11 @@ function App() {
       element: <Neworder />,
     },
     {
-      path: "/newpersonal",
+      path: "/personal",
+      element: <NewPersonal />,
+    },
+    {
+      path: "/personal/:id",
       element: <NewPersonal />,
     },
     

@@ -16,18 +16,16 @@ import {
   MediaQuery,
   Burger,
   useMantineTheme,
-  Autocomplete,
   createStyles,
-  Group,
-  Code,
   getStylesRef,
-  rem,
 } from "@mantine/core";
+
 import General from "../general/General";
 import Clients from "../clients/Clients";
 import Facture from "../facture/Facture";
 import Commande from "../commande/Commande";
 import Personal from "../personal/Personal_view";
+import { Welcome } from "../welcome/Welcome";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
@@ -35,7 +33,14 @@ const data = [
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
   { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
-  { link: "", label: "Personnels", icon: IconUsersGroup },
+  {
+    label: "Personnels",
+    icon: IconUsersGroup,
+    submenu: [
+      { link: "", label: "Congés", icon: IconReceipt2 },
+      { link: "", label: "Liste du personnel", icon: IconUsersGroup },
+    ],
+  },
 ];
 
 const useStyles = createStyles((theme) => ({
@@ -89,32 +94,66 @@ const useStyles = createStyles((theme) => ({
       },
     },
   },
+
+  submenu: {
+    paddingLeft: theme.spacing.lg,
+  },
 }));
 
 export default function Navigation() {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const { classes, cx } = useStyles();
-  const [active, setActive] = useState("Général");
+  const [active, setActive] = useState("");
   const links = data.map((item) => (
-    <a
-      className={cx(classes.link, {
-        [classes.linkActive]: item.label === active,
-      })}
-      href={item.link}
-      key={item.label}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(item.label);
-      }}
-    >
-      <item.icon className={classes.linkIcon} stroke={1.5} />
-      <span>{item.label}</span>
-    </a>
+    <div key={item.label}>
+      <a
+        className={cx(classes.link, {
+          [classes.linkActive]: item.label === active,
+        })}
+        
+        href={item.link}
+
+        onClick={(event) => {
+          event.preventDefault();
+          setActive(item.label);
+          localStorage.setItem("menuActive", item.label);
+        }}
+      >
+        <item.icon className={classes.linkIcon} stroke={1.5} />
+        <span>{item.label}</span>
+      </a>
+
+      {item.submenu && active === item.label && (
+        <div className={classes.submenu}>
+          {item.submenu.map((subItem) => (
+            <a
+              key={subItem.label}
+              className={cx(classes.link, {
+                [classes.linkActive]: subItem.label === active,
+              })}
+              href={subItem.link}
+              onClick={(event) => {
+                event.preventDefault();
+                setActive(subItem.label);
+                localStorage.setItem("menuActive", subItem.label);
+              }}
+            >
+              <subItem.icon className={classes.linkIcon} stroke={1.5} />
+              <span>{subItem.label}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   ));
+
   useEffect(() => {
-    console.log(active);
+    if (localStorage.getItem("menuActive")) {
+      setActive(localStorage.getItem("menuActive"));
+    }
   }, [active]);
+
   return (
     <AppShell
       styles={{
@@ -155,12 +194,30 @@ export default function Navigation() {
                 mr="xl"
               />
             </MediaQuery>
-            <Text style={{ fontWeight: "bold" }}>BLUEPAPERS</Text>
+            <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
           </div>
         </Header>
       }
     >
-      {active === "Général" ? <General /> : active === "Clients" ? <Clients /> : active === "Factures" ? <Facture/> : active==="Bons de commandes" ? <Commande/> : active === "Personnels" ? <Personal/>: null }
+      {active === "Général" ? (
+        <General />
+      ) : active === "Clients" ? (
+        <Clients />
+      ) : active === "Factures" ? (
+        <Facture />
+      ) : active === "Bons de commandes" ? (
+        <Commande />
+      ) : active === "Congés" ? (
+        // Render Congés component here
+        <div>Congés Component</div>
+      ) : active === "Liste du personnel" ? (
+        // Render Liste du personnel component here
+        <Personal />
+      ) : active === "Fichier Vidéo et Audio" ? null : localStorage.getItem(
+          "firstConnex"
+        ) ? null : (
+        <Welcome setActive={setActive} />
+      )}
     </AppShell>
   );
 }
