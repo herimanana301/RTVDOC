@@ -7,10 +7,10 @@ import {
   SimpleGrid,
   createStyles,
   rem,
-  Modal
+  Modal,
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
-import { DatePickerInput } from '@mantine/dates';
+import { DatePickerInput } from "@mantine/dates";
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "../input/ContactIcons";
 
@@ -44,10 +44,11 @@ const useStyles = createStyles((theme) => {
         theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
       borderRadius: theme.radius.lg,
       padding: rem(4),
-      border: `${rem(1)} solid ${theme.colorScheme === "dark"
-        ? theme.colors.dark[8]
-        : theme.colors.gray[2]
-        }`,
+      border: `${rem(1)} solid ${
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[8]
+          : theme.colors.gray[2]
+      }`,
 
       [BREAKPOINT]: {
         flexDirection: "column",
@@ -148,7 +149,7 @@ export default function NewPersonal() {
   const currentPersonal = personalDatas.state
     ? personalDatas.state.personalDatas
     : null;
-    
+
   const [datas, setDatas] = useState([
     { title: "Identité", description: "", icon: IconUser }, // les données saisies sont stocké dans description
     { title: "Contact", description: "", icon: IconPhone },
@@ -163,7 +164,6 @@ export default function NewPersonal() {
       description: "",
       icon: IconFileBarcode,
     },
-
   ]); // Stockage des données
 
   const [inputValues, setInputValues] = useState({
@@ -205,7 +205,7 @@ export default function NewPersonal() {
   };
   const submitButton = async () => {
     await axios
-      .post("http://localhost:1337/api/personnels", {
+      .post("http://192.168.0.101:1337/api/personnels", {
         data: {
           nom: inputValues.nom,
           prenom: datas[0].description,
@@ -235,7 +235,7 @@ export default function NewPersonal() {
   }; // requête pour soumettre les données vers STRAPI
   const updatePersonal = async () => {
     await axios
-      .put(`http://localhost:1337/api/personnels/${id}`, {
+      .put(`http://192.168.0.101:1337/api/personnels/${id}`, {
         data: {
           nom: inputValues.nom,
           prenom: datas[0].description,
@@ -269,7 +269,6 @@ export default function NewPersonal() {
       updateDescription(1, currentPersonal.contact);
       updateDescription(2, currentPersonal.email);
       updateDescription(4, currentPersonal.poste);
-
     }
   }, []);
 
@@ -298,7 +297,7 @@ export default function NewPersonal() {
                 label="Nom"
                 placeholder="Nom du personnel"
                 value={inputValues.nom}
-                onChange={(e) => handleInputChange('nom', e.target.value)}
+                onChange={(e) => handleInputChange("nom", e.target.value)}
                 required
               />
               <TextInput
@@ -340,7 +339,9 @@ export default function NewPersonal() {
                 label="Département"
                 placeholder=""
                 value={inputValues.departement}
-                onChange={(e) => handleInputChange('departement', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("departement", e.target.value)
+                }
               />
               <TextInput
                 mt="md"
@@ -352,20 +353,19 @@ export default function NewPersonal() {
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-
               <DatePickerInput
                 clearable
                 valueFormat="DD MMM YYYY"
                 defaultValue={inputValues.dateEmbauche}
                 label="Date d'embauche"
                 placeholder="January 10, 2026"
-                onChange={(date) => handleInputChange('dateEmbauche', date)}
+                onChange={(date) => handleInputChange("dateEmbauche", date)}
               />
               <TextInput
                 label="Salaire"
                 placeholder="Salaire du personnel"
                 value={inputValues.salaire}
-                onChange={(e) => handleInputChange('salaire', e.target.value)}
+                onChange={(e) => handleInputChange("salaire", e.target.value)}
               />
             </SimpleGrid>
             <Group position="right" mt="md">

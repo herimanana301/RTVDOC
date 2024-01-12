@@ -14,7 +14,7 @@ import checked from "../../assets/icons/checked.gif";
 import wrong from "../../assets/icons/wrong.gif";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import confirmationModal from "../../services/alertConfirmation";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import axios from "axios";
 import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx
 export default function Clients() {
@@ -29,7 +29,7 @@ export default function Clients() {
   };
   useEffect(() => {
     axios
-      .get("http://localhost:1337/api/clients/")
+      .get("http://192.168.0.101:1337/api/clients/")
       .then((response) => {
         setDatas(response.data.data);
         setPageInfo((prevdata) => ({
@@ -43,18 +43,15 @@ export default function Clients() {
   }, []);
   const deletedUser = async (id) => {
     await axios
-      .delete(`http://localhost:1337/api/clients/${id}`)
+      .delete(`http://192.168.0.101:1337/api/clients/${id}`)
       .then((response) => {
         if (response) {
-
-          Swal.fire(
-            'Supprimé!',
-            'Client supprimé avec succès.',
-            'success'
-          );
+          Swal.fire("Supprimé!", "Client supprimé avec succès.", "success");
 
           setDatas((prevData) => {
-            const newData = prevData.filter((data) => data.id != response.data.data.id);
+            const newData = prevData.filter(
+              (data) => data.id != response.data.data.id
+            );
             return newData;
           });
         }
