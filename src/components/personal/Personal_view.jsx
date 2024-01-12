@@ -8,46 +8,40 @@ import {
   ScrollArea,
   Group,
   Text,
-  Modal,
   rem,
-  Anchor,
   ActionIcon,
-  Badge,
   Avatar,
 } from "@mantine/core";
 
 import {
   IconPencil,
-  IconMessages,
   IconTrash,
-  IconDots,
 } from '@tabler/icons-react';
 
-import checked from "../../assets/icons/checked.gif";
-import wrong from "../../assets/icons/wrong.gif";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import confirmationModal from "../../services/alertConfirmation";
 import Swal from 'sweetalert2';
 
+
 export default function Personals() {
-  const [opened, setOpened] = useState(false);
-  const [confirmation, setConfirmation] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     total: 1,
   });
-  const [idPersonnel, setIdPersonnel] = useState("");
-  const [deletePersonnel, setDeletePersonnel] = useState(false);
+
+  let StrapiUrl = "http://192.168.0.101:1337/";
+
   const [datas, setDatas] = useState([]);
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
+
   useEffect(() => {
     axios
-      .get("http://localhost:1337/api/personnels")
+      .get(StrapiUrl+"api/personnels")
       .then((response) => {
         console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
@@ -61,9 +55,12 @@ export default function Personals() {
         console.error(error);
       });
   }, []);
-  const deletedUser = async (id,stat) => {
+
+  /*************** Delete personal data *********************/
+
+  const deletedUser = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:1337/api/personnels/${id}`);
+      const response = await axios.delete(StrapiUrl+`api/personnels/${id}`);
       console.log('Delete Response:', response); // Vérifiez la réponse ici
       if (response.status == 200) { // Assurez-vous de vérifier la réponse appropriée pour votre API
 
@@ -87,7 +84,7 @@ export default function Personals() {
     <tr key={item.attributes.idPersonnel}>
       <td>
         <Group gap="sm">
-          <Avatar size={30} src={item.attributes.avatar} radius={30} />
+          <Avatar size={50} radius={50} src={StrapiUrl+'uploads/' + item.attributes.avatar} />
           <Text fz="sm" fw={500}>
             {item.attributes.nom} {item.attributes.prenom}<br />
             <Text fz="xs" c="dimmed">
@@ -122,16 +119,16 @@ export default function Personals() {
       <td>
         <Group gap={0} justify="flex-end">
           <ActionIcon variant="subtle" color="gray">
-          <Link
-            to={{
-              pathname: `/personal/${item.id}`,
-            }}
-            state={{ personalDatas: item.attributes }}
-          >
-             <IconPencil style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-          </Link>            
+            <Link
+              to={{
+                pathname: `/personal/${item.id}`,
+              }}
+              state={{ personalDatas: item.attributes }}
+            >
+              <IconPencil style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
+            </Link>
           </ActionIcon>
-          <ActionIcon variant="subtle" color="gray" onClick={() => {confirmationModal(item.id, deletedUser)}}>
+          <ActionIcon variant="subtle" color="gray" onClick={() => { confirmationModal(item.id, deletedUser) }}>
             <IconTrash style={{ width: rem(16), height: rem(16), color: 'red' }} stroke={1.5} />
           </ActionIcon>
 
@@ -197,7 +194,7 @@ export default function Personals() {
           </thead>
           <tbody>{rows}</tbody>
         </Table>
-       
+
       </ScrollArea>
     </>
   );

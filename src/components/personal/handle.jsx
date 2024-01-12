@@ -7,7 +7,9 @@ import {
   SimpleGrid,
   createStyles,
   rem,
-  Modal
+  Modal,
+  Avatar,
+
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
 import { DatePickerInput } from '@mantine/dates';
@@ -20,7 +22,6 @@ import {
   IconPhone,
   IconMapPin,
   IconAt,
-  IconUser,
   IconFileBarcode,
   IconUpload,
   IconPhoto,
@@ -93,13 +94,12 @@ const useStyles = createStyles((theme) => {
     },
 
     contacts: {
-      boxSizing: "border-box",
       position: "relative",
       borderRadius: theme.radius.lg,
       backgroundSize: "cover",
       backgroundPosition: "center",
       border: `${rem(1)} solid transparent`,
-      //padding: theme.spacing.xl,
+      padding: theme.spacing.xl,
       flex: `0 0 ${rem(280)}`,
 
       [BREAKPOINT]: {
@@ -148,9 +148,10 @@ export default function NewPersonal() {
   const currentPersonal = personalDatas.state
     ? personalDatas.state.personalDatas
     : null;
-    
+
+  let StrapiUrl = "http://192.168.0.101:1337/";
+
   const [datas, setDatas] = useState([
-    { title: "Identité", description: "", icon: IconUser }, // les données saisies sont stocké dans description
     { title: "Contact", description: "", icon: IconPhone },
     { title: "Email", description: "", icon: IconAt },
     {
@@ -166,20 +167,38 @@ export default function NewPersonal() {
 
   ]); // Stockage des données
 
+  /************* Formater et changer la date ****************/
+
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  /***************************** ***********************************/
+
   const [inputValues, setInputValues] = useState({
     nom: "",
+    prenom: "",
     departement: "",
     salaire: "",
-    dateEmbauche: new Date(),
+    dateEmbauche: formatDate(new Date),
   });
+
 
   const resetInputs = () => {
     setInputValues({
       nom: "",
+      prenom: "",
       departement: "",
       salaire: "",
+      dateEmbauche: formatDate(new Date),
       // Réinitialise les valeurs après envoi
     });
+    setImageFile(null);
   };
 
   const handleInputChange = (fieldName, value) => {
@@ -203,85 +222,214 @@ export default function NewPersonal() {
       return newDatas;
     });
   };
+
+  /*************** Insert personal data *********************/
+
   const submitButton = async () => {
-    await axios
-      .post("http://localhost:1337/api/personnels", {
+    try {
+      if (imageFile) {
+        // Si une image est présente, procéder à l'envoi de l'image à Strapi
+        const formData = new FormData();
+        const renamedFile = new File([imageFile], 'avatar.png', { type: imageFile.type });
+        formData.append('files', renamedFile);
+
+        // Envoi de l'image à Strapi
+        const imageResponse = await axios.post(StrapiUrl+'api/upload/', formData);
+        console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
+      // Envoi des données personnelles à Strapi
+
+      const personnelResponse = await axios.post(StrapiUrl+"api/personnels", {
         data: {
           nom: inputValues.nom,
-          prenom: datas[0].description,
-          adresse: datas[3].description,
-          contact: datas[1].description,
-          email: datas[2].description,
+          prenom: inputValues.prenom,
+          adresse: datas[2].description,
+          contact: datas[0].description,
+          email: datas[1].description,
           departement: inputValues.departement,
-          poste: datas[4].description,
+          poste: datas[3].description,
           salaire: inputValues.salaire,
-          // dateEmbauche: inputValues.dateEmbauche,
+          date_embauche: inputValues.dateEmbauche,
+          avatar: imageResponse.data[0].hash + '.png',
         },
-      })
-      .then((response) => {
-        console.log(response);
-        response.status === 200 && setOpened(true);
-        const updatedDatas = datas.map((element) => ({
-          ...element,
-          description: "",
-        })); // remet à vide la clé "description" une fois l'envoie des données effectué
+      });
+
+      if (personnelResponse.status === 200) {
+        setOpened(true);
+        const updatedDatas = datas.map((element) => ({ ...element, description: "" }));
         setDatas(updatedDatas);
         resetInputs();
-      })
-      .catch((error) => {
-        console.error(error);
-        setSubmitError(true);
-      });
-  }; // requête pour soumettre les données vers STRAPI
+      }
+      } else {
+        // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
+        const personnelResponse = await axios.post(StrapiUrl+"api/personnels", {
+          data: {
+            nom: inputValues.nom,
+            prenom: inputValues.prenom,
+            adresse: datas[2].description,
+            contact: datas[0].description,
+            email: datas[1].description,
+            departement: inputValues.departement,
+            poste: datas[3].description,
+            salaire: inputValues.salaire,
+            date_embauche: inputValues.dateEmbauche,
+            avatar: 'default_profile1_cc255a96f9.png',
+          },
+        });
+
+        // Vérification du statut de la mise à jour
+        if (personnelResponse.status === 200) {
+          setOpened(true);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la maj des données à Strapi:', error);
+      setSubmitError(true);
+    }
+
+  };
+
+  /*************** Update personal data *********************/
+
   const updatePersonal = async () => {
-    await axios
-      .put(`http://localhost:1337/api/personnels/${id}`, {
-        data: {
-          nom: inputValues.nom,
-          prenom: datas[0].description,
-          adresse: datas[3].description,
-          contact: datas[1].description,
-          email: datas[2].description,
-          departement: inputValues.departement,
-          poste: datas[4].description,
-          salaire: inputValues.salaire,
-          // dateEmbauche: inputValues.dateEmbauche,
-        },
-      })
-      .then((response) => {
-        console.log(response);
-        response.status === 200 && setOpened(true);
-      })
-      .catch((error) => {
-        console.error(error);
-        setSubmitError(true);
-      });
+
+    try {
+      if (imageFile) {
+        // Si une image est présente, procéder à l'envoi de l'image à Strapi
+        const formData = new FormData();
+        const renamedFile = new File([imageFile], 'avatar.png', { type: imageFile.type });
+        formData.append('files', renamedFile);
+
+        // Envoi de l'image à Strapi
+        const imageResponse = await axios.post(StrapiUrl+'api/upload/', formData);
+        console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
+
+        // Mise à jour des données personnelles avec l'ID spécifié et l'URL de l'image
+        const updatePersonnelResponse = await axios.put(StrapiUrl+`api/personnels/${id}`, {
+          data: {
+            nom: inputValues.nom,
+            prenom: inputValues.prenom,
+            adresse: datas[2].description,
+            contact: datas[0].description,
+            email: datas[1].description,
+            departement: inputValues.departement,
+            poste: datas[3].description,
+            salaire: inputValues.salaire,
+            date_embauche: inputValues.dateEmbauche,
+            avatar: imageResponse.data[0].hash + '.png',
+          },
+        });
+
+        // Vérification du statut de la mise à jour
+        if (updatePersonnelResponse.status === 200) {
+          setOpened(true);
+        }
+      } else {
+        // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
+        const updatePersonnelResponse = await axios.put(StrapiUrl+`api/personnels/${id}`, {
+          data: {
+            nom: inputValues.nom,
+            prenom: inputValues.prenom,
+            adresse: datas[2].description,
+            contact: datas[0].description,
+            email: datas[1].description,
+            departement: inputValues.departement,
+            poste: datas[3].description,
+            salaire: inputValues.salaire,
+            date_embauche: inputValues.dateEmbauche,
+          },
+        });
+
+        // Vérification du statut de la mise à jour
+        if (updatePersonnelResponse.status === 200) {
+          setOpened(true);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la maj des données à Strapi:', error);
+      setSubmitError(true);
+    }
+
   };
   useEffect(() => {
     if (id) {
       inputValues.nom = currentPersonal.nom;
+      inputValues.prenom = currentPersonal.prenom;
       inputValues.departement = currentPersonal.departement;
       inputValues.salaire = currentPersonal.salaire;
       // inputValues.dateEmbauche = currentPersonal.dateEmbauche;
 
-      updateDescription(0, currentPersonal.prenom);
-      updateDescription(3, currentPersonal.adresse);
-      updateDescription(1, currentPersonal.contact);
-      updateDescription(2, currentPersonal.email);
-      updateDescription(4, currentPersonal.poste);
+      updateDescription(2, currentPersonal.adresse);
+      updateDescription(0, currentPersonal.contact);
+      updateDescription(1, currentPersonal.email);
+      updateDescription(3, currentPersonal.poste);
 
     }
   }, []);
 
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleDrop = (files) => {
+    // Vérifier si des fichiers ont été déposés
+    if (files && files.length > 0) {
+      const firstFile = files[0];
+      // Stocker le fichier dans l'état
+      setImageFile(firstFile);
+    }
+  }
+
   return (
+
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
         <IconArrowNarrowLeft size={20} strokeWidth={2} color={"white"} />
         Retour
       </Button>
+
       <div className={classes.wrapper}>
         <div className={classes.contacts}>
-          <ContactIcons variant="white" display={datas} />
+          <Paper style={{ background: 'linear-gradient(135deg, #228be6 36%, #4dabf7 100%)' }} radius="md" withBorder p="lg" bg="var(--mantine-color-body)">
+
+            {imageFile ? (
+              <Avatar
+                style={{
+                  border: '5px solid white',
+                }}
+                src={URL.createObjectURL(imageFile)}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                size={190}
+                radius={120}
+                mx="auto"
+              />
+            ) : id ? (
+              <Avatar
+                style={{
+                  border: '5px solid white',
+                }}
+                src={StrapiUrl+'uploads/' + currentPersonal.avatar}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                size={190}
+                radius={120}
+                mx="auto"
+              />
+            ) : (
+              <Avatar
+                style={{
+                  border: '5px solid white',
+                }}
+                src={StrapiUrl+'uploads/default_profile1_cc255a96f9.png'}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                size={190}
+                radius={120}
+                mx="auto"
+              />
+            )
+            }
+
+            <Text style={{ color: 'white' }} ta="center" fz="lg" fw={500} mt="md">
+              {inputValues.nom}
+            </Text>
+            <Text style={{ color: 'white' }} ta="center" c="dark" fw={300}>
+              {inputValues.prenom}<br></br>
+            </Text>
+            <ContactIcons variant="white" display={datas} />
+          </Paper>
         </div>
 
         <form
@@ -304,23 +452,23 @@ export default function NewPersonal() {
               <TextInput
                 label="Adresse mail"
                 placeholder="herimanana@bluepix.mg"
-                value={datas[2].description}
-                onChange={(e) => updateDescription(2, e.target.value)}
+                value={datas[1].description}
+                onChange={(e) => updateDescription(1, e.target.value)}
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 label="Prénom"
                 placeholder="Prénom du personnel"
-                value={datas[0].description}
-                onChange={(e) => updateDescription(0, e.target.value)}
+                value={inputValues.prenom}
+                onChange={(e) => handleInputChange('prenom', e.target.value)}
                 required
               />
               <TextInput
                 label="Contact"
                 placeholder="ex : 034*****53"
-                value={datas[1].description}
-                onChange={(e) => updateDescription(1, e.target.value)}
+                value={datas[0].description}
+                onChange={(e) => updateDescription(0, e.target.value)}
                 required
               />
             </SimpleGrid>
@@ -329,8 +477,8 @@ export default function NewPersonal() {
                 mt="md"
                 label="Adresse"
                 placeholder="Adresse du personnel"
-                value={datas[3].description}
-                onChange={(e) => updateDescription(3, e.target.value)}
+                value={datas[2].description}
+                onChange={(e) => updateDescription(2, e.target.value)}
                 required
               />
             </SimpleGrid>
@@ -346,8 +494,8 @@ export default function NewPersonal() {
                 mt="md"
                 label="Poste"
                 placeholder=""
-                value={datas[4].description}
-                onChange={(e) => updateDescription(4, e.target.value)}
+                value={datas[3].description}
+                onChange={(e) => updateDescription(3, e.target.value)}
                 required
               />
             </SimpleGrid>
@@ -356,17 +504,54 @@ export default function NewPersonal() {
               <DatePickerInput
                 clearable
                 valueFormat="DD MMM YYYY"
-                defaultValue={inputValues.dateEmbauche}
+                value={new Date(inputValues.dateEmbauche)}
                 label="Date d'embauche"
                 placeholder="January 10, 2026"
-                onChange={(date) => handleInputChange('dateEmbauche', date)}
+                onChange={(date) => handleInputChange('dateEmbauche', formatDate(date))}
               />
+
               <TextInput
+                mt="sm"
                 label="Salaire"
-                placeholder="Salaire du personnel"
+                placeholder="Salaire en Ariary"
                 value={inputValues.salaire}
                 onChange={(e) => handleInputChange('salaire', e.target.value)}
               />
+
+              <Dropzone
+                onDrop={handleDrop}
+                onReject={(files) => console.log('rejected files', files)}
+              >
+                <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+                  <Dropzone.Accept>
+                    <IconUpload
+                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
+                      stroke={1.5}
+                    />
+                  </Dropzone.Accept>
+                  <Dropzone.Reject>
+                    <IconX
+                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
+                      stroke={1.5}
+                    />
+                  </Dropzone.Reject>
+                  <Dropzone.Idle>
+                    <IconPhoto
+                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
+                      stroke={1.5}
+                    />
+                  </Dropzone.Idle>
+
+                  <div>
+                    <Text size="xl" inline>
+                    Glisser l'image ici ou cliquez pour sélectionner le fichier
+                    </Text>
+                    <Text size="sm" c="dimmed" inline mt={7}>
+                    Joignez une image que vous le souhaitez, le fichier ne doit pas dépasser 5 Mo.
+                    </Text>
+                  </div>
+                </Group>
+              </Dropzone>
             </SimpleGrid>
             <Group position="right" mt="md">
               <Button

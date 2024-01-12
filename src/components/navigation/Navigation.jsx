@@ -25,6 +25,7 @@ import Clients from "../clients/Clients";
 import Facture from "../facture/Facture";
 import Commande from "../commande/Commande";
 import Personal from "../personal/Personal_view";
+import Conges from "../personal/conge/conge_view";
 import { Welcome } from "../welcome/Welcome";
 
 const data = [
@@ -208,10 +209,8 @@ export default function Navigation() {
       ) : active === "Bons de commandes" ? (
         <Commande />
       ) : active === "Congés" ? (
-        // Render Congés component here
-        <div>Congés Component</div>
+        <Conges />
       ) : active === "Liste du personnel" ? (
-        // Render Liste du personnel component here
         <Personal />
       ) : active === "Fichier Vidéo et Audio" ? null : localStorage.getItem(
           "firstConnex"
