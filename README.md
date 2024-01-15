@@ -1,17 +1,19 @@
 # Gestion des besoins publicitaire et comptabilité de RTV SOAFIA
 
-apikey : 4e4ed590cf1fa435dfa394cd78e47aa86b6dfacf6a8b5ec99d0c0e32a7864a2fb1e39c30d3a925478fe54bd47225bae50a800bc5bba0d81d367bed9155a31ca4baf3da952186f07c47c76333b21aaaf91aa7294970bf95386ec63283153ded0a2eaaa0e49f480233189d4f55671b827c8d95974d4a333e897c65fb86c00a95aa
+Aperçu du Projet
+Le projet de Gestion des besoins publicitaires et comptabilité de la chaîne de télévision et radio RTV SOAFIA vise à fournir une solution robuste et efficace pour automatiser et rationaliser les processus liés à la publicité et à la comptabilité au sein de la RTV SOAFIA. Cette plateforme offre une gestion complète des besoins publicitaires, des facturations, des paiements et des rapports financiers, permettant ainsi à l'équipe de gestion de se concentrer sur la création de contenu de qualité.
 
-Fiche clients : 
+Fonctionnalités Principales
+1. Gestion des Besoins Publicitaires
+La plateforme permet la gestion complète du cycle de vie des publicités, depuis la création de campagnes publicitaires jusqu'à la planification de diffusion. Elle offre une interface conviviale faciliter l'enregistrement des annonces, facilitant la soumission et la gestion de leurs publicités.
 
-- Raison social
-- Adresse complète
-- Contact (Num ou Adresse mail)
-- Numéro NIF
-- Numéro STAT
+2. Système de Facturation Intégré
+Le module de comptabilité assure une facturation précise en fonction des contrats publicitaires. Il génère automatiquement les factures et offre une visibilité en temps réel sur les paiements en attente, les paiements effectués et les soldes restants.
 
-Bon Commande : 
-- Durée de diffusion (date début / date fin / Fréquence de diffusion par jour)
-- 
+3. Rapports Financiers et Analyse
+La génération automatisée de rapports financiers offre une vue détaillée de la performance publicitaire et de la santé financière de la chaîne. Des outils d'analyse avancés sont intégrés pour permettre une prise de décision informée.
 
-Facturation : 
+Technologies Utilisées
+Le projet repose sur une stack technologique moderne, incluant mais sans s'y limiter à :
+
+Strapi, ReactJs, ManTine
