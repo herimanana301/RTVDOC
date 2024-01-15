@@ -6,6 +6,8 @@ import {
   Group,
   SimpleGrid,
   Modal,
+  Switch,
+  Textarea,
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
 import ContactIcons from "./ContactIcons.jsx";
@@ -55,6 +57,10 @@ export default function NewClient() {
       icon: IconFileBarcode,
     },
   ]); // Stockage des données
+  const [blacklist, setBlacklist] = useState({
+    isBlacklist: false,
+    commentary: "",
+  });
   const [opened, setOpened] = useState(false); // Permet de gérer le modal qui notifie l'utilisateur si les données ont bien été enregistré ou non
   const [submitError, setSubmitError] = useState(false); // en cas de détection d'erreur lors du POST
 
@@ -62,7 +68,6 @@ export default function NewClient() {
     /*
     la fonction qui permet de mettre à jour les données dans state objet "datas"
     */
-
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas];
       newDatas[index] = {
@@ -74,7 +79,7 @@ export default function NewClient() {
   };
   const submitButton = async () => {
     await axios
-      .post("http://192.168.0.101:1337/api/clients", {
+      .post("http://192.168.0.100:1337/api/clients", {
         data: {
           raisonsocial: datas[0].description,
           adresse: datas[3].description,
@@ -82,6 +87,8 @@ export default function NewClient() {
           phonenumber: datas[2].description,
           NIF: datas[4].description,
           STAT: datas[5].description,
+          blacklist: blacklist.isBlacklist,
+          commentaire: blacklist.commentary,
         },
       })
       .then((response) => {
@@ -100,7 +107,7 @@ export default function NewClient() {
   }; // requête pour soumettre les données vers STRAPI
   const updateClient = async () => {
     await axios
-      .put(`http://192.168.0.101:1337/api/clients/${id}`, {
+      .put(`http://192.168.0.100:1337/api/clients/${id}`, {
         data: {
           raisonsocial: datas[0].description,
           adresse: datas[3].description,
@@ -108,6 +115,8 @@ export default function NewClient() {
           phonenumber: datas[2].description,
           NIF: datas[4].description,
           STAT: datas[5].description,
+          blacklist: blacklist.isBlacklist,
+          commentaire: blacklist.commentary,
         },
       })
       .then((response) => {
@@ -120,6 +129,7 @@ export default function NewClient() {
       });
   };
   useEffect(() => {
+    console.log(currentClient);
     if (id) {
       updateDescription(0, currentClient.raisonsocial);
       updateDescription(1, currentClient.email);
@@ -127,6 +137,10 @@ export default function NewClient() {
       updateDescription(3, currentClient.adresse);
       updateDescription(4, currentClient.NIF);
       updateDescription(5, currentClient.STAT);
+      setBlacklist({
+        isBlacklist: currentClient.blacklist,
+        commentary: currentClient.commentaire,
+      });
     }
   }, []);
   return (
@@ -198,6 +212,45 @@ export default function NewClient() {
                 onChange={(e) => updateDescription(5, e.target.value)}
               />
             </SimpleGrid>
+            {id && (
+              <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+                <Switch
+                  mt="md"
+                  checked={blacklist.isBlacklist}
+                  onChange={(event) =>
+                    setBlacklist((prevData) => {
+                      let newData = {
+                        ...prevData,
+                        isBlacklist: event.target.checked,
+                      };
+                      return newData;
+                    })
+                  }
+                  label={
+                    blacklist.isBlacklist
+                      ? "mis en blacklisté"
+                      : "Non blacklisté"
+                  }
+                />
+                {blacklist.isBlacklist && (
+                  <Textarea
+                    mt="md"
+                    label="Commentaire"
+                    description="Expliquez ici pourquoi le client est blacklisté"
+                    value={blacklist.commentary}
+                    onChange={(event) =>
+                      setBlacklist((prevData) => {
+                        let newData = {
+                          ...prevData,
+                          commentary: event.target.value,
+                        };
+                        return newData;
+                      })
+                    }
+                  />
+                )}
+              </SimpleGrid>
+            )}
             <Group position="right" mt="md">
               <Button
                 type="submit"

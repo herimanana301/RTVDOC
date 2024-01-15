@@ -10,6 +10,7 @@ import {
   Text,
   Modal,
 } from "@mantine/core";
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import checked from "../../assets/icons/checked.gif";
 import wrong from "../../assets/icons/wrong.gif";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
@@ -17,6 +18,7 @@ import confirmationModal from "../../services/alertConfirmation";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx
+import { getClients } from "../../services/getInformations/getClients"; // service pour récupérer les clients, format --> getClients(setPageInfo, setDatas)
 export default function Clients() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [pageInfo, setPageInfo] = useState({
@@ -28,22 +30,11 @@ export default function Clients() {
     setMenuVisible(!menuVisible);
   };
   useEffect(() => {
-    axios
-      .get("http://192.168.0.101:1337/api/clients/")
-      .then((response) => {
-        setDatas(response.data.data);
-        setPageInfo((prevdata) => ({
-          ...prevdata,
-          total: response.data.meta.pagination.total,
-        }));
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    getClients(setPageInfo, setDatas);
   }, []);
   const deletedUser = async (id) => {
     await axios
-      .delete(`http://192.168.0.101:1337/api/clients/${id}`)
+      .delete(`http://192.168.0.100:1337/api/clients/${id}`)
       .then((response) => {
         if (response) {
           Swal.fire("Supprimé!", "Client supprimé avec succès.", "success");
@@ -67,6 +58,9 @@ export default function Clients() {
         <Group gap="sm">
           <div>
             <Text fz="sm" fw={500}>
+              {item.attributes.blacklist && (
+                <IconAlertTriangleFilled style={{ color: "red" }} />
+              )}
               {item.attributes.raisonsocial}
             </Text>
           </div>

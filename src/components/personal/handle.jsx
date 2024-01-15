@@ -205,7 +205,7 @@ export default function NewPersonal() {
   };
   const submitButton = async () => {
     await axios
-      .post("http://192.168.0.101:1337/api/personnels", {
+      .post("http://192.168.0.100:1337/api/personnels", {
         data: {
           nom: inputValues.nom,
           prenom: datas[0].description,
@@ -235,7 +235,7 @@ export default function NewPersonal() {
   }; // requête pour soumettre les données vers STRAPI
   const updatePersonal = async () => {
     await axios
-      .put(`http://192.168.0.101:1337/api/personnels/${id}`, {
+      .put(`http://192.168.0.100:1337/api/personnels/${id}`, {
         data: {
           nom: inputValues.nom,
           prenom: datas[0].description,

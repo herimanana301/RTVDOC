@@ -47,7 +47,7 @@ export default function Personals() {
   };
   useEffect(() => {
     axios
-      .get("http://192.168.0.101:1337/api/personnels")
+      .get("http://192.168.0.100:1337/api/personnels")
       .then((response) => {
         console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
@@ -64,7 +64,7 @@ export default function Personals() {
   const deletedUser = async (id, stat) => {
     try {
       const response = await axios.delete(
-        `http://192.168.0.101:1337/api/personnels/${id}`
+        `http://192.168.0.100:1337/api/personnels/${id}`
       );
       console.log("Delete Response:", response); // Vérifiez la réponse ici
       if (response.status == 200) {
