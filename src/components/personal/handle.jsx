@@ -12,7 +12,7 @@ import {
 
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
-import { DatePickerInput } from '@mantine/dates';
+import { DatePickerInput } from "@mantine/dates";
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "../input/ContactIcons";
 
@@ -45,10 +45,11 @@ const useStyles = createStyles((theme) => {
         theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
       borderRadius: theme.radius.lg,
       padding: rem(4),
-      border: `${rem(1)} solid ${theme.colorScheme === "dark"
-        ? theme.colors.dark[8]
-        : theme.colors.gray[2]
-        }`,
+      border: `${rem(1)} solid ${
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[8]
+          : theme.colors.gray[2]
+      }`,
 
       [BREAKPOINT]: {
         flexDirection: "column",
@@ -164,7 +165,6 @@ export default function NewPersonal() {
       description: "",
       icon: IconFileBarcode,
     },
-
   ]); // Stockage des données
 
   /************* Formater et changer la date ****************/
@@ -446,7 +446,7 @@ export default function NewPersonal() {
                 label="Nom"
                 placeholder="Nom du personnel"
                 value={inputValues.nom}
-                onChange={(e) => handleInputChange('nom', e.target.value)}
+                onChange={(e) => handleInputChange("nom", e.target.value)}
                 required
               />
               <TextInput
@@ -488,7 +488,9 @@ export default function NewPersonal() {
                 label="Département"
                 placeholder=""
                 value={inputValues.departement}
-                onChange={(e) => handleInputChange('departement', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("departement", e.target.value)
+                }
               />
               <TextInput
                 mt="md"
@@ -500,7 +502,6 @@ export default function NewPersonal() {
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-
               <DatePickerInput
                 clearable
                 valueFormat="DD MMM YYYY"
@@ -511,11 +512,11 @@ export default function NewPersonal() {
               />
 
               <TextInput
-                mt="sm"
+                mt="md"
                 label="Salaire"
                 placeholder="Salaire en Ariary"
                 value={inputValues.salaire}
-                onChange={(e) => handleInputChange('salaire', e.target.value)}
+                onChange={(e) => handleInputChange("salaire", e.target.value)}
               />
 
               <Dropzone

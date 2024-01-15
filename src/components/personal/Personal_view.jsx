@@ -65,18 +65,16 @@ export default function Personals() {
       if (response.status == 200) { // Assurez-vous de vérifier la réponse appropriée pour votre API
 
         setDatas((prevData) => {
-          const newData = prevData.filter((data) => data.id !== response.data.data.id);
+          const newData = prevData.filter(
+            (data) => data.id !== response.data.data.id
+          );
           return newData;
         });
 
-        Swal.fire(
-          'Supprimé!',
-          'Personnel supprimé avec succès.',
-          'success'
-        );
+        Swal.fire("Supprimé!", "Personnel supprimé avec succès.", "success");
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
 
@@ -86,11 +84,11 @@ export default function Personals() {
         <Group gap="sm">
           <Avatar size={50} radius={50} src={StrapiUrl+'uploads/' + item.attributes.avatar} />
           <Text fz="sm" fw={500}>
-            {item.attributes.nom} {item.attributes.prenom}<br />
+            {item.attributes.nom} {item.attributes.prenom}
+            <br />
             <Text fz="xs" c="dimmed">
               {item.attributes.contact}
             </Text>
-
           </Text>
         </Group>
       </td>
@@ -131,10 +129,8 @@ export default function Personals() {
           <ActionIcon variant="subtle" color="gray" onClick={() => { confirmationModal(item.id, deletedUser) }}>
             <IconTrash style={{ width: rem(16), height: rem(16), color: 'red' }} stroke={1.5} />
           </ActionIcon>
-
         </Group>
       </td>
-
     </tr>
   ));
 

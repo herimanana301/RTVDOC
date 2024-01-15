@@ -18,6 +18,7 @@ import {
   useMantineTheme,
   createStyles,
   getStylesRef,
+  Collapse,
 } from "@mantine/core";
 
 import General from "../general/General";
@@ -106,26 +107,22 @@ export default function Navigation() {
   const [opened, setOpened] = useState(false);
   const { classes, cx } = useStyles();
   const [active, setActive] = useState("");
-  const links = data.map((item) => (
-    <div key={item.label}>
-      <a
-        className={cx(classes.link, {
-          [classes.linkActive]: item.label === active,
-        })}
-        
-        href={item.link}
-
-        onClick={(event) => {
-          event.preventDefault();
-          setActive(item.label);
-          localStorage.setItem("menuActive", item.label);
-        }}
-      >
-        <item.icon className={classes.linkIcon} stroke={1.5} />
-        <span>{item.label}</span>
-      </a>
-
-      {item.submenu && active === item.label && (
+  const links = data.map((item) =>
+    item.submenu ? (
+      <div key={item.label}>
+        <a
+          className={cx(classes.link, {
+            [classes.linkActive]: false,
+          })}
+          href={item.link}
+          onClick={(event) => {
+            event.preventDefault();
+            setActive(item.label);
+          }}
+        >
+          <item.icon className={classes.linkIcon} stroke={1.5} />
+          <span>{item.label}</span>
+        </a>
         <div className={classes.submenu}>
           {item.submenu.map((subItem) => (
             <a
@@ -145,9 +142,50 @@ export default function Navigation() {
             </a>
           ))}
         </div>
-      )}
-    </div>
-  ));
+      </div>
+    ) : (
+      <div key={item.label}>
+        <a
+          className={cx(classes.link, {
+            [classes.linkActive]: item.label === active,
+          })}
+          href={item.link}
+          onClick={(event) => {
+            event.preventDefault();
+            setActive(item.label);
+            localStorage.setItem("menuActive", item.label);
+          }}
+        >
+          <item.icon className={classes.linkIcon} stroke={1.5} />
+          <span>{item.label}</span>
+        </a>
+      </div>
+    )
+  );
+  const Selection = () => {
+    if (localStorage.getItem("firstConnex") === null) {
+      return <Welcome setActive={setActive} />;
+    } else {
+      switch (active) {
+        case "Général":
+          return <General />;
+        case "Clients":
+          return <Clients />;
+        case "Factures":
+          return <Facture />;
+        case "Bons de commandes":
+          return <Commande />;
+        case "Congés":
+          return <div>Congés Component</div>;
+        case "Liste du personnel":
+          return <Personal />;
+        case "Fichier Vidéo et Audio":
+          return null;
+        default:
+          return null;
+      }
+    }
+  };
 
   useEffect(() => {
     if (localStorage.getItem("menuActive")) {
