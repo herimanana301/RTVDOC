@@ -8,18 +8,21 @@ import {
   Group,
   SimpleGrid,
   FileInput,
+  ActionIcon,
+  rem,
 } from "@mantine/core";
 import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IconPhone,
   IconAt,
   IconUser,
   IconFileSignal,
   IconCalendarTime,
+  IconPlus,
 } from "@tabler/icons-react";
-import axios from "axios";
+import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation de rabaina
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
@@ -28,21 +31,24 @@ import useStyles from "../inputstyles/neworderstyle.js";
 
 export default function Neworder() {
   const { classes } = useStyles();
+  const [clients, setClients] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    total: 1,
+  });
   const [datas, setDatas] = useState([
-    { title: "Nom complet", description: "", icon: IconUser },
-    { title: "Email", description: "", icon: IconAt },
-    { title: "Téléphone", description: "", icon: IconPhone },
-    {
-      title: "Type de diffusion",
-      description: "",
-      icon: IconFileSignal,
-    },
-    {
-      title: "Durée de diffusion (En jours)",
-      description: 1,
-      icon: IconCalendarTime,
-    },
+    { title: "Client", description: "", icon: IconUser },
+    { title: "Numéro de commande", description: "", icon: IconAt },
+    { title: "Responsable commande", description: "", icon: IconPhone },
   ]);
+  const [service, setService] = useState({
+    contentType: "",
+    service: "",
+    quantity: "",
+    priceUnit: 0,
+    priceTotal: 0,
+  });
+  const [serviceList, setServiceList] = useState([]);
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas]; // Create a shallow copy of the array
@@ -53,7 +59,10 @@ export default function Neworder() {
       return newDatas;
     });
   };
-
+  useEffect(() => {
+    getClients(setPageInfo, setClients);
+    console.log(clients);
+  }, []);
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -75,63 +84,105 @@ export default function Neworder() {
 
           <div className={classes.fields}>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-              <TextInput
-                label="Nom complet"
-                placeholder="Nom complet"
+              <Select
+                label="Client"
+                placeholder="Selectionner le client"
+                data={clients.map((client) => client.attributes.raisonsocial)}
                 value={datas[0].description}
-                onChange={(e) => updateDescription(0, e.target.value)}
-                required
-              />
-              <TextInput
-                label="Adresse mail"
-                placeholder="herimanana@bluepix.mg"
-                value={datas[1].description}
-                onChange={(e) => updateDescription(1, e.target.value)}
-                required
+                onChange={(e) => updateDescription(0, e)}
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
-                label="Numéro de téléphone"
-                placeholder="Numéro de téléphone"
+                label="Numéro de commande"
+                placeholder="Saisir numéro de commande"
+                value={datas[1].description}
+                onChange={(e) => updateDescription(1, e.target.value)}
+              />
+              <TextInput
+                label="Responsable de la commande"
+                placeholder=""
                 value={datas[2].description}
                 onChange={(e) => updateDescription(2, e.target.value)}
               />
             </SimpleGrid>
-            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+            <SimpleGrid cols={6} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <Select
                 mt="md"
                 label="Type de contenue"
                 placeholder="Type de contenue"
-                value={datas[3].description}
-                onChange={(e) => updateDescription(3, e)}
                 data={[
                   { value: "Télévision", label: "Télévision" },
                   { value: "Radio", label: "Radio" },
-                  { value: "Radio & télévision", label: "Radio et télévision" },
                 ]}
+                value={service.contentType && service.contentType}
+                onChange={(e) =>
+                  setService((prevData) => {
+                    const newData = { ...prevData, contentType: e };
+                    return newData;
+                  })
+                }
                 required
               />
+              <TextInput mt="md" label="Prestation" placeholder="" />
               <NumberInput
-                label="Durée de diffusion"
-                description="En nombre de jours svp"
-                placeholder="Par exemple, le chiffre 10 correspond à 10 jours"
+                hideControls
+                mt="md"
+                label="Quantité"
                 max={365}
                 min={1}
-                value={datas[4].description}
-                onChange={(e) => updateDescription(4, e)}
+                value={service.quantity && service.quantity}
+                onChange={(e) =>
+                  setService((prevData) => {
+                    const newData = { ...prevData, quantity: e };
+                    return newData;
+                  })
+                }
               />
+              <NumberInput
+                hideControls
+                mt="md"
+                label="Prix unitaire"
+                onChange={(e) =>
+                  setService((prevData) => {
+                    const newData = { ...prevData, priceUnit: e };
+                    return newData;
+                  })
+                }
+              />
+              <NumberInput
+                hideControls
+                mt="md"
+                label="Montant HT"
+                value={
+                  service.priceUnit && service.quantity
+                    ? service.priceUnit * service.quantity
+                    : 0
+                }
+                disabled
+              />
+              <ActionIcon
+                mt="auto"
+                size={40}
+                variant="default"
+                aria-label="ActionIcon with size as a number"
+                onClick={() =>
+                  setServiceList((prevData) => {
+                    const newData = prevData.push(service);
+                    return newData;
+                  })
+                }
+              >
+                <IconPlus style={{ width: rem(14), height: rem(14) }} />
+              </ActionIcon>
             </SimpleGrid>
 
             <FileInput
               placeholder=".mp4 , .mp3"
-              label="Téléverser fichier"
+              label="Téléverser fichier(s)"
               required
             />
             <Group position="right" mt="md">
-              <Button type="submit" className={classes.control}>
-                Enregistrer
-              </Button>
               <Button
                 type="submit"
                 className={(classes.control, classes.voucher)}
