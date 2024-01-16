@@ -11,7 +11,6 @@ import {
   ActionIcon,
   rem,
   Accordion,
-  Pill,
 } from "@mantine/core";
 import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
@@ -29,7 +28,7 @@ import { getClients } from "../../../services/getInformations/getClients.js"; //
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
 
 import useStyles from "../inputstyles/neworderstyle.js";
-import classes from "./newOrder.css";
+import accordionStyle from "./newOrder.css?inline";
 
 
 
@@ -68,23 +67,6 @@ export default function Neworder() {
     getClients(setPageInfo, setClients);
   }, []);
 
-  const ValueComponent = (FileInputProps["valueComponent"] = ({ value }) => {
-    if (value === null) {
-      return null;
-    }
-
-    if (Array.isArray(value)) {
-      return (
-        <Pill.Group>
-          {value.map((file, index) => (
-            <Pill key={index}>{file.name}</Pill>
-          ))}
-        </Pill.Group>
-      );
-    }
-
-    return <Pill>{value.name}</Pill>;
-  });
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -213,7 +195,7 @@ export default function Neworder() {
             </SimpleGrid>
             <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <Accordion
-                className={classes.chevron}
+                className={accordionStyle.chevron}
                 chevron={<IconPlus style={{ width: "20px", height: "20px" }} />}
               >
                 {serviceList.length > 0 &&
