@@ -43,7 +43,7 @@ export default function Commande() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "En attente de diffusion", "En cours de diffusion"]}
+                data={["", "En attente de diffusion", "En cours de diffusion", "Diffusion terminée"]}
                 label="État de diffusion"
                 radius="md"
               />

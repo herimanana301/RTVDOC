@@ -10,6 +10,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
+import { getCurrentDate } from "./Utils";
 
 const stateColors = {
   engineer: "blue",
@@ -18,6 +19,21 @@ const stateColors = {
 };
 
 export default function Orders() {
+  
+  const diffusionStatus = (dateDebut, dateFin) => {
+    const currentDate = new Date();
+    const startDate = new Date(dateDebut);
+    const endDate = new Date(dateFin);
+
+    if (startDate <= currentDate && endDate >= currentDate) {
+        return "En cours de diffusion";
+    } else if (startDate > currentDate) {
+        return "En attente de diffusion";
+    } else {
+        return "Diffusion terminée";
+    }
+  };
+            
   const data = [
     {
       avatar: "https://example.com/avatar/1",
@@ -25,6 +41,8 @@ export default function Orders() {
       state: "En cours de diffusion",
       email: "john.doe@example.com",
       phone: "+1234567890",
+      dateDebut :"20/01/2024",
+      dateFin : "31/01/2024",
     },
     {
       avatar: "https://example.com/avatar/2",
@@ -32,11 +50,14 @@ export default function Orders() {
       state: "En attente de paiement",
       email: "jane.smith@example.com",
       phone: "+0987654321",
+      dateDebut: "27/11/2023",
+      dateFin: "27/12/2023",
     },
   ];
 
   const theme = useMantineTheme();
   const rows = data.map((item) => (
+    
     <tr key={item.name}>
       <td>
         <Group spacing="sm">
@@ -56,15 +77,18 @@ export default function Orders() {
         </Text>
       </td>
       <td>
-        <Text size="sm">27/07/2023</Text>
+        <Text size="sm">{ item.dateDebut }</Text>
       </td>
       <td>
-        <Badge
-          color={stateColors[item.state.toLowerCase()]}
-          variant={theme.colorScheme === "dark" ? "light" : "outline"}
-        >
-          En cours de diffusion
-        </Badge>
+        <Text size="sm">{ item.dateFin }</Text>
+      </td>
+      <td>
+            <Badge
+              color={stateColors[diffusionStatus]}
+              variant={theme.colorScheme === "dark" ? "light" : "outline"}
+            >
+              { diffusionStatus(item.dateDebut, item.dateFin) }
+            </Badge>
       </td>
       <td>
         <Group spacing={0} position="right">
@@ -83,7 +107,8 @@ export default function Orders() {
           <tr>
             <th> Nom </th>
             <th>Récapitulation</th>
-            <th>Date</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
             <th>Status</th>
             <th />
           </tr>
