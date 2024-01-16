@@ -16,6 +16,7 @@ import {
 
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import FetchAllConge from './handle_conge';
+import {FetchAllPersonnel} from './handle_conge';
 import urls from '../../../services/urls';
 import AjoutCongeModal from '../conge/nouveau_conge_modal';
 
@@ -26,11 +27,14 @@ export default function Conges() {
   const handleMenuToggle = () => {setMenuVisible(!menuVisible);};
   const [datas, setDatas] = useState([]);
   const [pageInfo, setPageInfo] = useState({page: 1,total: 1,});
+  const [datas1, setDatas1] = useState([]);
+  const [pageInfo1, setPageInfo1] = useState({page: 1,total: 1,});
 
 
   useEffect(() => {
 
    FetchAllConge(setDatas,setPageInfo);
+   FetchAllPersonnel(setDatas1,setPageInfo1);
 
   }, []);
   
@@ -55,12 +59,17 @@ export default function Conges() {
       </td>
       <td>
         <Text fz="sm" c="dimmed">
-          {item.attributes.jour_restant}
+          {item.attributes.date_conge}
         </Text>
       </td>
       <td>
         <Text fz="sm" c="dimmed">
-          {item.attributes.status}
+          {item.attributes.motif}
+        </Text>
+      </td>
+      <td>
+        <Text fz="sm" c="dimmed">
+          {item.attributes.type_conge}
         </Text>
       </td>
     </tr>
@@ -71,7 +80,7 @@ export default function Conges() {
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
 
-        <AjoutCongeModal datas={datas}/>
+        <AjoutCongeModal datas={datas1}/>
 
         <Autocomplete
           placeholder="Rechercher"
@@ -115,8 +124,9 @@ export default function Conges() {
             <tr>
               <th>Identité</th>
               <th>Jour(s) prise(s)</th>
-              <th>Jour(s) restante(s)</th>
-              <th>Status</th>
+              <th>Nombre de jour</th>
+              <th>Motif</th>
+              <th>Type de congé</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>

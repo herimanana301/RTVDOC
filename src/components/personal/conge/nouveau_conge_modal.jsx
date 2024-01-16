@@ -1,10 +1,11 @@
 // AjoutCongeModal.js
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { Modal, Button } from '@mantine/core';
 import { useForm, isNotEmpty, hasLength, matches } from '@mantine/form';
 import { Group, TextInput, NumberInput, Box, Textarea, Select, SimpleGrid } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import './css/modal_nouveau.css';
 
 
 export default function AjoutCongeModal(datas) {
@@ -28,7 +29,9 @@ export default function AjoutCongeModal(datas) {
 
   /*********************** Valeur du Date picker range *************************/
 
-  const [dateRange, setDateRange] = useState();
+  const [dateRange, setDateRange] = useState('');
+  const [dateRange1, setDateRange1] = useState(false);
+  const [selection, setselection] = useState(false);
 
   const handleDateChange = (selectedDates) => {
 
@@ -44,9 +47,24 @@ export default function AjoutCongeModal(datas) {
 
   };
 
-  const handleSubmit = () => {
+  const [shouldShake, setShouldShake] = useState(false);
 
+  const handleSubmit = () => {
+   
+    valeurSelectionnee === null ? setselection(true) : setselection(false);
+    setShouldShake((GetPersonnel.conge-dateRange) < 0);
+    dateRange === '' ? setDateRange1(true) : setDateRange1(false);
   };
+
+  
+  useEffect(() => {
+    // Reset the shake effect after 1 second
+    const timerId = setTimeout(() => {
+      setShouldShake(false);
+    }, 1000);
+
+    return () => clearTimeout(timerId);
+  }, [shouldShake]);
 
 
 
@@ -63,14 +81,14 @@ export default function AjoutCongeModal(datas) {
         }}
       >
 
-        <Box component="form" maw={400} mx="auto" onSubmit={handleSubmit}>
+        <Box component="form" maw={400} mx="auto">
 
           <Select
             label="Identité"
             placeholder="Selectionner un personnel"
             data={identite.map((person) => ({
               value: person.idPersonnel,
-              label: person.nom,
+              label: person.nom + " " + person.prenom,
             }))}
             searchable
             onChange={handleSelectChange}
@@ -85,7 +103,8 @@ export default function AjoutCongeModal(datas) {
             allowSingleDateInRange
             placeholder="Sélectionner la date"
             mt="md"
-            onChange={handleDateChange}            
+            onChange={handleDateChange} 
+            error={dateRange1 === true}          
           />
 
           <Textarea
@@ -93,6 +112,7 @@ export default function AjoutCongeModal(datas) {
             placeholder="Motif du congé"
             mt="md"
             required
+            // value={dateRange}
           />
 
           <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
@@ -103,6 +123,8 @@ export default function AjoutCongeModal(datas) {
               mt="md"
               readOnly
               value={dateRange}
+              className={shouldShake ? 'shake negative-difference' : ''}
+              error={(GetPersonnel.conge-dateRange) < 0}
             />
 
             <NumberInput
@@ -110,13 +132,13 @@ export default function AjoutCongeModal(datas) {
               placeholder="Jour(s) restant(s)"
               mt="md"
               readOnly
-              value={GetPersonnel.jour_restant}
+              value={GetPersonnel.conge}
             />
 
           </SimpleGrid>
 
           <Group justify="flex-end" mt="md">
-            <Button type="submit">Enregistrer</Button>
+            <Button onClick={handleSubmit} type="button">Enregistrer</Button>
           </Group>
         </Box>
 

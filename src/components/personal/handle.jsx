@@ -15,6 +15,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { DatePickerInput } from "@mantine/dates";
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "../input/ContactIcons";
+import urls from "../../services/urls";
 
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
@@ -150,8 +151,6 @@ export default function NewPersonal() {
     ? personalDatas.state.personalDatas
     : null;
 
-  let StrapiUrl = "http://192.168.0.101:1337/";
-
   const [datas, setDatas] = useState([
     { title: "Contact", description: "", icon: IconPhone },
     { title: "Email", description: "", icon: IconAt },
@@ -234,11 +233,11 @@ export default function NewPersonal() {
         formData.append('files', renamedFile);
 
         // Envoi de l'image à Strapi
-        const imageResponse = await axios.post(StrapiUrl+'api/upload/', formData);
+        const imageResponse = await axios.post(urls.StrapiUrl+'api/upload/', formData);
         console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
       // Envoi des données personnelles à Strapi
 
-      const personnelResponse = await axios.post(StrapiUrl+"api/personnels", {
+      const personnelResponse = await axios.post(urls.StrapiUrl+"api/personnels", {
         data: {
           nom: inputValues.nom,
           prenom: inputValues.prenom,
@@ -250,6 +249,7 @@ export default function NewPersonal() {
           salaire: inputValues.salaire,
           date_embauche: inputValues.dateEmbauche,
           avatar: imageResponse.data[0].hash + '.png',
+          conge: 0,
         },
       });
 
@@ -261,7 +261,7 @@ export default function NewPersonal() {
       }
       } else {
         // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
-        const personnelResponse = await axios.post(StrapiUrl+"api/personnels", {
+        const personnelResponse = await axios.post(urls.StrapiUrl+"api/personnels", {
           data: {
             nom: inputValues.nom,
             prenom: inputValues.prenom,
@@ -273,6 +273,7 @@ export default function NewPersonal() {
             salaire: inputValues.salaire,
             date_embauche: inputValues.dateEmbauche,
             avatar: 'default_profile1_cc255a96f9.png',
+            conge: 0,
           },
         });
 
@@ -300,11 +301,11 @@ export default function NewPersonal() {
         formData.append('files', renamedFile);
 
         // Envoi de l'image à Strapi
-        const imageResponse = await axios.post(StrapiUrl+'api/upload/', formData);
+        const imageResponse = await axios.post(urls.StrapiUrl+'api/upload/', formData);
         console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
 
         // Mise à jour des données personnelles avec l'ID spécifié et l'URL de l'image
-        const updatePersonnelResponse = await axios.put(StrapiUrl+`api/personnels/${id}`, {
+        const updatePersonnelResponse = await axios.put(urls.StrapiUrl+`api/personnels/${id}`, {
           data: {
             nom: inputValues.nom,
             prenom: inputValues.prenom,
@@ -325,7 +326,7 @@ export default function NewPersonal() {
         }
       } else {
         // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
-        const updatePersonnelResponse = await axios.put(StrapiUrl+`api/personnels/${id}`, {
+        const updatePersonnelResponse = await axios.put(urls.StrapiUrl+`api/personnels/${id}`, {
           data: {
             nom: inputValues.nom,
             prenom: inputValues.prenom,
@@ -404,7 +405,7 @@ export default function NewPersonal() {
                 style={{
                   border: '5px solid white',
                 }}
-                src={StrapiUrl+'uploads/' + currentPersonal.avatar}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                src={urls.StrapiUrl+'uploads/' + currentPersonal.avatar}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
                 size={190}
                 radius={120}
                 mx="auto"
@@ -414,7 +415,7 @@ export default function NewPersonal() {
                 style={{
                   border: '5px solid white',
                 }}
-                src={StrapiUrl+'uploads/default_profile1_cc255a96f9.png'}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                src={urls.StrapiUrl+'uploads/default_profile1_cc255a96f9.png'}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
                 size={190}
                 radius={120}
                 mx="auto"
@@ -512,7 +513,6 @@ export default function NewPersonal() {
               />
 
               <TextInput
-                mt="md"
                 label="Salaire"
                 placeholder="Salaire en Ariary"
                 value={inputValues.salaire}

@@ -39,7 +39,7 @@ const data = [
     label: "Personnels",
     icon: IconUsersGroup,
     submenu: [
-      { link: "", label: "Congés", icon: IconReceipt2 },
+      { link: "", label: "Historique congés", icon: IconReceipt2 },
       { link: "", label: "Liste du personnel", icon: IconUsersGroup },
     ],
   },
@@ -246,7 +246,7 @@ export default function Navigation() {
         <Facture />
       ) : active === "Bons de commandes" ? (
         <Commande />
-      ) : active === "Congés" ? (
+      ) : active === "Historique congés" ? (
         <Conges />
       ) : active === "Liste du personnel" ? (
         <Personal />
