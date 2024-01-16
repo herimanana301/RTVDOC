@@ -1,0 +1,9 @@
+.chevron {
+    &[data-rotate] {
+      transform: rotate(45deg);
+    }
+  }
+.icon {
+    width: 1rem ;
+    height: 1rem;
+  }

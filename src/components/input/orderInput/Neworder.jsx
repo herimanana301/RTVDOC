@@ -10,6 +10,8 @@ import {
   FileInput,
   ActionIcon,
   rem,
+  Accordion,
+  Pill,
 } from "@mantine/core";
 import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
@@ -18,16 +20,16 @@ import {
   IconPhone,
   IconAt,
   IconUser,
-  IconFileSignal,
   IconCalendarTime,
   IconPlus,
 } from "@tabler/icons-react";
 import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
 
-//Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation de rabaina
+//Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
 
 import useStyles from "../inputstyles/neworderstyle.js";
+import classes from "./newOrder.css";
 
 export default function Neworder() {
   const { classes } = useStyles();
@@ -48,7 +50,7 @@ export default function Neworder() {
     priceUnit: 0,
     priceTotal: 0,
   });
-  const [serviceList, setServiceList] = useState([]);
+  let [serviceList, setServiceList] = useState([]);
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       const newDatas = [...prevDatas]; // Create a shallow copy of the array
@@ -61,8 +63,25 @@ export default function Neworder() {
   };
   useEffect(() => {
     getClients(setPageInfo, setClients);
-    console.log(clients);
   }, []);
+
+  const ValueComponent = (FileInputProps["valueComponent"] = ({ value }) => {
+    if (value === null) {
+      return null;
+    }
+
+    if (Array.isArray(value)) {
+      return (
+        <Pill.Group>
+          {value.map((file, index) => (
+            <Pill key={index}>{file.name}</Pill>
+          ))}
+        </Pill.Group>
+      );
+    }
+
+    return <Pill>{value.name}</Pill>;
+  });
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -124,7 +143,18 @@ export default function Neworder() {
                 }
                 required
               />
-              <TextInput mt="md" label="Prestation" placeholder="" />
+              <TextInput
+                mt="md"
+                label="Prestation"
+                placeholder=""
+                value={service.service}
+                onChange={(e) =>
+                  setService((prevData) => {
+                    const newData = { ...prevData, service: e.target.value };
+                    return newData;
+                  })
+                }
+              />
               <NumberInput
                 hideControls
                 mt="md"
@@ -134,7 +164,7 @@ export default function Neworder() {
                 value={service.quantity && service.quantity}
                 onChange={(e) =>
                   setService((prevData) => {
-                    const newData = { ...prevData, quantity: e };
+                    const newData = { ...prevData, quantity: parseInt(e) };
                     return newData;
                   })
                 }
@@ -145,7 +175,7 @@ export default function Neworder() {
                 label="Prix unitaire"
                 onChange={(e) =>
                   setService((prevData) => {
-                    const newData = { ...prevData, priceUnit: e };
+                    const newData = { ...prevData, priceUnit: parseFloat(e) };
                     return newData;
                   })
                 }
@@ -166,22 +196,62 @@ export default function Neworder() {
                 size={40}
                 variant="default"
                 aria-label="ActionIcon with size as a number"
-                onClick={() =>
+                onClick={() => {
                   setServiceList((prevData) => {
-                    const newData = prevData.push(service);
-                    return newData;
-                  })
-                }
+                    return [...prevData, service];
+                  });
+                  console.log(serviceList);
+                  console.log(service);
+                }}
               >
                 <IconPlus style={{ width: rem(14), height: rem(14) }} />
               </ActionIcon>
             </SimpleGrid>
+            <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <Accordion
+                className={classes.chevron}
+                chevron={<IconPlus style={{ width: "20px", height: "20px" }} />}
+              >
+                {serviceList.length > 0 &&
+                  serviceList.map((serviceSingle) => (
+                    <Accordion.Item value={serviceSingle.contentType}>
+                      <Accordion.Control
+                        icon={
+                          serviceSingle.contentType === "Télévision"
+                            ? "📺"
+                            : "📻"
+                        }
+                      >
+                        {serviceSingle.contentType}
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        <p>Prestation : {serviceSingle.service} </p>
+                        <p> Quantité : {serviceSingle.quantity} </p>
+                        <p> Prix unitaire : {serviceSingle.priceUnit} </p>
+                        <p> Total : {serviceSingle.priceTotal} </p>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  ))}
+              </Accordion>
+            </SimpleGrid>
+            <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <FileInput
+                placeholder=".mp4 , .mp3, .ogg, .mpg, .avi, .ts, .mkv"
+                accept="audio/*, video/*"
+                label="Téléverser fichier(s) Audio ou/et Video"
+                valueComponent={(e) => console.log(e)}
+                required
+                multiple
+              />
+              <FileInput
+                accept="image/png,image/jpeg,application/pdf "
+                placeholder=".pdf , .jpeg ,.png"
+                label="Téléverser Preuve de commande"
+                required
+                multiple
+              />
+            </SimpleGrid>
 
-            <FileInput
-              placeholder=".mp4 , .mp3"
-              label="Téléverser fichier(s)"
-              required
-            />
             <Group position="right" mt="md">
               <Button
                 type="submit"
