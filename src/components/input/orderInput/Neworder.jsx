@@ -29,10 +29,6 @@ import { getClients } from "../../../services/getInformations/getClients.js"; //
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
-
-
-
-
 export default function Neworder() {
   const { classes } = useStyles();
   const [clients, setClients] = useState([]);
@@ -94,7 +90,6 @@ export default function Neworder() {
                 data={clients.map((client) => client.attributes.raisonsocial)}
                 value={datas[0].description}
                 onChange={(e) => updateDescription(0, e)}
-
               />
             </SimpleGrid>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
