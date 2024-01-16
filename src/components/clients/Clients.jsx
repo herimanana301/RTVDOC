@@ -21,11 +21,40 @@ import { Link } from "react-router-dom"; // Pour gérer les redirection vers les
 import { getClients } from "../../services/getInformations/getClients"; // service pour récupérer les clients, format --> getClients(setPageInfo, setDatas)
 export default function Clients() {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [search, setSearch] = useState("");
+  const [setupFilter, setSetupFilter] = useState("");
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     total: 1,
   });
   const [datas, setDatas] = useState([]);
+  const filterData =
+    search.length > 0 && search != "Blacklisté"
+      ? datas.filter(
+          (data) =>
+            data.attributes.NIF.includes(search) ||
+            data.attributes.STAT.includes(search) ||
+            data.attributes.raisonsocial.toLowerCase().includes(search) ||
+            data.attributes.phonenumber.includes(search) ||
+            data.attributes.email.toLowerCase().includes(search) ||
+            data.attributes.adresse.toLowerCase().includes(search)
+        )
+      : search === "Blacklisté"
+      ? datas.filter((data) => data.attributes.blacklist)
+      : setupFilter === "Plus récent"
+      ? datas.sort((a, b) => {
+          return (
+            new Date(b.attributes.createdAt) - new Date(a.attributes.createdAt)
+          );
+        })
+      : setupFilter === "Plus ancien"
+      ? datas.sort((a, b) => {
+          return (
+            new Date(a.attributes.createdAt) - new Date(b.attributes.createdAt)
+          );
+        })
+      : datas;
+
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
@@ -52,7 +81,7 @@ export default function Clients() {
       });
   };
 
-  const rows = datas.map((item) => (
+  const rows = filterData.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
         <Group gap="sm">
@@ -115,7 +144,9 @@ export default function Clients() {
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
-          data={[]}
+          data={["Blacklisté"]}
+          value={search}
+          onChange={(e) => setSearch(e)}
         />
         <Menu
           shadow="md"
@@ -133,16 +164,13 @@ export default function Clients() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "En attente de diffusion", "En cours de diffusion"]}
-                label="État de diffusion"
+                data={["", "Plus récent", "Plus ancien"]}
+                label="Trier"
                 radius="md"
-              />
-            </Menu.Item>
-            <Menu.Item>
-              <NativeSelect
-                data={["", "Payé", "Non Payé"]}
-                label="Ètat de paiement"
-                radius="md"
+                value={setupFilter}
+                onChange={(e) => {
+                  setSetupFilter(e.target.value);
+                }}
               />
             </Menu.Item>
           </Menu.Dropdown>
