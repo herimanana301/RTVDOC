@@ -35,14 +35,14 @@ export default function Orders() {
     const startDate = new Date(dateDebut);
     const endDate = new Date(dateFin);
     if (startDate <= currentDate && endDate >= currentDate) {
-        return "En cours de diffusion";
+      return "En cours de diffusion";
     } else if (startDate > currentDate) {
-        return "En attente de diffusion";
+      return "En attente de diffusion";
     } else {
-        return "Diffusion terminée";
+      return "Diffusion terminée";
     }
   };
-            
+
   const data = [
     {
       avatar: "https://example.com/avatar/1",
@@ -70,7 +70,6 @@ export default function Orders() {
 
   const theme = useMantineTheme();
   const rows = data.map((item) => (
-    
     <tr key={item.name}>
       <td>
         <Group spacing="sm">
@@ -95,10 +94,10 @@ export default function Orders() {
         </Text>
       </td>*/}
       <td>
-        <Text size="sm">{ item.dateDebut }</Text>
+        <Text size="sm">{item.dateDebut}</Text>
       </td>
       <td>
-        <Text size="sm">{ item.dateFin }</Text>
+        <Text size="sm">{item.dateFin}</Text>
       </td>
       <td>
         <Text size="sm">{ item.qte }</Text>
@@ -108,12 +107,12 @@ export default function Orders() {
       </td>
 
       <td>
-            <Badge
-              color={stateColors[diffusionStatus]}
-              variant={theme.colorScheme === "dark" ? "light" : "outline"}
-            >
-              { diffusionStatus(item.dateDebut, item.dateFin) }
-            </Badge>
+        <Badge
+          color={stateColors[diffusionStatus]}
+          variant={theme.colorScheme === "dark" ? "light" : "outline"}
+        >
+          {diffusionStatus(item.dateDebut, item.dateFin)}
+        </Badge>
       </td>
       <td>
         <Text size="sm"> { item.qte * item.pu } </Text>

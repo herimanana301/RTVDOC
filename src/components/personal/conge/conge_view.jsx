@@ -13,38 +13,65 @@ import {
   Avatar,
 } from "@mantine/core";
 
-
 import { IconSearch, IconFilter } from "@tabler/icons-react";
-import FetchAllConge from './handle_conge';
-import { FetchAllPersonnel } from './handle_conge';
-import urls from '../../../services/urls';
-import AjoutCongeModal from '../conge/nouveau_conge_modal';
-import { DatePickerInput } from '@mantine/dates';
-
+import FetchAllConge from "./handle_conge";
+import { FetchAllPersonnel } from "./handle_conge";
+import urls from "../../../services/urls";
+import AjoutCongeModal from "../conge/nouveau_conge_modal";
+import { DatePickerInput } from "@mantine/dates";
 
 export default function Conges() {
-
   const [menuVisible, setMenuVisible] = useState(false);
-  const handleMenuToggle = () => { setMenuVisible(!menuVisible); };
+  const handleMenuToggle = () => {
+    setMenuVisible(!menuVisible);
+  };
   const [datas, setDatas] = useState([]);
-  const [pageInfo, setPageInfo] = useState({ page: 1, total: 1, });
+  const [search, setSearch] = useState("");
+  const [setupFilter, setSetupFilter] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 1, total: 1 });
   const [datas1, setDatas1] = useState([]);
-  const [pageInfo1, setPageInfo1] = useState({ page: 1, total: 1, });
+  const [pageInfo1, setPageInfo1] = useState({ page: 1, total: 1 });
 
   useEffect(() => {
-
     FetchAllConge(setDatas, setPageInfo);
     FetchAllPersonnel(setDatas1, setPageInfo1);
-
   }, []);
-
-  const rows = datas.map((item) => (
+  const filterData =
+    search.length > 0
+      ? datas.filter(
+          (data) =>
+            data.attributes.nom.toLowerCase().includes(search) ||
+            data.attributes.prenom.toLowerCase().includes(search) ||
+            data.attributes.motif.toLowerCase().includes(search) ||
+            data.attributes.type_conge.toLowerCase().includes(search)
+        )
+      : search === "Blacklisté"
+      ? datas.filter((data) => data.attributes.blacklist)
+      : setupFilter === "Plus récent"
+      ? datas.sort((a, b) => {
+          return (
+            new Date(b.attributes.createdAt) - new Date(a.attributes.createdAt)
+          );
+        })
+      : setupFilter === "Plus ancien"
+      ? datas.sort((a, b) => {
+          return (
+            new Date(a.attributes.createdAt) - new Date(b.attributes.createdAt)
+          );
+        })
+      : datas;
+  const rows = filterData.map((item) => (
     <tr key={item.id}>
       <td>
         <Group gap="sm">
-          <Avatar size={50} radius={50} src={urls.StrapiUrl + 'uploads/' + item.attributes.avatar} />
+          <Avatar
+            size={50}
+            radius={50}
+            src={urls.StrapiUrl + "uploads/" + item.attributes.avatar}
+          />
           <Text fz="sm" fw={500}>
-            {item.attributes.nom}<br />
+            {item.attributes.nom}
+            <br />
             <Text fz="sm" c="dimmed">
               {item.attributes.prenom}
             </Text>
@@ -58,8 +85,11 @@ export default function Conges() {
           type="range"
           valueFormat="DD MMM YYYY"
           allowSingleDateInRange
-          value={[new Date(item.attributes.date_debut_conge), new Date(item.attributes.date_fin_conge)]}
-          style={{maxWidth:'190px'}}
+          value={[
+            new Date(item.attributes.date_debut_conge),
+            new Date(item.attributes.date_fin_conge),
+          ]}
+          style={{ maxWidth: "190px" }}
         />
       </td>
 
@@ -82,17 +112,17 @@ export default function Conges() {
     </tr>
   ));
 
-
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-
         <AjoutCongeModal datas={datas1} />
 
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
           data={[]}
+          value={search}
+          onChange={(e) => setSearch(e)}
         />
         <Menu
           shadow="md"
@@ -110,7 +140,7 @@ export default function Conges() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "En attente de diffusion", "En cours de diffusion"]}
+                data={["", "Plus récent", "Plus ancien"]}
                 label="État de diffusion"
                 radius="md"
               />
@@ -138,7 +168,6 @@ export default function Conges() {
           </thead>
           <tbody>{rows}</tbody>
         </Table>
-
       </ScrollArea>
     </>
   );

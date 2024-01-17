@@ -42,7 +42,7 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin) => {
   try {
 
     axios
-    .get(urls.StrapiUrl + `api/personnels?idPersonnel=${Person.idPersonnel}`)
+    .get(urls.StrapiUrl + `api/personnels?idPersonnel=${Person.id}`)
     .then((response) => {
       if (response.status === 200){
 
@@ -50,7 +50,7 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin) => {
        
     axios.put(urls.StrapiUrl + `api/personnels/${id}`, {
       data: {
-        conge: (Person.conge - jour_prise),
+        conge: (Person.attributes.conge - jour_prise),
       },
 
     }).then((response) => {
@@ -58,10 +58,10 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin) => {
 
         axios.post(urls.StrapiUrl + "api/conges", {
           data: {
-            idPersonnel: Person.idPersonnel,
-            nom: Person.nom,
-            prenom: Person.prenom,
-            avatar: Person.avatar,
+            idPersonnel: Person.attributes.idPersonnel,
+            nom: Person.attributes.nom,
+            prenom: Person.attributes.prenom,
+            avatar: Person.attributes.avatar,
             type_conge: '',
             motif: motif,
             jour_prise: jour_prise,
