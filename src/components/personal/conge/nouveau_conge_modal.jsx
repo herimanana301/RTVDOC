@@ -26,7 +26,11 @@ export default function AjoutCongeModal({ datas }) {
   /*********************** Valeur du dropdown *************************/
 
   const [valeurSelectionnee, setValeurSelectionnee] = useState("");
-  const [GetPersonnel, setGetPersonnel] = useState({});
+  const [GetPersonnel, setGetPersonnel] = useState({
+    attributes: {
+      conge: 0,
+    },
+  });
 
   const handleSelectChange = (selectedOption) => {
     setSelection(false);
