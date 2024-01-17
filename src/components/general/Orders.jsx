@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Avatar,
   Badge,
@@ -7,10 +8,10 @@ import {
   ActionIcon,
   Anchor,
   ScrollArea,
+  Modal,
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
-import { getCurrentDate } from "./Utils";
 
 const stateColors = {
   engineer: "blue",
@@ -18,13 +19,21 @@ const stateColors = {
   designer: "pink",
 };
 
+const handleModal = () => {
+  console.log('hello biach');
+}
+
 export default function Orders() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModal = () => {
+    setIsModalOpen(true);
+  }
   
   const diffusionStatus = (dateDebut, dateFin) => {
     const currentDate = new Date();
     const startDate = new Date(dateDebut);
     const endDate = new Date(dateFin);
-
     if (startDate <= currentDate && endDate >= currentDate) {
         return "En cours de diffusion";
     } else if (startDate > currentDate) {
@@ -41,8 +50,10 @@ export default function Orders() {
       state: "En cours de diffusion",
       email: "john.doe@example.com",
       phone: "+1234567890",
-      dateDebut :"20/01/2024",
-      dateFin : "31/01/2024",
+      dateDebut :"2024-01-16",
+      dateFin : "2024-01-31",
+      qte: "70",
+      pu: "10000",
     },
     {
       avatar: "https://example.com/avatar/2",
@@ -50,8 +61,10 @@ export default function Orders() {
       state: "En attente de paiement",
       email: "jane.smith@example.com",
       phone: "+0987654321",
-      dateDebut: "27/11/2023",
-      dateFin: "27/12/2023",
+      dateDebut: "2024-11-27",
+      dateFin: "2024-12-27",
+      qte: "50",
+      pu: "10000",
     },
   ];
 
@@ -63,25 +76,37 @@ export default function Orders() {
         <Group spacing="sm">
           <Avatar size={30} src={item.avatar} radius={30} />
           <Text fz="sm" fw={500}>
-            {item.name}
+            {item.name.split(' ').map((word, index) => (
+              <React.Fragment key={index}>
+                {word}
+                <br />
+              </React.Fragment>
+            ))}
           </Text>
         </Group>
       </td>
 
-      <td>
+      {/*<td>
         <Text>Type de publicité :</Text>
         <Text>Durée de la diffusion :</Text>
-        <Text>Fréquence :</Text>
+        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
         <Text>
           Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
         </Text>
-      </td>
+      </td>*/}
       <td>
         <Text size="sm">{ item.dateDebut }</Text>
       </td>
       <td>
         <Text size="sm">{ item.dateFin }</Text>
       </td>
+      <td>
+        <Text size="sm">{ item.qte }</Text>
+      </td>
+      <td>
+        <Text size="sm"> { item.pu }</Text>
+      </td>
+
       <td>
             <Badge
               color={stateColors[diffusionStatus]}
@@ -91,8 +116,11 @@ export default function Orders() {
             </Badge>
       </td>
       <td>
+        <Text size="sm"> { item.qte * item.pu } </Text>
+      </td>
+      <td>
         <Group spacing={0} position="right">
-          <ActionIcon>
+          <ActionIcon onClick={ handleModal }>
             <IconBolt size="1rem" stroke={1.5} />
           </ActionIcon>
         </Group>
@@ -101,20 +129,45 @@ export default function Orders() {
   ));
 
   return (
+    <>
     <ScrollArea>
       <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
         <thead>
           <tr>
             <th> Nom </th>
-            <th>Récapitulation</th>
+            {/*<th>Récapitulation</th>*/}
             <th>Date de début</th>
             <th>Date de fin</th>
+            <th>Qte</th>
+            <th>P.U.</th>
             <th>Status</th>
+            <th>Montant</th>
             <th />
           </tr>
         </thead>
         <tbody>{rows}</tbody>
       </Table>
     </ScrollArea>
+    {/* Modal */}
+    <Modal
+      opened={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      style={{ alignItems: 'center'}}
+      title={<Text fz="sm" fw={500}>Récapitulation</Text>}
+      centered
+    >
+      {/* Content of your modal goes here */}
+      <Text size="sm">
+        
+        <Text>Type de publicité :</Text>
+        <Text>Durée de la diffusion :</Text>
+        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
+        <Text>
+          Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
+        </Text>
+      
+      </Text>
+    </Modal>
+    </>
   );
 }
