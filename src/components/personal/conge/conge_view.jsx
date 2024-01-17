@@ -16,40 +16,51 @@ import {
 
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import FetchAllConge from './handle_conge';
-import {FetchAllPersonnel} from './handle_conge';
+import { FetchAllPersonnel } from './handle_conge';
 import urls from '../../../services/urls';
 import AjoutCongeModal from '../conge/nouveau_conge_modal';
+import { DatePickerInput } from '@mantine/dates';
 
 
 export default function Conges() {
 
   const [menuVisible, setMenuVisible] = useState(false);
-  const handleMenuToggle = () => {setMenuVisible(!menuVisible);};
+  const handleMenuToggle = () => { setMenuVisible(!menuVisible); };
   const [datas, setDatas] = useState([]);
-  const [pageInfo, setPageInfo] = useState({page: 1,total: 1,});
+  const [pageInfo, setPageInfo] = useState({ page: 1, total: 1, });
   const [datas1, setDatas1] = useState([]);
-  const [pageInfo1, setPageInfo1] = useState({page: 1,total: 1,});
-
+  const [pageInfo1, setPageInfo1] = useState({ page: 1, total: 1, });
 
   useEffect(() => {
 
-   FetchAllConge(setDatas,setPageInfo);
-   FetchAllPersonnel(setDatas1,setPageInfo1);
+    FetchAllConge(setDatas, setPageInfo);
+    FetchAllPersonnel(setDatas1, setPageInfo1);
 
   }, []);
-  
+
   const rows = datas.map((item) => (
     <tr key={item.id}>
       <td>
         <Group gap="sm">
-          <Avatar size={50} radius={50} src={urls.StrapiUrl+'uploads/' + item.attributes.avatar} />
+          <Avatar size={50} radius={50} src={urls.StrapiUrl + 'uploads/' + item.attributes.avatar} />
           <Text fz="sm" fw={500}>
             {item.attributes.nom}<br />
             <Text fz="sm" c="dimmed">
-            {item.attributes.prenom}
-        </Text> 
+              {item.attributes.prenom}
+            </Text>
           </Text>
         </Group>
+      </td>
+
+      <td>
+        <DatePickerInput
+          dropdownType="modal"
+          type="range"
+          valueFormat="DD MMM YYYY"
+          allowSingleDateInRange
+          value={[new Date(item.attributes.date_debut_conge), new Date(item.attributes.date_fin_conge)]}
+          style={{maxWidth:'190px'}}
+        />
       </td>
 
       <td>
@@ -57,11 +68,7 @@ export default function Conges() {
           {item.attributes.jour_prise}
         </Text>
       </td>
-      <td>
-        <Text fz="sm" c="dimmed">
-          {item.attributes.date_conge}
-        </Text>
-      </td>
+
       <td>
         <Text fz="sm" c="dimmed">
           {item.attributes.motif}
@@ -80,7 +87,7 @@ export default function Conges() {
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
 
-        <AjoutCongeModal datas={datas1}/>
+        <AjoutCongeModal datas={datas1} />
 
         <Autocomplete
           placeholder="Rechercher"

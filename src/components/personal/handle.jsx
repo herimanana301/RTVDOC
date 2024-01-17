@@ -274,6 +274,7 @@ export default function NewPersonal() {
             date_embauche: inputValues.dateEmbauche,
             avatar: 'default_profile1_cc255a96f9.png',
             conge: 0,
+            status: 'Actif',
           },
         });
 
@@ -357,7 +358,7 @@ export default function NewPersonal() {
       inputValues.prenom = currentPersonal.prenom;
       inputValues.departement = currentPersonal.departement;
       inputValues.salaire = currentPersonal.salaire;
-      // inputValues.dateEmbauche = currentPersonal.dateEmbauche;
+      inputValues.dateEmbauche = currentPersonal.date_embauche;
 
       updateDescription(2, currentPersonal.adresse);
       updateDescription(0, currentPersonal.contact);
@@ -506,7 +507,7 @@ export default function NewPersonal() {
               <DatePickerInput
                 clearable
                 valueFormat="DD MMM YYYY"
-                value={new Date(inputValues.dateEmbauche)}
+                value={new Date (inputValues.dateEmbauche)}
                 label="Date d'embauche"
                 placeholder="January 10, 2026"
                 onChange={(date) => handleInputChange('dateEmbauche', formatDate(date))}

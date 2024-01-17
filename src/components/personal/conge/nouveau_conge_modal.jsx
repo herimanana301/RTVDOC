@@ -5,6 +5,7 @@ import { Modal, Button } from '@mantine/core';
 import { useForm, isNotEmpty, hasLength, matches } from '@mantine/form';
 import { Group, TextInput, NumberInput, Box, Textarea, Select, SimpleGrid } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import { InsertConge } from './handle_conge';
 import './css/modal_nouveau.css';
 
 
@@ -18,10 +19,11 @@ export default function AjoutCongeModal(datas) {
 
   /*********************** Valeur du dropdown *************************/
 
-  const [valeurSelectionnee, setValeurSelectionnee] = useState(null);
+  const [valeurSelectionnee, setValeurSelectionnee] = useState('');
   const [GetPersonnel, setGetPersonnel] = useState({});
 
   const handleSelectChange = (selectedOption) => {
+    setSelection(false)
     setValeurSelectionnee(selectedOption);
     const selectedPerson = identite.find((person) => person.idPersonnel === selectedOption);
     setGetPersonnel(selectedPerson);
@@ -31,29 +33,59 @@ export default function AjoutCongeModal(datas) {
 
   const [dateRange, setDateRange] = useState('');
   const [dateRange1, setDateRange1] = useState(false);
-  const [selection, setselection] = useState(false);
+  const [selection, setSelection] = useState(false);
+  const [motifValidation, setMotifValidation] = useState(false);
+  const [motif, setMotif] = useState('');
+  const [datedebut, setDatedebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+  
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
 
   const handleDateChange = (selectedDates) => {
+    setDateRange1(false);
 
-    var dateDebut = new Date(selectedDates[0]);
-    var dateFin = new Date(selectedDates[1]);
+    let dateDebut = new Date(selectedDates[0]);
+    let dateFin = new Date(selectedDates[1]);
 
-    var NombreJour = dateFin - dateDebut;
+    setDatedebut(formatDate(dateDebut));
+    setDateFin(formatDate(dateFin));
 
-    var differenceJours = (NombreJour / (1000 * 60 * 60 * 24)) + 1 ;
+    let NombreJour = dateFin - dateDebut;
+
+    let differenceJours = (NombreJour / (1000 * 60 * 60 * 24)) + 1 ;
     differenceJours = differenceJours < 0 ? 1 : differenceJours;
 
     setDateRange(differenceJours);
 
   };
 
+  const handleMotifChange = (motif) => {
+    setMotif(motif);
+    setMotifValidation(false);
+  }
+
   const [shouldShake, setShouldShake] = useState(false);
 
   const handleSubmit = () => {
-   
-    valeurSelectionnee === null ? setselection(true) : setselection(false);
+
+    valeurSelectionnee === '' ? setSelection(true) : setSelection(false);
     setShouldShake((GetPersonnel.conge-dateRange) < 0);
     dateRange === '' ? setDateRange1(true) : setDateRange1(false);
+    motif === '' ? setMotifValidation(true) : setMotifValidation(false);
+
+    if(valeurSelectionnee !== '' && (GetPersonnel.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
+      
+      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin);
+          
+    }
+
   };
 
   
@@ -92,6 +124,7 @@ export default function AjoutCongeModal(datas) {
             }))}
             searchable
             onChange={handleSelectChange}
+            error={selection === true}  
             required
           />
 
@@ -112,7 +145,9 @@ export default function AjoutCongeModal(datas) {
             placeholder="Motif du congé"
             mt="md"
             required
-            // value={dateRange}
+            value={motif}
+            onChange={(e) => handleMotifChange(e.target.value)}
+            error={motifValidation === true}
           />
 
           <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
@@ -123,8 +158,6 @@ export default function AjoutCongeModal(datas) {
               mt="md"
               readOnly
               value={dateRange}
-              className={shouldShake ? 'shake negative-difference' : ''}
-              error={(GetPersonnel.conge-dateRange) < 0}
             />
 
             <NumberInput
@@ -132,7 +165,9 @@ export default function AjoutCongeModal(datas) {
               placeholder="Jour(s) restant(s)"
               mt="md"
               readOnly
+              className={shouldShake ? 'shake negative-difference' : ''}
               value={GetPersonnel.conge}
+              error={(GetPersonnel.conge-dateRange) < 0}
             />
 
           </SimpleGrid>
