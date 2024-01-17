@@ -58,16 +58,11 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_c
 
         axios.post(urls.StrapiUrl + "api/conges", {
           data: {
-            idPersonnel: Person.idPersonnel,
-            nom: Person.nom,
-            prenom: Person.prenom,
-            avatar: Person.avatar,
-            type_conge: type_conge,
             idPersonnel: Person.attributes.idPersonnel,
             nom: Person.attributes.nom,
             prenom: Person.attributes.prenom,
             avatar: Person.attributes.avatar,
-            type_conge: '',
+            type_conge: type_conge,
             motif: motif,
             jour_prise: jour_prise,
             date_debut_conge: datedebut,

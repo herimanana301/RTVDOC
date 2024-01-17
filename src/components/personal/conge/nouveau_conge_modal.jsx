@@ -11,6 +11,7 @@ import {
   Textarea,
   Select,
   SimpleGrid,
+  Switch
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { InsertConge } from "./handle_conge";
@@ -30,7 +31,6 @@ export default function AjoutCongeModal({ datas }) {
   const handleSelectChange = (selectedOption) => {
     setSelection(false);
     setGetPersonnel(datas.find((person) => person.id === selectedOption));
-    console.log(GetPersonnel);
     setValeurSelectionnee(selectedOption);
   };
 
@@ -46,9 +46,6 @@ export default function AjoutCongeModal({ datas }) {
   const [dateFin, setDateFin] = useState('');
   const [TypeConge, setTypeConge] = useState(false);
   
-  const [motif, setMotif] = useState("");
-  const [datedebut, setDatedebut] = useState("");
-  const [dateFin, setDateFin] = useState("");
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -91,6 +88,7 @@ export default function AjoutCongeModal({ datas }) {
     dateRange === '' ? setDateRange1(true) : setDateRange1(false);
     motif === '' ? setMotifValidation(true) : setMotifValidation(false);
     TypeConge ? typeConge = 'Payé' : typeConge = 'Nom payé';
+    console.log(GetPersonnel.id );
 
     if(valeurSelectionnee !== '' && (GetPersonnel.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
       
@@ -182,8 +180,8 @@ export default function AjoutCongeModal({ datas }) {
               mt="md"
               readOnly
               className={shouldShake ? "shake negative-difference" : ""}
-              /*               value={GetPersonnel.attributes.conge}
-              error={GetPersonnel.attributes.conge - dateRange < 0} */
+              value={GetPersonnel.attributes.conge}
+              error={GetPersonnel.attributes.conge - dateRange < 0} 
             />
 
               <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>

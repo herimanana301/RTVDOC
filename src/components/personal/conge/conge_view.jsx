@@ -36,7 +36,6 @@ export default function Conges() {
     FetchAllConge(setDatas, setPageInfo);
     FetchAllPersonnel(setDatas1, setPageInfo1);
 
-
   }, []);
   const filterData =
     search.length > 0
