@@ -25,7 +25,11 @@ export default function AjoutCongeModal({ datas }) {
   /*********************** Valeur du dropdown *************************/
 
   const [valeurSelectionnee, setValeurSelectionnee] = useState("");
-  const [GetPersonnel, setGetPersonnel] = useState({});
+  const [GetPersonnel, setGetPersonnel] = useState({
+    attributes: {
+      conge: 0,
+    },
+  });
 
   const handleSelectChange = (selectedOption) => {
     setSelection(false);
@@ -175,8 +179,8 @@ export default function AjoutCongeModal({ datas }) {
               mt="md"
               readOnly
               className={shouldShake ? "shake negative-difference" : ""}
-              /*               value={GetPersonnel.attributes.conge}
-              error={GetPersonnel.attributes.conge - dateRange < 0} */
+              value={GetPersonnel.attributes.conge}
+              error={GetPersonnel.attributes.conge - dateRange < 0}
             />
           </SimpleGrid>
 
