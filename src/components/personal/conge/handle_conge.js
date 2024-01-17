@@ -37,7 +37,7 @@ export const FetchAllPersonnel = (setDatas1, setPageInfo1) => {
 
 };
 
-export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin) => {
+export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_conge) => {
 
   try {
 
@@ -62,7 +62,7 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin) => {
             nom: Person.nom,
             prenom: Person.prenom,
             avatar: Person.avatar,
-            type_conge: '',
+            type_conge: type_conge,
             motif: motif,
             jour_prise: jour_prise,
             date_debut_conge: datedebut,

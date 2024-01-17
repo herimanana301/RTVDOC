@@ -3,7 +3,7 @@ import React, { useState, useEffect} from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { Modal, Button } from '@mantine/core';
 import { useForm, isNotEmpty, hasLength, matches } from '@mantine/form';
-import { Group, TextInput, NumberInput, Box, Textarea, Select, SimpleGrid } from '@mantine/core';
+import { Group, TextInput, NumberInput, Box, Textarea, Select, SimpleGrid,Switch } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { InsertConge } from './handle_conge';
 import './css/modal_nouveau.css';
@@ -11,7 +11,6 @@ import './css/modal_nouveau.css';
 
 export default function AjoutCongeModal(datas) {
   const [opened, { open, close }] = useDisclosure(false);
-
 
   const identite = Object.values(datas.datas).map((data) => {
     return data.attributes; // Assurez-vous que data.attributes contient les informations nécessaires
@@ -35,9 +34,11 @@ export default function AjoutCongeModal(datas) {
   const [dateRange1, setDateRange1] = useState(false);
   const [selection, setSelection] = useState(false);
   const [motifValidation, setMotifValidation] = useState(false);
+  const [congePaye, setcongePaye] = useState(false);
   const [motif, setMotif] = useState('');
   const [datedebut, setDatedebut] = useState('');
   const [dateFin, setDateFin] = useState('');
+  const [TypeConge, setTypeConge] = useState(false);
   
 
   const formatDate = (date) => {
@@ -75,14 +76,17 @@ export default function AjoutCongeModal(datas) {
 
   const handleSubmit = () => {
 
+    let typeConge;
+
     valeurSelectionnee === '' ? setSelection(true) : setSelection(false);
     setShouldShake((GetPersonnel.conge-dateRange) < 0);
     dateRange === '' ? setDateRange1(true) : setDateRange1(false);
     motif === '' ? setMotifValidation(true) : setMotifValidation(false);
+    TypeConge ? typeConge = 'Payé' : typeConge = 'Nom payé';
 
     if(valeurSelectionnee !== '' && (GetPersonnel.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
       
-      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin);
+      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge);
           
     }
 
@@ -145,7 +149,7 @@ export default function AjoutCongeModal(datas) {
             placeholder="Motif du congé"
             mt="md"
             required
-            value={motif}
+            value={TypeConge ? 'Congé payé' : motif}
             onChange={(e) => handleMotifChange(e.target.value)}
             error={motifValidation === true}
           />
@@ -169,6 +173,14 @@ export default function AjoutCongeModal(datas) {
               value={GetPersonnel.conge}
               error={(GetPersonnel.conge-dateRange) < 0}
             />
+
+              <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+                <Switch
+                  mt="md"
+                  label="Congé payé"
+                  onChange={(event) =>setTypeConge(event.target.checked)}
+                /><br/>
+              </SimpleGrid>
 
           </SimpleGrid>
 
