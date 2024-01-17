@@ -1,36 +1,42 @@
 // AjoutCongeModal.js
-import React, { useState, useEffect} from 'react';
-import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button } from '@mantine/core';
-import { useForm, isNotEmpty, hasLength, matches } from '@mantine/form';
-import { Group, TextInput, NumberInput, Box, Textarea, Select, SimpleGrid,Switch } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
-import { InsertConge } from './handle_conge';
-import './css/modal_nouveau.css';
+import React, { useState, useEffect } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { Modal, Button } from "@mantine/core";
+import { useForm, isNotEmpty, hasLength, matches } from "@mantine/form";
+import {
+  Group,
+  TextInput,
+  NumberInput,
+  Box,
+  Textarea,
+  Select,
+  SimpleGrid,
+} from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
+import { InsertConge } from "./handle_conge";
+import "./css/modal_nouveau.css";
 
-
-export default function AjoutCongeModal(datas) {
+export default function AjoutCongeModal({ datas }) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const identite = Object.values(datas.datas).map((data) => {
+  const identite = Object.values(datas).map((data) => {
     return data.attributes; // Assurez-vous que data.attributes contient les informations nécessaires
   });
-
   /*********************** Valeur du dropdown *************************/
 
-  const [valeurSelectionnee, setValeurSelectionnee] = useState('');
+  const [valeurSelectionnee, setValeurSelectionnee] = useState("");
   const [GetPersonnel, setGetPersonnel] = useState({});
 
   const handleSelectChange = (selectedOption) => {
-    setSelection(false)
+    setSelection(false);
+    setGetPersonnel(datas.find((person) => person.id === selectedOption));
+    console.log(GetPersonnel);
     setValeurSelectionnee(selectedOption);
-    const selectedPerson = identite.find((person) => person.idPersonnel === selectedOption);
-    setGetPersonnel(selectedPerson);
   };
 
   /*********************** Valeur du Date picker range *************************/
 
-  const [dateRange, setDateRange] = useState('');
+  const [dateRange, setDateRange] = useState("");
   const [dateRange1, setDateRange1] = useState(false);
   const [selection, setSelection] = useState(false);
   const [motifValidation, setMotifValidation] = useState(false);
@@ -40,11 +46,14 @@ export default function AjoutCongeModal(datas) {
   const [dateFin, setDateFin] = useState('');
   const [TypeConge, setTypeConge] = useState(false);
   
+  const [motif, setMotif] = useState("");
+  const [datedebut, setDatedebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
 
   const formatDate = (date) => {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   };
@@ -60,17 +69,16 @@ export default function AjoutCongeModal(datas) {
 
     let NombreJour = dateFin - dateDebut;
 
-    let differenceJours = (NombreJour / (1000 * 60 * 60 * 24)) + 1 ;
+    let differenceJours = NombreJour / (1000 * 60 * 60 * 24) + 1;
     differenceJours = differenceJours < 0 ? 1 : differenceJours;
 
     setDateRange(differenceJours);
-
   };
 
   const handleMotifChange = (motif) => {
     setMotif(motif);
     setMotifValidation(false);
-  }
+  };
 
   const [shouldShake, setShouldShake] = useState(false);
 
@@ -89,10 +97,8 @@ export default function AjoutCongeModal(datas) {
       InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge);
           
     }
-
   };
 
-  
   useEffect(() => {
     // Reset the shake effect after 1 second
     const timerId = setTimeout(() => {
@@ -102,11 +108,15 @@ export default function AjoutCongeModal(datas) {
     return () => clearTimeout(timerId);
   }, [shouldShake]);
 
-
-
   return (
     <>
-      <Button onClick={() => { open() }}>+ Nouveau</Button>
+      <Button
+        onClick={() => {
+          open();
+        }}
+      >
+        + Nouveau
+      </Button>
       <Modal
         opened={opened}
         onClose={close}
@@ -116,19 +126,22 @@ export default function AjoutCongeModal(datas) {
           blur: 3,
         }}
       >
-
         <Box component="form" maw={400} mx="auto">
-
           <Select
             label="Identité"
             placeholder="Selectionner un personnel"
-            data={identite.map((person) => ({
-              value: person.idPersonnel,
-              label: person.nom + " " + person.prenom,
-            }))}
+            data={
+              datas &&
+              datas.map((person) => ({
+                value: person.id,
+                label: person.attributes.nom + " " + person.attributes.prenom,
+              }))
+            }
             searchable
-            onChange={handleSelectChange}
-            error={selection === true}  
+            onChange={(e) => {
+              handleSelectChange(e);
+            }}
+            error={selection === true}
             required
           />
 
@@ -140,8 +153,8 @@ export default function AjoutCongeModal(datas) {
             allowSingleDateInRange
             placeholder="Sélectionner la date"
             mt="md"
-            onChange={handleDateChange} 
-            error={dateRange1 === true}          
+            onChange={handleDateChange}
+            error={dateRange1 === true}
           />
 
           <Textarea
@@ -155,7 +168,6 @@ export default function AjoutCongeModal(datas) {
           />
 
           <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-
             <NumberInput
               label="Jour(s) prise(s)"
               placeholder="Jour(s) prise(s)"
@@ -169,9 +181,9 @@ export default function AjoutCongeModal(datas) {
               placeholder="Jour(s) restant(s)"
               mt="md"
               readOnly
-              className={shouldShake ? 'shake negative-difference' : ''}
-              value={GetPersonnel.conge}
-              error={(GetPersonnel.conge-dateRange) < 0}
+              className={shouldShake ? "shake negative-difference" : ""}
+              /*               value={GetPersonnel.attributes.conge}
+              error={GetPersonnel.attributes.conge - dateRange < 0} */
             />
 
               <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
@@ -185,13 +197,12 @@ export default function AjoutCongeModal(datas) {
           </SimpleGrid>
 
           <Group justify="flex-end" mt="md">
-            <Button onClick={handleSubmit} type="button">Enregistrer</Button>
+            <Button onClick={handleSubmit} type="button">
+              Enregistrer
+            </Button>
           </Group>
         </Box>
-
       </Modal>
     </>
   );
 }
-
-
