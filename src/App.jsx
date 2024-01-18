@@ -4,6 +4,10 @@ import Neworder from "./components/input/orderInput/Neworder";
 import NewPersonal from "./components/personal/handle";
 import "./App.css";
 import Navigation from "./components/navigation/Navigation";
+import { useEffect } from "react";
+import MajConge from "./services/majConge";
+
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -30,11 +34,18 @@ function App() {
       path: "/personal/:id",
       element: <NewPersonal />,
     },
-    
+
   ]);
+
+  /************* Mise à jour des jour de congé *************/
+
+
+  /********************************************************/
+
   return (
     <>
       <RouterProvider router={router} />
+      <MajConge/>
     </>
   );
 }
