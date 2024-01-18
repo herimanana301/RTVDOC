@@ -25,6 +25,7 @@ import axios from "axios";
 import checked from "../../assets/icons/checked.gif";
 import wrong from "../../assets/icons/wrong.gif";
 import useStyles from "./inputstyles/newclientstyle.js";
+import urls from "../../services/urls.js";
 
 export default function NewClient() {
   const { classes } = useStyles(); // utilisation des style déclaré précédemment
@@ -77,10 +78,10 @@ export default function NewClient() {
       return newDatas;
     });
   };
-  
+
   const submitButton = async () => {
     await axios
-      .post("http://192.168.0.100:1337/api/clients", {
+      .post(`${urls.StrapiUrl}api/clients`, {
         data: {
           raisonsocial: datas[0].description,
           adresse: datas[3].description,
@@ -108,7 +109,7 @@ export default function NewClient() {
   }; // requête pour soumettre les données vers STRAPI
   const updateClient = async () => {
     await axios
-      .put(`http://192.168.0.100:1337/api/clients/${id}`, {
+      .put(`${urls.StrapiUrl}api/clients/${id}`, {
         data: {
           raisonsocial: datas[0].description,
           adresse: datas[3].description,

@@ -23,13 +23,14 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
+import urls from "../../../services/urls.js";
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
-import { DateInput } from '@mantine/dates';
+import { DateInput } from "@mantine/dates";
 import axios from "axios";
 
 export default function Neworder() {
@@ -45,14 +46,13 @@ export default function Neworder() {
     { title: "Responsable commande", description: "", icon: IconPhone },
   ]);
 
+  const [startDate, setStartDate] = useState("");
 
-  const [startDate, setStartDate] = useState("")
-
-  const [endDate, setEndDate] = useState("")
+  const [endDate, setEndDate] = useState("");
   const [service, setService] = useState({
     contentType: "",
     service: "",
-    quantity: "",
+    quantity: 0,
 
     priceUnit: 0,
     priceTotal: 0,
@@ -71,84 +71,33 @@ export default function Neworder() {
   };
 
   // ...
- 
-const handleCreateCommande = async () => {
-  const formData = {
-    //client: datas[0].description,
-    //Idcommand: datas[1].description,
-    responsableCommande: datas[2].description, //mbola
-    startDate: startDate,
-    endDate: endDate,
-    services: serviceList.map((serviceItem) => ({
-      contentType: serviceItem.contentType, //mbola 
-      //prestations: serviceItem.service,
-      quantite: serviceItem.quantity,
-      prixUnitaire: serviceItem.priceUnit,
-      montantHT:
-        serviceItem.priceUnit && serviceItem.quantity
-          ? serviceItem.priceUnit * serviceItem.quantity
-          : 0,
-      priceTotal: serviceItem.priceTotal,
-    })),
-    // Ajoutez d'autres champs du formulaire au besoin
+
+  const handleCreateCommande = async () => {
+    const formData = {
+      reference: datas[1].description,
+      responsableCommande: datas[2].description, //mbola
+      startDate: startDate,
+      endDate: endDate,
+    };
+
+    await axios
+      .post(`${urls.StrapiUrl}api/commande`, formData)
+      .then((response) => {
+        console.log(response);
+        response.status === 200 && setOpened(true);
+        const updatedDatas = datas.map((element) => ({
+          ...element,
+          description: "",
+        })); // remet à vide la clé "description" une fois l'envoie des données effectué
+        setDatas(updatedDatas);
+      })
+      .catch((error) => {
+        console.error(error);
+        setSubmitError(true);
+      });
   };
 
-
-  await axios.post("http://192.168.0.100:1337/api/commande", formData)
-    .then((response) => {
-      console.log(response);
-      response.status === 200 && setOpened(true);
-      const updatedDatas = datas.map((element) => ({
-        ...element,
-        description: "",
-      })); // remet à vide la clé "description" une fois l'envoie des données effectué
-      setDatas(updatedDatas);
-    })
-    .catch((error) => {
-      //console.error(error);
-     // setSubmitError(true);
-    });
-};
-
-const [submitError, setSubmitError] = useState(false); 
-
-
-/*const handleCreateCommande = async () => {
-  const formData = {
-    client: datas[0].description,
-    Idcommand: datas[1].description,
-    reference: datas[2].description, //mbola
-    prestation: sericesItem.service,
-
-    montantHT:
-        service.priceUnit && serviceItem.quantity
-          ? sericesItem.priceUnit * serviceItem.quantity
-          : 0,
-      priceTotal: service.priceTotal,
-    startDate: startDate,
-    endDate: endDate,
-    services: serviceList.map((serviceItem) => ({
-      
-      
-    })),
-    // Ajoutez d'autres champs du formulaire au besoin
-  };
-
-  await axios.post("http://192.168.0.100:1337/api/commande", formData)
-    .then((response) => {
-      console.log(response);
-      response.status === 200 && setOpened(true);
-      const updatedDatas = datas.map((element) => ({
-        ...element,
-        description: "",
-      })); // remet à vide la clé "description" une fois l'envoie des données effectué
-      setDatas(updatedDatas);
-    })
-    .catch((error) => {
-      console.error(error);
-      setSubmitError(true);
-    });
-};*/
+  const [submitError, setSubmitError] = useState(false);
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
@@ -183,7 +132,6 @@ const [submitError, setSubmitError] = useState(false);
               />
             </SimpleGrid>
 
-
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 label="Numéro de commande"
@@ -200,19 +148,18 @@ const [submitError, setSubmitError] = useState(false);
 
               <DateInput
                 label="Date de début diffusion"
-                placeholder="Select date"
+                placeholder="Selectionner date de début"
                 value={startDate}
                 onChange={(e) => setStartDate(e)}
               />
 
               <DateInput
                 label="Date fin diffusion"
-                placeholder="Select date"
+                placeholder="Selectionner date de fin"
                 value={endDate}
                 onChange={(e) => setEndDate(e)}
               />
             </SimpleGrid>
-
 
             <SimpleGrid cols={6} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <Select
