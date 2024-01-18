@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 
 const FetchAllConge = (setDatas, setPageInfo) => {
   axios
-    .get(urls.StrapiUrl + "api/conges")
+    .get(`${urls.StrapiUrl}api/conges`)
     .then((response) => {
       console.log(response.data.data[0].attributes);
       setDatas(response.data.data);
@@ -22,9 +22,8 @@ const FetchAllConge = (setDatas, setPageInfo) => {
 
 export const FetchAllPersonnel = (setDatas1, setPageInfo1) => {
   axios
-    .get(urls.StrapiUrl + "api/personnels")
+    .get(`${urls.StrapiUrl}api/personnels`)
     .then((response) => {
-      console.log(response.data.data[0].attributes);
       setDatas1(response.data.data);
 
       setPageInfo1((prevdata) => ({
@@ -42,7 +41,7 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_c
 
   try {
        
-    axios.put(urls.StrapiUrl + `api/personnels/${Person.id}`, {
+    axios.put(`${urls.StrapiUrl}api/personnels/${Person.id}`, {
       data: {
         conge: (Person.attributes.conge - jour_prise),
         dateDernierConge : dateFin,
@@ -51,7 +50,7 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_c
     }).then((response) => {
       if (response.status === 200) {
 
-        axios.post(urls.StrapiUrl + "api/conges", {
+        axios.post(`${urls.StrapiUrl}api/conges`, {
           data: {
             nom: Person.attributes.nom,
             prenom: Person.attributes.prenom,

@@ -19,10 +19,6 @@ const stateColors = {
   designer: "pink",
 };
 
-const handleModal = () => {
-  console.log('hello biach');
-}
-
 export default function Orders() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,8 +46,8 @@ export default function Orders() {
       state: "En cours de diffusion",
       email: "john.doe@example.com",
       phone: "+1234567890",
-      dateDebut :"2024-01-16",
-      dateFin : "2024-01-31",
+      dateDebut :"2023-12-18",
+      dateFin : "2024-01-17",
       qte: "70",
       pu: "10000",
     },
@@ -120,7 +116,7 @@ export default function Orders() {
       <td>
         <Group spacing={0} position="right">
           <ActionIcon onClick={ handleModal }>
-            <IconBolt size="1rem" stroke={1.5} />
+            <IconBolt size="1rem" stroke={1.5}/>
           </ActionIcon>
         </Group>
       </td>
@@ -155,7 +151,7 @@ export default function Orders() {
       title={<Text fz="sm" fw={500}>Récapitulation</Text>}
       centered
     >
-      {/* Content of your modal goes here */}
+
       <Text size="sm">
         
         <Text>Type de publicité :</Text>
