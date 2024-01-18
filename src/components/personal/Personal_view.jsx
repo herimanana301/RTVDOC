@@ -13,18 +13,14 @@ import {
   Avatar,
 } from "@mantine/core";
 
-import {
-  IconPencil,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import confirmationModal from "../../services/alertConfirmation";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import urls from "../../services/urls";
-
 
 export default function Personals() {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -40,7 +36,7 @@ export default function Personals() {
 
   useEffect(() => {
     axios
-      .get(urls.StrapiUrl+"api/personnels")
+      .get(urls.StrapiUrl + "api/personnels")
       .then((response) => {
         console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
@@ -59,9 +55,12 @@ export default function Personals() {
 
   const deletedUser = async (id) => {
     try {
-      const response = await axios.delete(urls.StrapiUrl+`api/personnels/${id}`);
-      console.log('Delete Response:', response); // Vérifiez la réponse ici
-      if (response.status == 200) { // Assurez-vous de vérifier la réponse appropriée pour votre API
+      const response = await axios.delete(
+        urls.StrapiUrl + `api/personnels/${id}`
+      );
+      console.log("Delete Response:", response); // Vérifiez la réponse ici
+      if (response.status == 200) {
+        // Assurez-vous de vérifier la réponse appropriée pour votre API
 
         setDatas((prevData) => {
           const newData = prevData.filter(
@@ -81,7 +80,11 @@ export default function Personals() {
     <tr key={item.id}>
       <td>
         <Group gap="sm">
-          <Avatar size={50} radius={50} src={urls.StrapiUrl+'uploads/' + item.attributes.avatar} />
+          <Avatar
+            size={50}
+            radius={50}
+            src={urls.StrapiUrl + "uploads/" + item.attributes.avatar}
+          />
           <Text fz="sm" fw={500}>
             {item.attributes.nom} {item.attributes.prenom}
             <br />
@@ -127,11 +130,23 @@ export default function Personals() {
               }}
               state={{ personalDatas: item.attributes }}
             >
-              <IconPencil style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
+              <IconPencil
+                style={{ width: rem(16), height: rem(16) }}
+                stroke={1.5}
+              />
             </Link>
           </ActionIcon>
-          <ActionIcon variant="subtle" color="gray" onClick={() => { confirmationModal(item.id, deletedUser) }}>
-            <IconTrash style={{ width: rem(16), height: rem(16), color: 'red' }} stroke={1.5} />
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            onClick={() => {
+              confirmationModal(item.id, deletedUser);
+            }}
+          >
+            <IconTrash
+              style={{ width: rem(16), height: rem(16), color: "red" }}
+              stroke={1.5}
+            />
           </ActionIcon>
         </Group>
       </td>
@@ -195,7 +210,6 @@ export default function Personals() {
           </thead>
           <tbody>{rows}</tbody>
         </Table>
-
       </ScrollArea>
     </>
   );

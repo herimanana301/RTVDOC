@@ -19,6 +19,8 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx
 import { getClients } from "../../services/getInformations/getClients"; // service pour récupérer les clients, format --> getClients(setPageInfo, setDatas)
+import urls from "../../services/urls";
+
 export default function Clients() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [search, setSearch] = useState("");
@@ -63,7 +65,7 @@ export default function Clients() {
   }, []);
   const deletedUser = async (id) => {
     await axios
-      .delete(`http://192.168.0.100:1337/api/clients/${id}`)
+      .delete(`${urls.StrapiUrl}api/clients/${id}`)
       .then((response) => {
         if (response) {
           Swal.fire("Supprimé!", "Client supprimé avec succès.", "success");
@@ -81,7 +83,7 @@ export default function Clients() {
       });
   };
 
-  const rows = filterData.map((item) => (
+  const rows = datas.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
         <Group gap="sm">
@@ -144,9 +146,7 @@ export default function Clients() {
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
-          data={["Blacklisté"]}
-          value={search}
-          onChange={(e) => setSearch(e)}
+          data={[]}
         />
         <Menu
           shadow="md"
@@ -180,7 +180,7 @@ export default function Clients() {
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
-              <th> Nom (ou Raison social) </th>
+              <th>Nom (ou Raison social) </th>
               <th>Numéro tel</th>
               <th>Adresse email</th>
               <th>Adresse</th>

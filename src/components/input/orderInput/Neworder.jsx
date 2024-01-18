@@ -23,12 +23,16 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
+import urls from "../../../services/urls.js";
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
+import { DateInput } from "@mantine/dates";
+import axios from "axios";
+
 export default function Neworder() {
   const { classes } = useStyles();
   const [clients, setClients] = useState([]);
@@ -41,10 +45,15 @@ export default function Neworder() {
     { title: "Numéro de commande", description: "", icon: IconAt },
     { title: "Responsable commande", description: "", icon: IconPhone },
   ]);
+
+  const [startDate, setStartDate] = useState("");
+
+  const [endDate, setEndDate] = useState("");
   const [service, setService] = useState({
     contentType: "",
     service: "",
-    quantity: "",
+    quantity: 0,
+
     priceUnit: 0,
     priceTotal: 0,
   });
@@ -56,9 +65,39 @@ export default function Neworder() {
         ...newDatas[index],
         description: newDescription,
       }; // Update the description
+      //console.log(datas[0].description);
       return newDatas;
     });
   };
+
+  // ...
+
+  const handleCreateCommande = async () => {
+    const formData = {
+      reference: datas[1].description,
+      responsableCommande: datas[2].description, //mbola
+      startDate: startDate,
+      endDate: endDate,
+    };
+
+    await axios
+      .post(`${urls.StrapiUrl}api/commande`, formData)
+      .then((response) => {
+        console.log(response);
+        response.status === 200 && setOpened(true);
+        const updatedDatas = datas.map((element) => ({
+          ...element,
+          description: "",
+        })); // remet à vide la clé "description" une fois l'envoie des données effectué
+        setDatas(updatedDatas);
+      })
+      .catch((error) => {
+        console.error(error);
+        setSubmitError(true);
+      });
+  };
+
+  const [submitError, setSubmitError] = useState(false);
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
@@ -92,6 +131,7 @@ export default function Neworder() {
                 onChange={(e) => updateDescription(0, e)}
               />
             </SimpleGrid>
+
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 label="Numéro de commande"
@@ -105,7 +145,22 @@ export default function Neworder() {
                 value={datas[2].description}
                 onChange={(e) => updateDescription(2, e.target.value)}
               />
+
+              <DateInput
+                label="Date de début diffusion"
+                placeholder="Selectionner date de début"
+                value={startDate}
+                onChange={(e) => setStartDate(e)}
+              />
+
+              <DateInput
+                label="Date fin diffusion"
+                placeholder="Selectionner date de fin"
+                value={endDate}
+                onChange={(e) => setEndDate(e)}
+              />
             </SimpleGrid>
+
             <SimpleGrid cols={6} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <Select
                 mt="md"
@@ -237,6 +292,7 @@ export default function Neworder() {
               <Button
                 type="submit"
                 className={(classes.control, classes.voucher)}
+                onClick={handleCreateCommande}
               >
                 Créer bon de commande
               </Button>

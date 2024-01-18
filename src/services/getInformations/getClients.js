@@ -1,8 +1,8 @@
 import axios from "axios";
-
+import urls from "../urls";
 const getClients=(setPageInfo, setDatas)=>{
      axios
-    .get("http://192.168.0.100:1337/api/clients/")
+    .get(`${urls.StrapiUrl}api/clients/`)
     .then((response) => {
       setDatas(response.data.data);
       setPageInfo((prevdata) => ({
