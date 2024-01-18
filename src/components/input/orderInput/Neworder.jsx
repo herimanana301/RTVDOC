@@ -47,25 +47,26 @@ export default function Neworder() {
   ]);
 
   const [startDate, setStartDate] = useState("");
-
   const [endDate, setEndDate] = useState("");
+  const [laterinformation, setLaterinformation] = useState({
+    clientId: 0,
+    serviceId: [],
+  });
   const [service, setService] = useState({
     contentType: "",
     service: "",
     quantity: 0,
-
     priceUnit: 0,
     priceTotal: 0,
   });
   let [serviceList, setServiceList] = useState([]);
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
-      const newDatas = [...prevDatas]; // Create a shallow copy of the array
+      let newDatas = [...prevDatas]; // Create a shallow copy of the array
       newDatas[index] = {
         ...newDatas[index],
         description: newDescription,
-      }; // Update the description
-      //console.log(datas[0].description);
+      };
       return newDatas;
     });
   };
@@ -74,22 +75,23 @@ export default function Neworder() {
 
   const handleCreateCommande = async () => {
     const formData = {
-      reference: datas[1].description,
-      responsableCommande: datas[2].description, //mbola
-      startDate: startDate,
-      endDate: endDate,
+      data: {
+        client: parseInt(laterinformation.clientId),
+        reference: datas[1].description,
+        responsableCommande: datas[2].description,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      },
     };
 
     await axios
-      .post(`${urls.StrapiUrl}api/commande`, formData)
+      .post(`${urls.StrapiUrl}api/commandes`, formData)
       .then((response) => {
-        console.log(response);
-        response.status === 200 && setOpened(true);
-        const updatedDatas = datas.map((element) => ({
+        /*         const updatedDatas = datas.map((element) => ({
           ...element,
           description: "",
-        })); // remet à vide la clé "description" une fois l'envoie des données effectué
-        setDatas(updatedDatas);
+        }));
+        setDatas(updatedDatas); */
       })
       .catch((error) => {
         console.error(error);
@@ -126,9 +128,24 @@ export default function Neworder() {
               <Select
                 label="Client"
                 placeholder="Selectionner le client"
-                data={clients.map((client) => client.attributes.raisonsocial)}
+                data={clients.map((client) => {
+                  return {
+                    key: client.id,
+                    value: {
+                      id: client.id,
+                      clientName: client.attributes.raisonsocial,
+                    },
+                    label: client.attributes.raisonsocial,
+                  };
+                })}
                 value={datas[0].description}
-                onChange={(e) => updateDescription(0, e)}
+                onChange={(e) => {
+                  updateDescription(0, e.clientName);
+                  console.log(e.clientName);
+                  setLaterinformation((prevData) => {
+                    return { ...prevData, clientId: e.id };
+                  });
+                }}
               />
             </SimpleGrid>
 
@@ -292,7 +309,7 @@ export default function Neworder() {
               <Button
                 type="submit"
                 className={(classes.control, classes.voucher)}
-                onClick={handleCreateCommande}
+                onClick={() => handleCreateCommande()}
               >
                 Créer bon de commande
               </Button>
