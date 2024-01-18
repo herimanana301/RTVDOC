@@ -23,6 +23,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import confirmationModal from "../../services/alertConfirmation";
 import Swal from 'sweetalert2';
+import urls from "../../services/urls";
 
 
 export default function Personals() {
@@ -32,8 +33,6 @@ export default function Personals() {
     total: 1,
   });
 
-  let StrapiUrl = "http://192.168.0.101:1337/";
-
   const [datas, setDatas] = useState([]);
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
@@ -41,7 +40,7 @@ export default function Personals() {
 
   useEffect(() => {
     axios
-      .get(StrapiUrl+"api/personnels")
+      .get(urls.StrapiUrl+"api/personnels")
       .then((response) => {
         console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
@@ -60,7 +59,7 @@ export default function Personals() {
 
   const deletedUser = async (id) => {
     try {
-      const response = await axios.delete(StrapiUrl+`api/personnels/${id}`);
+      const response = await axios.delete(urls.StrapiUrl+`api/personnels/${id}`);
       console.log('Delete Response:', response); // Vérifiez la réponse ici
       if (response.status == 200) { // Assurez-vous de vérifier la réponse appropriée pour votre API
 
@@ -79,10 +78,10 @@ export default function Personals() {
   };
 
   const rows = datas.map((item) => (
-    <tr key={item.attributes.idPersonnel}>
+    <tr key={item.id}>
       <td>
         <Group gap="sm">
-          <Avatar size={50} radius={50} src={StrapiUrl+'uploads/' + item.attributes.avatar} />
+          <Avatar size={50} radius={50} src={urls.StrapiUrl+'uploads/' + item.attributes.avatar} />
           <Text fz="sm" fw={500}>
             {item.attributes.nom} {item.attributes.prenom}
             <br />
@@ -106,6 +105,11 @@ export default function Personals() {
       <td>
         <Text fz="xs" c="dimmed">
           {item.attributes.poste}
+        </Text>
+      </td>
+      <td>
+        <Text fz="xs" c="dimmed">
+          {item.attributes.conge} Jour(s)
         </Text>
       </td>
       <td>
@@ -184,6 +188,7 @@ export default function Personals() {
               <th>Adresse</th>
               <th>Email</th>
               <th>Poste</th>
+              <th>Congé restant</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>

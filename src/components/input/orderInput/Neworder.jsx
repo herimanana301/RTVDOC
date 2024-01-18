@@ -180,7 +180,6 @@ const [submitError, setSubmitError] = useState(false);
                 data={clients.map((client) => client.attributes.raisonsocial)}
                 value={datas[0].description}
                 onChange={(e) => updateDescription(0, e)}
-
               />
             </SimpleGrid>
 
