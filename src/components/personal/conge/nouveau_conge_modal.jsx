@@ -91,6 +91,11 @@ export default function AjoutCongeModal({ datas }) {
 
   const [shouldShake, setShouldShake] = useState(false);
 
+  const HandleConge = (switchP) => {
+    switchP ? setMotif('Payé') : setMotif('')
+    setTypeConge(switchP);
+  } 
+
   const handleSubmit = () => {
 
     let typeConge;
@@ -199,7 +204,7 @@ export default function AjoutCongeModal({ datas }) {
                 <Switch
                   mt="md"
                   label="Congé payé"
-                  onChange={(event) =>setTypeConge(event.target.checked)}
+                  onChange={(event) =>HandleConge(event.target.checked)}
                 /><br/>
               </SimpleGrid>
 
