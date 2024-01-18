@@ -11,6 +11,7 @@ import {
   Textarea,
   Select,
   SimpleGrid,
+  Switch
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { InsertConge } from "./handle_conge";
@@ -27,14 +28,13 @@ export default function AjoutCongeModal({ datas }) {
   const [valeurSelectionnee, setValeurSelectionnee] = useState("");
   const [GetPersonnel, setGetPersonnel] = useState({
     attributes: {
-      conge: 0,
+      conge: '',
     },
   });
 
   const handleSelectChange = (selectedOption) => {
     setSelection(false);
     setGetPersonnel(datas.find((person) => person.id === selectedOption));
-    console.log(GetPersonnel);
     setValeurSelectionnee(selectedOption);
   };
 
@@ -44,9 +44,20 @@ export default function AjoutCongeModal({ datas }) {
   const [dateRange1, setDateRange1] = useState(false);
   const [selection, setSelection] = useState(false);
   const [motifValidation, setMotifValidation] = useState(false);
-  const [motif, setMotif] = useState("");
-  const [datedebut, setDatedebut] = useState("");
-  const [dateFin, setDateFin] = useState("");
+  const [congePaye, setcongePaye] = useState(false);
+  const [motif, setMotif] = useState('');
+  const [datedebut, setDatedebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+  const [TypeConge, setTypeConge] = useState(false);
+  
+  useEffect(() => {
+    setDateRange("");
+    setGetPersonnel({
+      attributes: {
+        conge: '',
+      },
+    })
+  }, [opened]);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -81,18 +92,19 @@ export default function AjoutCongeModal({ datas }) {
   const [shouldShake, setShouldShake] = useState(false);
 
   const handleSubmit = () => {
-    valeurSelectionnee === "" ? setSelection(true) : setSelection(false);
-    setShouldShake(GetPersonnel.attributes.conge - dateRange < 0);
-    dateRange === "" ? setDateRange1(true) : setDateRange1(false);
-    motif === "" ? setMotifValidation(true) : setMotifValidation(false);
 
-    if (
-      valeurSelectionnee !== "" &&
-      GetPersonnel.attributes.conge - dateRange >= 0 &&
-      dateRange1 == false &&
-      motifValidation == false
-    ) {
-      InsertConge(GetPersonnel, motif, dateRange, datedebut, dateFin);
+    let typeConge;
+
+    valeurSelectionnee === '' ? setSelection(true) : setSelection(false);
+    setShouldShake((GetPersonnel.attributes.conge-dateRange) < 0);
+    dateRange === '' ? setDateRange1(true) : setDateRange1(false);
+    motif === '' ? setMotifValidation(true) : setMotifValidation(false);
+    TypeConge ? typeConge = 'Payé' : typeConge = '';
+
+    if(valeurSelectionnee !== '' && (GetPersonnel.attributes.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
+      
+      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge,close);
+          
     }
   };
 
@@ -159,7 +171,7 @@ export default function AjoutCongeModal({ datas }) {
             placeholder="Motif du congé"
             mt="md"
             required
-            value={motif}
+            value={TypeConge ? 'Congé payé' : motif}
             onChange={(e) => handleMotifChange(e.target.value)}
             error={motifValidation === true}
           />
@@ -180,8 +192,17 @@ export default function AjoutCongeModal({ datas }) {
               readOnly
               className={shouldShake ? "shake negative-difference" : ""}
               value={GetPersonnel.attributes.conge}
-              error={GetPersonnel.attributes.conge - dateRange < 0}
+              error={GetPersonnel.attributes.conge - dateRange < 0} 
             />
+
+              <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+                <Switch
+                  mt="md"
+                  label="Congé payé"
+                  onChange={(event) =>setTypeConge(event.target.checked)}
+                /><br/>
+              </SimpleGrid>
+
           </SimpleGrid>
 
           <Group justify="flex-end" mt="md">

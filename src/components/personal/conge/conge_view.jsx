@@ -35,6 +35,7 @@ export default function Conges() {
   useEffect(() => {
     FetchAllConge(setDatas, setPageInfo);
     FetchAllPersonnel(setDatas1, setPageInfo1);
+
   }, []);
   const filterData =
     search.length > 0

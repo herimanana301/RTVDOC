@@ -9,6 +9,7 @@ import {
   rem,
   Modal,
   Avatar,
+  Switch
 
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
@@ -222,6 +223,14 @@ export default function NewPersonal() {
     });
   };
 
+  const [Status, setStatus] = useState(false);
+  const [StatusTxt, setStatusTxt] = useState('');
+
+  const handleStatusChange = (status) =>{
+    setStatus(status);
+    status ? setStatusTxt('Actif') : setStatusTxt('Non actif');
+  }
+
   /*************** Insert personal data *********************/
 
   const submitButton = async () => {
@@ -250,6 +259,7 @@ export default function NewPersonal() {
           date_embauche: inputValues.dateEmbauche,
           avatar: imageResponse.data[0].hash + '.png',
           conge: 0,
+          status:'Actif'
         },
       });
 
@@ -318,6 +328,7 @@ export default function NewPersonal() {
             salaire: inputValues.salaire,
             date_embauche: inputValues.dateEmbauche,
             avatar: imageResponse.data[0].hash + '.png',
+            status:StatusTxt,
           },
         });
 
@@ -338,6 +349,7 @@ export default function NewPersonal() {
             poste: datas[3].description,
             salaire: inputValues.salaire,
             date_embauche: inputValues.dateEmbauche,
+            status:StatusTxt,
           },
         });
 
@@ -364,6 +376,7 @@ export default function NewPersonal() {
       updateDescription(0, currentPersonal.contact);
       updateDescription(1, currentPersonal.email);
       updateDescription(3, currentPersonal.poste);
+      currentPersonal.status ==='Actif' ? setStatus(true) : setStatus(false);
 
     }
   }, []);
@@ -549,11 +562,19 @@ export default function NewPersonal() {
                     Glisser l'image ici ou cliquez pour sélectionner le fichier
                     </Text>
                     <Text size="sm" c="dimmed" inline mt={7}>
-                    Joignez une image que vous le souhaitez, le fichier ne doit pas dépasser 5 Mo.
+                    Joignez une image que vous souhaitez, le fichier ne doit pas dépasser 5 Mo.
                     </Text>
                   </div>
                 </Group>
               </Dropzone>
+              {id && <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+                <Switch
+                  mt="md"
+                  label="Personnel actif"
+                  onChange={(event) => handleStatusChange(event.target.checked)}
+                  checked={Status}
+                /><br/>
+              </SimpleGrid>}
             </SimpleGrid>
             <Group position="right" mt="md">
               <Button
