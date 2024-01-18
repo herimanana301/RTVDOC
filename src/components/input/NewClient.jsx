@@ -77,6 +77,7 @@ export default function NewClient() {
       return newDatas;
     });
   };
+  
   const submitButton = async () => {
     await axios
       .post("http://192.168.0.100:1337/api/clients", {

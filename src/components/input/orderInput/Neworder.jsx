@@ -29,9 +29,8 @@ import { getClients } from "../../../services/getInformations/getClients.js"; //
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
-
-
-
+import { DateInput } from '@mantine/dates';
+import axios from "axios";
 
 export default function Neworder() {
   const { classes } = useStyles();
@@ -45,10 +44,16 @@ export default function Neworder() {
     { title: "Numéro de commande", description: "", icon: IconAt },
     { title: "Responsable commande", description: "", icon: IconPhone },
   ]);
+
+
+  const [startDate, setStartDate] = useState("")
+
+  const [endDate, setEndDate] = useState("")
   const [service, setService] = useState({
     contentType: "",
     service: "",
     quantity: "",
+
     priceUnit: 0,
     priceTotal: 0,
   });
@@ -60,9 +65,90 @@ export default function Neworder() {
         ...newDatas[index],
         description: newDescription,
       }; // Update the description
+      //console.log(datas[0].description);
       return newDatas;
     });
   };
+
+  // ...
+ 
+const handleCreateCommande = async () => {
+  const formData = {
+    //client: datas[0].description,
+    //Idcommand: datas[1].description,
+    responsableCommande: datas[2].description, //mbola
+    startDate: startDate,
+    endDate: endDate,
+    services: serviceList.map((serviceItem) => ({
+      contentType: serviceItem.contentType, //mbola 
+      //prestations: serviceItem.service,
+      quantite: serviceItem.quantity,
+      prixUnitaire: serviceItem.priceUnit,
+      montantHT:
+        serviceItem.priceUnit && serviceItem.quantity
+          ? serviceItem.priceUnit * serviceItem.quantity
+          : 0,
+      priceTotal: serviceItem.priceTotal,
+    })),
+    // Ajoutez d'autres champs du formulaire au besoin
+  };
+
+
+  await axios.post("http://192.168.0.100:1337/api/commande", formData)
+    .then((response) => {
+      console.log(response);
+      response.status === 200 && setOpened(true);
+      const updatedDatas = datas.map((element) => ({
+        ...element,
+        description: "",
+      })); // remet à vide la clé "description" une fois l'envoie des données effectué
+      setDatas(updatedDatas);
+    })
+    .catch((error) => {
+      //console.error(error);
+     // setSubmitError(true);
+    });
+};
+
+const [submitError, setSubmitError] = useState(false); 
+
+
+/*const handleCreateCommande = async () => {
+  const formData = {
+    client: datas[0].description,
+    Idcommand: datas[1].description,
+    reference: datas[2].description, //mbola
+    prestation: sericesItem.service,
+
+    montantHT:
+        service.priceUnit && serviceItem.quantity
+          ? sericesItem.priceUnit * serviceItem.quantity
+          : 0,
+      priceTotal: service.priceTotal,
+    startDate: startDate,
+    endDate: endDate,
+    services: serviceList.map((serviceItem) => ({
+      
+      
+    })),
+    // Ajoutez d'autres champs du formulaire au besoin
+  };
+
+  await axios.post("http://192.168.0.100:1337/api/commande", formData)
+    .then((response) => {
+      console.log(response);
+      response.status === 200 && setOpened(true);
+      const updatedDatas = datas.map((element) => ({
+        ...element,
+        description: "",
+      })); // remet à vide la clé "description" une fois l'envoie des données effectué
+      setDatas(updatedDatas);
+    })
+    .catch((error) => {
+      console.error(error);
+      setSubmitError(true);
+    });
+};*/
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
@@ -97,6 +183,8 @@ export default function Neworder() {
 
               />
             </SimpleGrid>
+
+
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <TextInput
                 label="Numéro de commande"
@@ -110,7 +198,23 @@ export default function Neworder() {
                 value={datas[2].description}
                 onChange={(e) => updateDescription(2, e.target.value)}
               />
+
+              <DateInput
+                label="Date de début diffusion"
+                placeholder="Select date"
+                value={startDate}
+                onChange={(e) => setStartDate(e)}
+              />
+
+              <DateInput
+                label="Date fin diffusion"
+                placeholder="Select date"
+                value={endDate}
+                onChange={(e) => setEndDate(e)}
+              />
             </SimpleGrid>
+
+
             <SimpleGrid cols={6} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
               <Select
                 mt="md"
@@ -242,6 +346,7 @@ export default function Neworder() {
               <Button
                 type="submit"
                 className={(classes.control, classes.voucher)}
+                onClick={handleCreateCommande}
               >
                 Créer bon de commande
               </Button>

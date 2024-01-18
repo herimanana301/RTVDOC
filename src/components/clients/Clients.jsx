@@ -21,29 +21,13 @@ import { Link } from "react-router-dom"; // Pour gérer les redirection vers les
 import { getClients } from "../../services/getInformations/getClients"; // service pour récupérer les clients, format --> getClients(setPageInfo, setDatas)
 export default function Clients() {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [search, setSearch] = useState("");
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     total: 1,
   });
   const [datas, setDatas] = useState([]);
-  const filterData =
-    search.length > 0
-      ? datas.filter(
-          (data) =>
-            data.attributes.NIF.includes(search) ||
-            data.attributes.STAT.includes(search) ||
-            data.attributes.raisonsocial.toLowerCase().includes(search) ||
-            data.attributes.phonenumber.includes(search) ||
-            data.attributes.email.toLowerCase().includes(search) ||
-            data.attributes.adresse.toLowerCase().includes(search)
-        )
-      : search === "Blacklisté"
-      ? datas.filter((data) => data.attributes.blacklist)
-      : datas;
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
-    console.log(datas);
   };
   useEffect(() => {
     getClients(setPageInfo, setDatas);
@@ -68,7 +52,7 @@ export default function Clients() {
       });
   };
 
-  const rows = filterData.map((item) => (
+  const rows = datas.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
         <Group gap="sm">
@@ -131,9 +115,7 @@ export default function Clients() {
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
-          data={["Blacklisté"]}
-          value={search}
-          onChange={(e) => setSearch(e)}
+          data={[]}
         />
         <Menu
           shadow="md"
@@ -170,7 +152,7 @@ export default function Clients() {
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
-              <th> Nom (ou Raison social) </th>
+              <th>Nom (ou Raison social) </th>
               <th>Numéro tel</th>
               <th>Adresse email</th>
               <th>Adresse</th>
