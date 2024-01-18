@@ -1,5 +1,6 @@
 import axios from "axios";
 import urls from '../../../services/urls';
+import Swal from 'sweetalert2';
 
 const FetchAllConge = (setDatas, setPageInfo) => {
   axios
@@ -37,20 +38,14 @@ export const FetchAllPersonnel = (setDatas1, setPageInfo1) => {
 
 };
 
-export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_conge) => {
+export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_conge,close) => {
 
   try {
-
-    axios
-    .get(urls.StrapiUrl + `api/personnels?idPersonnel=${Person.id}`)
-    .then((response) => {
-      if (response.status === 200){
-
-    const id = response.data.data[0].id;
        
-    axios.put(urls.StrapiUrl + `api/personnels/${id}`, {
+    axios.put(urls.StrapiUrl + `api/personnels/${Person.id}`, {
       data: {
         conge: (Person.attributes.conge - jour_prise),
+        dateDernierConge : dateFin,
       },
 
     }).then((response) => {
@@ -58,7 +53,6 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_c
 
         axios.post(urls.StrapiUrl + "api/conges", {
           data: {
-            idPersonnel: Person.attributes.idPersonnel,
             nom: Person.attributes.nom,
             prenom: Person.attributes.prenom,
             avatar: Person.attributes.avatar,
@@ -71,21 +65,33 @@ export const InsertConge = (Person, motif, jour_prise, datedebut, dateFin,type_c
 
         }).then((response) => {
           if (response.status === 200) {
-            console.log('success');
+
+            close();
+            
+            Swal.fire({
+              title: 'Ajout terminé!',
+              text: 'Congé ajouté avec succès!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then((result) => {
+              if (result.isConfirmed) {
+               window.location.reload();
+              }
+            });
+
           }
         })
 
       }
     })
 
-      }
-
-    })
-
-
-
   } catch (error) {
     console.error('Erreur lors de la maj des données à Strapi:', error);
+    Swal.fire(
+      'Erreur',
+      'Erreur lors de l\'ajout du congé',
+      'error'
+  );
   }
 
 

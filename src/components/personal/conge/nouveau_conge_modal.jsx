@@ -28,7 +28,7 @@ export default function AjoutCongeModal({ datas }) {
   const [valeurSelectionnee, setValeurSelectionnee] = useState("");
   const [GetPersonnel, setGetPersonnel] = useState({
     attributes: {
-      conge: 0,
+      conge: '',
     },
   });
 
@@ -50,6 +50,14 @@ export default function AjoutCongeModal({ datas }) {
   const [dateFin, setDateFin] = useState('');
   const [TypeConge, setTypeConge] = useState(false);
   
+  useEffect(() => {
+    setDateRange("");
+    setGetPersonnel({
+      attributes: {
+        conge: '',
+      },
+    })
+  }, [opened]);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -88,15 +96,14 @@ export default function AjoutCongeModal({ datas }) {
     let typeConge;
 
     valeurSelectionnee === '' ? setSelection(true) : setSelection(false);
-    setShouldShake((GetPersonnel.conge-dateRange) < 0);
+    setShouldShake((GetPersonnel.attributes.conge-dateRange) < 0);
     dateRange === '' ? setDateRange1(true) : setDateRange1(false);
     motif === '' ? setMotifValidation(true) : setMotifValidation(false);
-    TypeConge ? typeConge = 'Payé' : typeConge = 'Nom payé';
-    console.log(GetPersonnel.id );
+    TypeConge ? typeConge = 'Payé' : typeConge = '';
 
-    if(valeurSelectionnee !== '' && (GetPersonnel.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
+    if(valeurSelectionnee !== '' && (GetPersonnel.attributes.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
       
-      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge);
+      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge,close);
           
     }
   };
