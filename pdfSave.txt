@@ -1,0 +1,49 @@
+ function Pdfsave() {
+
+                          ///Recuperer la date d'aujourd'hui
+
+                          const currentDate = new Date();
+                          const year = currentDate.getFullYear();
+                          const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(currentDate.getDate()).padStart(2, '0');
+
+                          const formattedDate = `${year}-${month}-${day}`;
+
+                          localStorage.setItem('pdfenregistrer', JSON.stringify({ pdfenregistrer: formattedDate, }));
+
+                          /////////////////////////////////////Sauvegarder le tableau en pdf///////////////////////////////////////////
+
+                          const element = document.getElementById('pdfsave'); // Sélectionner le div à convertir
+
+
+                          document.getElementById('dateRecette').innerText = formattedDate;
+                          document.getElementById('headpdf').style.display = 'block';
+
+                          // Options pour la conversion en PDF (facultatif)
+                          const options = {
+                            margin: 10,
+                            filename: `FCE-Caisse1-FIANARANTSOA-${formattedDate}.pdf`,
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2 },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                          };
+
+                          // Appeler la fonction html2pdf pour effectuer la conversion
+                          html2pdf()
+                            .from(element)
+                            .set(options)
+                            .save()
+                            .then(() => {
+                              alert("PDF sauvegardé avec succès");
+                              console.log("Conversion réussie !");
+                            })
+                            .catch((error) => {
+                              console.error("Erreur lors de la conversion :", error);
+                            });
+
+                          document.getElementById('pdf').disabled = true;
+                          document.getElementById('pdf').innerText = 'PDF sauvegardé';
+
+                          /////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        }

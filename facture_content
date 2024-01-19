@@ -1,4 +1,5 @@
-<Text fz="sm">
+{/* APERCU DE LA FACTURE */}
+      <Text fz="xs">
         <div style={{ display: "flex", justifyContent: "space-between"}}> 
           <span>
             <div style={{ display: "flex"}}>
@@ -36,5 +37,68 @@
             </p>
           </span>
         </div>
+        <div style={{ display:"flex", flexDirection:"column"}}>
+          <div style={{ padding: "15px", border: "1px solid black", textAlign: "center"}}>
+            Facture N° 8395/23
+          </div>
+          <div style={{fontWeight: "bold"}}><span style={{ textDecoration: "underline", }}>Doit </span>{"Herimanana Rasolonirina"}
+          <br />suivant BC {"N°UMT/010100305/10-23UMATEC"} du {"16/10/23"}
+          </div><br />
+
+          <Table>
+            <thead>
+              <tr>
+                <th>PERIODE</th>
+                <th>LIBELLES</th>
+                <th>QTE</th>
+                <th>PRIX UNIT</th>
+                <th>MONTANT</th>
+              </tr>
+            </thead>
+            <tbody>{rowsPreview}</tbody>
+          </Table>
+        </div>
         
-      </Text>
+</Text>
+
+
+
+<Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        style={{ alignItems: "center" }}
+        title={<Text fz="sm" fw={500}>Aperçu de la facture</Text>}
+        centered
+      >
+        <DatePickerInput
+          dropdownType="modal"
+          clearable
+          valueFormat="DD MMM YYYY"
+
+          label="Date de paiement"
+          placeholder="Sélectionnez une date"
+          onChange={(date) => handleInputChange('datePaiement', formatDate(date))}
+        />
+        <br />
+        <FileInput
+          label="Preuve de paiement"
+          description="Capture d'écran avec moyen de paiement"
+          placeholder="Placez votre fichier ici."
+          clearable
+        />
+        <br />
+        <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+          <Switch
+            mt="md"
+            label="Payé"
+          /><br />
+        </SimpleGrid>
+
+        <Button
+          style={{ marginTop: 15 }}
+          onClick={handlePrint}
+          disabled={selectedItem && selectedItem.status === "Non Payé"}
+        >
+          Imprimer
+        </Button>
+      </Modal>
