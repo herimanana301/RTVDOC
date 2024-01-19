@@ -28,6 +28,12 @@ import urls from "../../../services/urls.js";
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
+// À réimplementer plus tard dans handleCreateCommand
+/*         const updatedDatas = datas.map((element) => ({
+          ...element,
+          description: "",
+        }));
+        setDatas(updatedDatas); */
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
@@ -52,6 +58,7 @@ export default function Neworder() {
   const [laterinformation, setLaterinformation] = useState({
     clientId: 0,
     serviceId: [],
+    evidenceFile: null,
   });
   const [service, setService] = useState({
     contentType: "",
@@ -86,53 +93,57 @@ export default function Neworder() {
   };
 
   const handleCreateCommande = async () => {
-    const formData = {
-      data: {
-        client: parseInt(laterinformation.clientId),
-        reference: datas[1].description,
-        responsableCommande: datas[2].description,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-      },
-    };
+    try {
+      // Upload evidence file
+      let evidenceSubmit = new FormData();
+      evidenceSubmit.append("files", laterinformation.evidenceFile[0]);
+      const evidenceUploadResponse = await axios.post(
+        `${urls.StrapiUrl}api/upload`,
+        evidenceSubmit
+      );
 
-    await axios
-      .post(`${urls.StrapiUrl}api/commandes`, formData)
-      .then((response) => {
-        if (response.status === 200) {
-          const promises = serviceList.map(async (service) => {
-            return await axios.post(`${urls.StrapiUrl}api/prestations`, {
-              data: {
-                plateform:
-                  service.contentType === "Télévision" ? "TV" : "RADIO",
-                servicename: service.service,
-                quantity: service.quantity,
-                unityprice: service.priceUnit,
-                totalservice: service.priceTotal,
-                commande: response.data.data.id,
-              },
-            });
+      // Extract uploaded file information
+      const evidenceFileId = evidenceUploadResponse.data[0].url;
+
+      // Create command
+      const formData = {
+        data: {
+          client: parseInt(laterinformation.clientId),
+          reference: datas[1].description,
+          responsableCommande: datas[2].description,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          evidence: evidenceFileId,
+        },
+      };
+
+      const commandResponse = await axios.post(
+        `${urls.StrapiUrl}api/commandes`,
+        formData
+      );
+
+      if (commandResponse.status === 200) {
+        // Create services
+        const promises = serviceList.map(async (service) => {
+          return await axios.post(`${urls.StrapiUrl}api/prestations`, {
+            data: {
+              plateform: service.contentType === "Télévision" ? "TV" : "RADIO",
+              servicename: service.service,
+              quantity: service.quantity,
+              unityprice: service.priceUnit,
+              totalservice: service.priceTotal,
+              commande: commandResponse.data.data.id,
+            },
           });
+        });
 
-          Promise.all(promises)
-            .then((responses) => {
-              // Log each response
-              responses.forEach((response) => console.log(response));
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        }
-        /*         const updatedDatas = datas.map((element) => ({
-          ...element,
-          description: "",
-        }));
-        setDatas(updatedDatas); */
-      })
-      .catch((error) => {
-        console.error(error);
-        setSubmitError(true);
-      });
+        // Wait for all service creation promises to resolve
+        await Promise.all(promises);
+      }
+    } catch (error) {
+      console.error(error);
+      setSubmitError(true);
+    }
   };
 
   const [submitError, setSubmitError] = useState(false);
@@ -328,6 +339,12 @@ export default function Neworder() {
                 accept="image/png,image/jpeg,application/pdf "
                 placeholder=".pdf , .jpeg ,.png"
                 label="Téléverser Preuve de commande"
+                value={laterinformation.evidenceFile}
+                onChange={(e) =>
+                  setLaterinformation((prevData) => {
+                    return { ...prevData, evidenceFile: e };
+                  })
+                }
                 required
                 multiple
               />

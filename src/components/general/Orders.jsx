@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -12,6 +12,8 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
+import urls from "../../services/urls";
+import axios from "axios";
 
 const stateColors = {
   engineer: "blue",
@@ -24,8 +26,8 @@ export default function Orders() {
 
   const handleModal = () => {
     setIsModalOpen(true);
-  }
-  
+  };
+
   const diffusionStatus = (dateDebut, dateFin) => {
     const currentDate = new Date();
     const startDate = new Date(dateDebut);
@@ -46,8 +48,8 @@ export default function Orders() {
       state: "En cours de diffusion",
       email: "john.doe@example.com",
       phone: "+1234567890",
-      dateDebut :"2023-12-18",
-      dateFin : "2024-01-17",
+      dateDebut: "2023-12-18",
+      dateFin: "2024-01-17",
       qte: "70",
       pu: "10000",
     },
@@ -64,6 +66,15 @@ export default function Orders() {
     },
   ];
 
+  useEffect(() => {
+    const fetchOrder = async () => {
+      await axios.get(`${urls.StrapiUrl}api/commandes`).then((response) => {
+        console.log(response);
+      });
+    };
+    fetchOrder();
+  }, []);
+
   const theme = useMantineTheme();
   const rows = data.map((item) => (
     <tr key={item.name}>
@@ -71,7 +82,7 @@ export default function Orders() {
         <Group spacing="sm">
           <Avatar size={30} src={item.avatar} radius={30} />
           <Text fz="sm" fw={500}>
-            {item.name.split(' ').map((word, index) => (
+            {item.name.split(" ").map((word, index) => (
               <React.Fragment key={index}>
                 {word}
                 <br />
@@ -87,10 +98,10 @@ export default function Orders() {
         <Text size="sm">{item.dateFin}</Text>
       </td>
       <td>
-        <Text size="sm">{ item.qte }</Text>
+        <Text size="sm">{item.qte}</Text>
       </td>
       <td>
-        <Text size="sm"> { item.pu }</Text>
+        <Text size="sm"> {item.pu}</Text>
       </td>
 
       <td>
@@ -102,12 +113,12 @@ export default function Orders() {
         </Badge>
       </td>
       <td>
-        <Text size="sm"> { item.qte * item.pu } </Text>
+        <Text size="sm"> {item.qte * item.pu} </Text>
       </td>
       <td>
         <Group spacing={0} position="right">
-          <ActionIcon onClick={ handleModal }>
-            <IconBolt size="1rem" stroke={1.5}/>
+          <ActionIcon onClick={handleModal}>
+            <IconBolt size="1rem" stroke={1.5} />
           </ActionIcon>
         </Group>
       </td>
@@ -116,44 +127,45 @@ export default function Orders() {
 
   return (
     <>
-    <ScrollArea>
-      <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
-        <thead>
-          <tr>
-            <th> Nom </th>
-            {/*<th>Récapitulation</th>*/}
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>Qte</th>
-            <th>P.U.</th>
-            <th>Status</th>
-            <th>Montant</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
-    </ScrollArea>
-    {/* Modal */}
-    <Modal
-      opened={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      style={{ alignItems: 'center'}}
-      title={<Text fz="sm" fw={500}>Récapitulation</Text>}
-      centered
-    >
-
-      <Text size="sm">
-        
-        <Text>Type de publicité :</Text>
-        <Text>Durée de la diffusion :</Text>
-        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
-        <Text>
-          Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
+      <ScrollArea>
+        <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+          <thead>
+            <tr>
+              <th> Nom </th>
+              {/*<th>Récapitulation</th>*/}
+              <th>Date de début</th>
+              <th>Date de fin</th>
+              <th>Qte</th>
+              <th>P.U.</th>
+              <th>Status</th>
+              <th>Montant</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </ScrollArea>
+      {/* Modal */}
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        style={{ alignItems: "center" }}
+        title={
+          <Text fz="sm" fw={500}>
+            Récapitulation
+          </Text>
+        }
+        centered
+      >
+        <Text size="sm">
+          <Text>Type de publicité :</Text>
+          <Text>Durée de la diffusion :</Text>
+          <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
+          <Text>
+            Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
+          </Text>
         </Text>
-      
-      </Text>
-    </Modal>
+      </Modal>
     </>
   );
 }
