@@ -80,15 +80,6 @@ export default function Orders() {
           </Text>
         </Group>
       </td>
-
-      {/*<td>
-        <Text>Type de publicité :</Text>
-        <Text>Durée de la diffusion :</Text>
-        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
-        <Text>
-          Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
-        </Text>
-      </td>*/}
       <td>
         <Text size="sm">{item.dateDebut}</Text>
       </td>
