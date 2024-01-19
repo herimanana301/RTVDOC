@@ -63,11 +63,21 @@ export default function Neworder() {
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       let newDatas = [...prevDatas]; // Create a shallow copy of the array
-      newDatas[index] = {
-        ...newDatas[index],
-        description: newDescription,
-      };
-      return newDatas;
+      if (index === 0) {
+        newDatas[index] = {
+          ...newDatas[index],
+          description: clients.find(
+            (data) => data.id === parseInt(newDescription)
+          ).attributes.raisonsocial,
+        };
+        return newDatas;
+      } else {
+        newDatas[index] = {
+          ...newDatas[index],
+          description: newDescription,
+        };
+        return newDatas;
+      }
     });
   };
 
@@ -104,15 +114,6 @@ export default function Neworder() {
     getClients(setPageInfo, setClients);
   }, []);
 
-  const selectData = clients.map((client) => {
-    return {
-      value: {
-        id: client.id,
-        clientName: client.attributes.raisonsocial,
-      },
-      label: client.attributes.raisonsocial,
-    };
-  });
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -139,21 +140,17 @@ export default function Neworder() {
                 placeholder="Selectionner le client"
                 data={clients.map((client) => {
                   return {
-                    key: client.id,
-                    value: {
-                      id: client.id,
-                      clientName: client.attributes.raisonsocial,
-                    },
+                    value: `${client.id}`,
                     label: client.attributes.raisonsocial,
                   };
                 })}
-                value={datas[0].description}
-                onChange={(e) => {
-                  updateDescription(0, e.clientName);
+                searchValue={datas[0].description}
+                onSearchChange={(e) => {
                   console.log(e);
+                  /*                   updateDescription(0, e);
                   setLaterinformation((prevData) => {
-                    return { ...prevData, clientId: e.id };
-                  });
+                    return { ...prevData, clientId: e };
+                  }); */
                 }}
                 searchable
               />
