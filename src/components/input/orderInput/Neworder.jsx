@@ -3,6 +3,7 @@ import {
   Text,
   TextInput,
   Select,
+  NativeSelect,
   NumberInput,
   Button,
   Group,
@@ -63,25 +64,26 @@ export default function Neworder() {
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       let newDatas = [...prevDatas]; // Create a shallow copy of the array
-      if (index === 0) {
-        newDatas[index] = {
-          ...newDatas[index],
-          description: clients.find(
-            (data) => data.id === parseInt(newDescription)
-          ).attributes.raisonsocial,
-        };
-        return newDatas;
-      } else {
-        newDatas[index] = {
-          ...newDatas[index],
-          description: newDescription,
-        };
-        return newDatas;
-      }
+      newDatas[index] = {
+        ...newDatas[index],
+        description: newDescription,
+      };
+      return newDatas;
     });
   };
 
   // ...
+
+  const updateFromdropdown = (selectedId) => {
+    updateDescription(
+      0,
+      clients.find((client) => client.id === selectedId).attributes.raisonsocial
+    );
+
+    setLaterinformation((prevData) => {
+      return { ...prevData, clientId: selectedId };
+    });
+  };
 
   const handleCreateCommande = async () => {
     const formData = {
@@ -97,6 +99,30 @@ export default function Neworder() {
     await axios
       .post(`${urls.StrapiUrl}api/commandes`, formData)
       .then((response) => {
+        if (response.status === 200) {
+          const promises = serviceList.map(async (service) => {
+            return await axios.post(`${urls.StrapiUrl}api/prestations`, {
+              data: {
+                plateform:
+                  service.contentType === "Télévision" ? "TV" : "RADIO",
+                servicename: service.service,
+                quantity: service.quantity,
+                unityprice: service.priceUnit,
+                totalservice: service.priceTotal,
+                commande: response.data.data.id,
+              },
+            });
+          });
+
+          Promise.all(promises)
+            .then((responses) => {
+              // Log each response
+              responses.forEach((response) => console.log(response));
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
         /*         const updatedDatas = datas.map((element) => ({
           ...element,
           description: "",
@@ -138,21 +164,16 @@ export default function Neworder() {
               <Select
                 label="Client"
                 placeholder="Selectionner le client"
-                data={clients.map((client) => {
-                  return {
-                    value: `${client.id}`,
+                data={
+                  clients &&
+                  clients.map((client) => ({
+                    value: client.id,
                     label: client.attributes.raisonsocial,
-                  };
-                })}
-                searchValue={datas[0].description}
-                onSearchChange={(e) => {
-                  console.log(e);
-                  /*                   updateDescription(0, e);
-                  setLaterinformation((prevData) => {
-                    return { ...prevData, clientId: e };
-                  }); */
+                  }))
+                }
+                onChange={(e) => {
+                  updateFromdropdown(e);
                 }}
-                searchable
               />
             </SimpleGrid>
 

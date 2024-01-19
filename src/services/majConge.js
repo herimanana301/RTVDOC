@@ -40,23 +40,24 @@ const MajConge = () => {
 
       ajoutTotal < 0 ? ajoutTotal = 0 : ajoutTotal; 
 
-      try {
+      if(ajoutTotal > 0){
+
+        try {
        
-        axios.put(`${urls.StrapiUrl}api/personnels/${Personnel.id}`, {
-          data: {
-            conge: (ajoutTotal + Personnel.attributes.conge),
-          },
-    
-        }).then((response) => {
-          console.log('Succes des mises à jour!');
-        })
-    
-      } catch (error) {
-        console.error('Erreur lors de la maj des congés à Strapi:', error);
+          axios.put(`${urls.StrapiUrl}api/personnels/${Personnel.id}`, {
+            data: {
+              conge: (ajoutTotal + Personnel.attributes.conge),
+            },
+      
+          }).then((response) => {
+            console.log('Succès des maj des congés!');
+          })
+      
+        } catch (error) {
+          console.error('Erreur lors de la maj des congés à Strapi:', error);
+        }
+
       }
-
-
-
       return null;
     });
   }, [Datas]);
