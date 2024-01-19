@@ -3,6 +3,7 @@ import {
   Text,
   TextInput,
   Select,
+  NativeSelect,
   NumberInput,
   Button,
   Group,
@@ -68,7 +69,7 @@ export default function Neworder() {
           ...newDatas[index],
           description: clients.find(
             (data) => data.id === parseInt(newDescription)
-          ).attributes.raisonsocial,
+          )?.attributes.raisonsocial,
         };
         return newDatas;
       } else {
@@ -113,6 +114,17 @@ export default function Neworder() {
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
+  useEffect(() => {
+    setService((prevData) => {
+      return {
+        ...prevData,
+        priceTotal:
+          service.priceUnit && service.quantity
+            ? service.priceUnit * service.quantity
+            : 0,
+      };
+    });
+  }, [service.priceUnit, service.quantity]);
 
   return (
     <Paper shadow="md" radius="lg">
@@ -135,7 +147,7 @@ export default function Neworder() {
 
           <div className={classes.fields}>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-              <Select
+              <NativeSelect
                 label="Client"
                 placeholder="Selectionner le client"
                 data={clients.map((client) => {
@@ -146,13 +158,13 @@ export default function Neworder() {
                 })}
                 searchValue={datas[0].description}
                 onSearchChange={(e) => {
-                  console.log(e);
-                  /*                   updateDescription(0, e);
+                  updateDescription(0, e);
                   setLaterinformation((prevData) => {
                     return { ...prevData, clientId: e };
-                  }); */
+                  });
                 }}
                 searchable
+                allowDeselect
               />
             </SimpleGrid>
 
