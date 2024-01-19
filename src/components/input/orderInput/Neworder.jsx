@@ -16,13 +16,7 @@ import {
 import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import {
-  IconPhone,
-  IconAt,
-  IconUser,
-  IconCalendarTime,
-  IconPlus,
-} from "@tabler/icons-react";
+import { IconHash, IconTie, IconUser, IconPlus } from "@tabler/icons-react";
 import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
 import urls from "../../../services/urls.js";
 
@@ -49,8 +43,8 @@ export default function Neworder() {
   });
   const [datas, setDatas] = useState([
     { title: "Client", description: "", icon: IconUser },
-    { title: "Numéro de commande", description: "", icon: IconAt },
-    { title: "Responsable commande", description: "", icon: IconPhone },
+    { title: "Numéro de commande", description: "", icon: IconHash },
+    { title: "Responsable commande", description: "", icon: IconTie },
   ]);
 
   const [startDate, setStartDate] = useState("");
