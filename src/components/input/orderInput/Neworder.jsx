@@ -99,6 +99,30 @@ export default function Neworder() {
     await axios
       .post(`${urls.StrapiUrl}api/commandes`, formData)
       .then((response) => {
+        if (response.status === 200) {
+          const promises = serviceList.map(async (service) => {
+            return await axios.post(`${urls.StrapiUrl}api/prestations`, {
+              data: {
+                plateform:
+                  service.contentType === "Télévision" ? "TV" : "RADIO",
+                servicename: service.service,
+                quantity: service.quantity,
+                unityprice: service.priceUnit,
+                totalservice: service.priceTotal,
+                commande: response.data.data.id,
+              },
+            });
+          });
+
+          Promise.all(promises)
+            .then((responses) => {
+              // Log each response
+              responses.forEach((response) => console.log(response));
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
         /*         const updatedDatas = datas.map((element) => ({
           ...element,
           description: "",
@@ -137,7 +161,7 @@ export default function Neworder() {
 
           <div className={classes.fields}>
             <SimpleGrid cols={2} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-              <NativeSelect
+              <Select
                 label="Client"
                 placeholder="Selectionner le client"
                 data={
@@ -150,8 +174,6 @@ export default function Neworder() {
                 onChange={(e) => {
                   updateFromdropdown(e);
                 }}
-                searchable
-                allowDeselect
               />
             </SimpleGrid>
 
