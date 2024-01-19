@@ -44,7 +44,7 @@ export default function Orders() {
   const data = [
     {
       avatar: "https://example.com/avatar/1",
-      name: "Herimanana Rasolonirina",
+      name: "Pub AKAMA FULL",
       state: "En cours de diffusion",
       email: "john.doe@example.com",
       phone: "+1234567890",
@@ -52,10 +52,11 @@ export default function Orders() {
       dateFin: "2024-01-17",
       qte: "70",
       pu: "10000",
+      responsable: "Orange Madagascar",
     },
     {
       avatar: "https://example.com/avatar/2",
-      name: "Telma",
+      name: "Pub YELLOW 200",
       state: "En attente de paiement",
       email: "jane.smith@example.com",
       phone: "+0987654321",
@@ -63,6 +64,7 @@ export default function Orders() {
       dateFin: "2024-12-27",
       qte: "50",
       pu: "10000",
+      responsable: "Telma",
     },
   ];
 
@@ -116,6 +118,9 @@ export default function Orders() {
         <Text size="sm"> {item.qte * item.pu} </Text>
       </td>
       <td>
+        <Text size="sm"> {item.responsable} </Text>
+      </td>
+      <td>
         <Group spacing={0} position="right">
           <ActionIcon onClick={handleModal}>
             <IconBolt size="1rem" stroke={1.5} />
@@ -139,6 +144,7 @@ export default function Orders() {
               <th>P.U.</th>
               <th>Status</th>
               <th>Montant</th>
+              <th>Responsable de commande</th>
               <th />
             </tr>
           </thead>

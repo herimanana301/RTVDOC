@@ -23,6 +23,7 @@ export default function Facture() {
   };
   const tableData = [
     { id: 1, name: "Facture N° 8395/24", label: "Herimanana Rasolonirina", period: "Du 2024-01-16 au 2024-01-31", qte: "70", pu: "10000", status: "Payé" },
+    
     { id: 2, name: "Facture N° 8396/24", label: "Telma", period: "Du 2024-11-27 au 2024-12-27", qte: "70", pu: "10000", status: "Non Payé" },
   ];
   const rows = tableData.map((item) => (
