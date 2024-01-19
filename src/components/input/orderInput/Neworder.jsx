@@ -53,6 +53,7 @@ export default function Neworder() {
     clientId: 0,
     serviceId: [],
     evidenceFile: null,
+    mediaFiles: [],
   });
   const [service, setService] = useState({
     contentType: "",
@@ -88,7 +89,6 @@ export default function Neworder() {
 
   const handleCreateCommande = async () => {
     try {
-      // Upload evidence file
       let evidenceSubmit = new FormData();
       evidenceSubmit.append("files", laterinformation.evidenceFile[0]);
       const evidenceUploadResponse = await axios.post(
@@ -96,10 +96,8 @@ export default function Neworder() {
         evidenceSubmit
       );
 
-      // Extract uploaded file information
       const evidenceFileId = evidenceUploadResponse.data[0].url;
 
-      // Create command
       const formData = {
         data: {
           client: parseInt(laterinformation.clientId),
@@ -115,9 +113,8 @@ export default function Neworder() {
         `${urls.StrapiUrl}api/commandes`,
         formData
       );
-
+      console.log(commandResponse);
       if (commandResponse.status === 200) {
-        // Create services
         const promises = serviceList.map(async (service) => {
           return await axios.post(`${urls.StrapiUrl}api/prestations`, {
             data: {
@@ -130,10 +127,39 @@ export default function Neworder() {
             },
           });
         });
-
-        // Wait for all service creation promises to resolve
         await Promise.all(promises);
       }
+      const mediaFilePromises = laterinformation.mediaFiles.map(
+        async (file) => {
+          const fileFormData = new FormData();
+          fileFormData.append("files", file);
+
+          try {
+            const fileUploadResponse = await axios.post(
+              `${urls.StrapiUrl}api/upload`,
+              fileFormData
+            );
+
+            if (fileUploadResponse.status === 200) {
+              // The file is successfully uploaded, now proceed with additional actions
+              await axios.post(`${urls.StrapiUrl}api/publicite`, {
+                data: {
+                  lien: fileUploadResponse.data[0].url,
+                  intitule: file.name, // Assuming 'name' is the correct property
+                  commande: commandResponse.data.data.id,
+                },
+              });
+            }
+          } catch (uploadError) {
+            // Handle the error if the file upload fails
+            console.error(`Error uploading file: ${uploadError.message}`);
+            // Optionally, you can throw the error or handle it in a way that suits your application
+          }
+        }
+      );
+
+      // Wait for all media file upload promises to resolve collectively
+      await Promise.all(mediaFilePromises);
     } catch (error) {
       console.error(error);
       setSubmitError(true);
@@ -325,7 +351,15 @@ export default function Neworder() {
                 placeholder=".mp4 , .mp3, .ogg, .mpg, .avi, .ts, .mkv"
                 accept="audio/*, video/*"
                 label="Téléverser fichier(s) Audio ou/et Video"
-                valueComponent={(e) => console.log(e)}
+                valueComponent={laterinformation.mediaFiles}
+                onChange={(e) => {
+                  setLaterinformation((prevData) => {
+                    return {
+                      ...prevData,
+                      mediaFiles: e.value,
+                    };
+                  });
+                }}
                 required
                 multiple
               />
