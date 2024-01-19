@@ -1,7 +1,6 @@
 import React from 'react';
 import { Modal, FileInput, SimpleGrid, Switch, Button, Text } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import FactureContent from './FactureContent';
 
 const FactureModal = ({ isOpen, onClose, selectedItem}) => {
     return (
@@ -34,10 +33,11 @@ const FactureModal = ({ isOpen, onClose, selectedItem}) => {
 
             <Button
                 style={{ marginTop: 15 }}
-                onClick={() => toPDF()}
+                component="a"
+                href="/facture"
                 disabled={selectedItem && selectedItem.status === 'Non Payé'}
             >
-                Imprimer
+                Aperçu avant impression
             </Button>
         </Modal>
     );
