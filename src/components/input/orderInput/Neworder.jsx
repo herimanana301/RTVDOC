@@ -104,6 +104,15 @@ export default function Neworder() {
     getClients(setPageInfo, setClients);
   }, []);
 
+  const selectData = clients.map((client) => {
+    return {
+      value: {
+        id: client.id,
+        clientName: client.attributes.raisonsocial,
+      },
+      label: client.attributes.raisonsocial,
+    };
+  });
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -141,11 +150,12 @@ export default function Neworder() {
                 value={datas[0].description}
                 onChange={(e) => {
                   updateDescription(0, e.clientName);
-                  console.log(e.clientName);
+                  console.log(e);
                   setLaterinformation((prevData) => {
                     return { ...prevData, clientId: e.id };
                   });
                 }}
+                searchable
               />
             </SimpleGrid>
 
