@@ -64,25 +64,26 @@ export default function Neworder() {
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       let newDatas = [...prevDatas]; // Create a shallow copy of the array
-      if (index === 0) {
-        newDatas[index] = {
-          ...newDatas[index],
-          description: clients.find(
-            (data) => data.id === parseInt(newDescription)
-          )?.attributes.raisonsocial,
-        };
-        return newDatas;
-      } else {
-        newDatas[index] = {
-          ...newDatas[index],
-          description: newDescription,
-        };
-        return newDatas;
-      }
+      newDatas[index] = {
+        ...newDatas[index],
+        description: newDescription,
+      };
+      return newDatas;
     });
   };
 
   // ...
+
+  const updateFromdropdown = (selectedId) => {
+    updateDescription(
+      0,
+      clients.find((client) => client.id === selectedId).attributes.raisonsocial
+    );
+
+    setLaterinformation((prevData) => {
+      return { ...prevData, clientId: selectedId };
+    });
+  };
 
   const handleCreateCommande = async () => {
     const formData = {
@@ -114,17 +115,6 @@ export default function Neworder() {
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
-  useEffect(() => {
-    setService((prevData) => {
-      return {
-        ...prevData,
-        priceTotal:
-          service.priceUnit && service.quantity
-            ? service.priceUnit * service.quantity
-            : 0,
-      };
-    });
-  }, [service.priceUnit, service.quantity]);
 
   return (
     <Paper shadow="md" radius="lg">
@@ -150,18 +140,15 @@ export default function Neworder() {
               <NativeSelect
                 label="Client"
                 placeholder="Selectionner le client"
-                data={clients.map((client) => {
-                  return {
-                    value: `${client.id}`,
+                data={
+                  clients &&
+                  clients.map((client) => ({
+                    value: client.id,
                     label: client.attributes.raisonsocial,
-                  };
-                })}
-                searchValue={datas[0].description}
-                onSearchChange={(e) => {
-                  updateDescription(0, e);
-                  setLaterinformation((prevData) => {
-                    return { ...prevData, clientId: e };
-                  });
+                  }))
+                }
+                onChange={(e) => {
+                  updateFromdropdown(e);
                 }}
                 searchable
                 allowDeselect

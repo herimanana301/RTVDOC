@@ -92,7 +92,7 @@ export default function AjoutCongeModal({ datas }) {
   const [shouldShake, setShouldShake] = useState(false);
 
   const HandleConge = (switchP) => {
-    switchP ? setMotif('Payé') : setMotif('')
+    switchP ? setMotif('.') : setMotif('')
     setTypeConge(switchP);
   } 
 

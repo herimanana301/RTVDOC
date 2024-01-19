@@ -6,6 +6,7 @@ import "./App.css";
 import Navigation from "./components/navigation/Navigation";
 import { useEffect } from "react";
 import MajConge from "./services/majConge";
+import FactureContent from "./components/facture/FactureContent";
 
 
 function App() {
@@ -34,6 +35,10 @@ function App() {
       path: "/personal/:id",
       element: <NewPersonal />,
     },
+    {
+      path:"/facture",
+      element: <FactureContent />,
+    }
 
   ]);
 
