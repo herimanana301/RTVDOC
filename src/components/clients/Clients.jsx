@@ -14,7 +14,7 @@ import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import checked from "../../assets/icons/checked.gif";
 import wrong from "../../assets/icons/wrong.gif";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
-import confirmationModal from "../../services/alertConfirmation";
+import { confirmationModal } from "../../services/alertConfirmation";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { Link } from "react-router-dom"; // Pour gérer les redirection vers les liens déclarer dans App.jsx

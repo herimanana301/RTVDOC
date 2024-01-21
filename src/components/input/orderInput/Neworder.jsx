@@ -12,6 +12,7 @@ import {
   ActionIcon,
   rem,
   Accordion,
+  Modal,
 } from "@mantine/core";
 import ContactIcons from "../ContactIcons.jsx";
 import { IconArrowNarrowLeft } from "@tabler/icons-react";
@@ -19,6 +20,8 @@ import { useEffect, useState } from "react";
 import { IconHash, IconTie, IconUser, IconPlus } from "@tabler/icons-react";
 import { getClients } from "../../../services/getInformations/getClients.js"; // utilisation de service
 import urls from "../../../services/urls.js";
+import checked from "../../../assets/icons/checked.gif";
+import wrong from "../../../assets/icons/wrong.gif";
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
@@ -33,6 +36,7 @@ import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
+import { inputConfirmation } from "../../../services/alertConfirmation.js";
 
 export default function Neworder() {
   const { classes } = useStyles();
@@ -52,7 +56,7 @@ export default function Neworder() {
   const [laterinformation, setLaterinformation] = useState({
     clientId: 0,
     serviceId: [],
-    evidenceFile: null,
+    evidenceFile: [],
     mediaFiles: [],
   });
   const [service, setService] = useState({
@@ -62,7 +66,11 @@ export default function Neworder() {
     priceUnit: 0,
     priceTotal: 0,
   });
-  let [serviceList, setServiceList] = useState([]);
+  const [serviceList, setServiceList] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
       let newDatas = [...prevDatas]; // Create a shallow copy of the array
@@ -89,6 +97,24 @@ export default function Neworder() {
 
   const handleCreateCommande = async () => {
     try {
+      setLoading(true);
+      if (serviceList.length < 1) {
+        throw new Error("Vous n'avez pas fournis de prestation");
+      } else if (
+        laterinformation.mediaFiles.length < 1 &&
+        laterinformation.evidenceFile.length < 1
+      ) {
+        throw new Error(
+          "Vous n'avez pas fournis les fichier et bien la preuve de bon de commande"
+        );
+      } else if (
+        laterinformation.mediaFiles.length < 1 ||
+        laterinformation.evidenceFile.length < 1
+      ) {
+        throw new Error(
+          "Vous n'avez pas fournis les fichier ou bien la preuve de bon de commande"
+        );
+      }
       let evidenceSubmit = new FormData();
       evidenceSubmit.append("files", laterinformation.evidenceFile[0]);
       const evidenceUploadResponse = await axios.post(
@@ -114,63 +140,74 @@ export default function Neworder() {
         formData
       );
       console.log(commandResponse);
+
       if (commandResponse.status === 200) {
         const promises = serviceList.map(async (service) => {
-          return await axios.post(`${urls.StrapiUrl}api/prestations`, {
-            data: {
-              plateform: service.contentType === "Télévision" ? "TV" : "RADIO",
-              servicename: service.service,
-              quantity: service.quantity,
-              unityprice: service.priceUnit,
-              totalservice: service.priceTotal,
-              commande: commandResponse.data.data.id,
-            },
-          });
+          return axios
+            .post(`${urls.StrapiUrl}api/prestations`, {
+              data: {
+                plateform:
+                  service.contentType === "Télévision" ? "TV" : "RADIO",
+                servicename: service.service,
+                quantity: service.quantity,
+                unityprice: service.priceUnit,
+                totalservice: service.priceTotal,
+                commande: commandResponse.data.data.id,
+              },
+            })
+            .then((response) => response.data);
         });
+
         await Promise.all(promises);
-      }
-      const mediaFilePromises = laterinformation.mediaFiles.map(
-        async (file) => {
-          const fileFormData = new FormData();
-          fileFormData.append("files", file);
 
-          try {
-            const fileUploadResponse = await axios.post(
-              `${urls.StrapiUrl}api/upload`,
-              fileFormData
-            );
-
-            if (fileUploadResponse.status === 200) {
-              // The file is successfully uploaded, now proceed with additional actions
-              await axios.post(`${urls.StrapiUrl}api/publicite`, {
-                data: {
-                  lien: fileUploadResponse.data[0].url,
-                  intitule: file.name, // Assuming 'name' is the correct property
-                  commande: commandResponse.data.data.id,
-                },
-              });
-            }
-          } catch (uploadError) {
-            // Handle the error if the file upload fails
-            console.error(`Error uploading file: ${uploadError.message}`);
-            // Optionally, you can throw the error or handle it in a way that suits your application
-          }
+        let fileFormData = new FormData();
+        for (let i = 0; i <= laterinformation.mediaFiles.length; i++) {
+          fileFormData.append("files", laterinformation.mediaFiles[i]);
         }
-      );
-
-      // Wait for all media file upload promises to resolve collectively
-      await Promise.all(mediaFilePromises);
+        await axios
+          .post(`${urls.StrapiUrl}api/upload`, fileFormData)
+          .then((mediaUploadResponse) => {
+            if (mediaUploadResponse.status === 200) {
+              return Promise.all(
+                mediaUploadResponse.data.map(async (mediaDetails) => {
+                  try {
+                    const publiciteResponse = await axios.post(
+                      `${urls.StrapiUrl}api/publicites`,
+                      {
+                        data: {
+                          lien: mediaDetails.url,
+                          intitule: mediaDetails.name,
+                          commande: commandResponse.data.data.id,
+                        },
+                      }
+                    );
+                    setLoading(false);
+                    setSubmitSuccess(true);
+                    return publiciteResponse.data;
+                  } catch (error) {
+                    console.error("Error uploading media:", error);
+                    throw error;
+                  }
+                })
+              );
+            }
+          });
+      }
     } catch (error) {
-      console.error(error);
       setSubmitError(true);
+      setErrorMessage(error.toString());
+      setLoading(false);
     }
   };
 
-  const [submitError, setSubmitError] = useState(false);
   useEffect(() => {
     getClients(setPageInfo, setClients);
   }, []);
-
+  useEffect(() => {
+    setService((prevData) => {
+      return { ...prevData, priceTotal: service.priceUnit * service.quantity };
+    });
+  }, [service.priceUnit, service.quantity]);
   return (
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
@@ -273,7 +310,7 @@ export default function Neworder() {
                 label="Quantité"
                 max={365}
                 min={1}
-                value={service.quantity && service.quantity}
+                value={service.quantity}
                 onChange={(e) =>
                   setService((prevData) => {
                     const newData = { ...prevData, quantity: parseInt(e) };
@@ -285,6 +322,7 @@ export default function Neworder() {
                 hideControls
                 mt="md"
                 label="Prix unitaire"
+                value={service.priceUnit}
                 onChange={(e) =>
                   setService((prevData) => {
                     const newData = { ...prevData, priceUnit: parseFloat(e) };
@@ -312,8 +350,13 @@ export default function Neworder() {
                   setServiceList((prevData) => {
                     return [...prevData, service];
                   });
-                  console.log(serviceList);
-                  console.log(service);
+                  setService({
+                    contentType: "",
+                    service: "",
+                    quantity: 0,
+                    priceUnit: 0,
+                    priceTotal: 0,
+                  });
                 }}
               >
                 <IconPlus style={{ width: rem(14), height: rem(14) }} />
@@ -351,17 +394,19 @@ export default function Neworder() {
                 placeholder=".mp4 , .mp3, .ogg, .mpg, .avi, .ts, .mkv"
                 accept="audio/*, video/*"
                 label="Téléverser fichier(s) Audio ou/et Video"
-                valueComponent={laterinformation.mediaFiles}
+                value={laterinformation.mediaFiles}
                 onChange={(e) => {
                   setLaterinformation((prevData) => {
                     return {
                       ...prevData,
-                      mediaFiles: e.value,
+                      mediaFiles: e,
                     };
                   });
+                  console.log(laterinformation.mediaFiles);
                 }}
                 required
                 multiple
+                clearable
               />
               <FileInput
                 accept="image/png,image/jpeg,application/pdf "
@@ -373,6 +418,7 @@ export default function Neworder() {
                     return { ...prevData, evidenceFile: e };
                   })
                 }
+                clearable
                 required
                 multiple
               />
@@ -382,13 +428,60 @@ export default function Neworder() {
               <Button
                 type="submit"
                 className={(classes.control, classes.voucher)}
-                onClick={() => handleCreateCommande()}
+                onClick={() => inputConfirmation(handleCreateCommande)}
+                loading={isLoading}
               >
                 Créer bon de commande
               </Button>
             </Group>
           </div>
         </form>
+        <Modal
+          opened={submitError || submitSuccess}
+          onClose={() => {
+            if (submitError) {
+              setSubmitError(false);
+            }
+            if (submitSuccess) {
+              setSubmitSuccess(false);
+              const updatedDatas = datas.map((element) => ({
+                ...element,
+                description: "",
+              }));
+              setDatas(updatedDatas);
+              setStartDate("");
+              setEndDate("");
+              setServiceList([]);
+              setLaterinformation({
+                clientId: 0,
+                serviceId: [],
+                evidenceFile: [],
+                mediaFiles: [],
+              });
+            }
+          }}
+          transitionProps={{
+            transition: "fade",
+            duration: "600",
+            timingFunction: "ease",
+          }}
+        >
+          {submitError ? (
+            <div className={classes.popup}>
+              <img src={wrong} alt="checked" />
+              <span>
+                {errorMessage
+                  ? errorMessage
+                  : "Erreur lors de l'enregistrement"}
+              </span>
+            </div>
+          ) : (
+            <div className={classes.popup}>
+              <img src={checked} alt="checked" />
+              <span>Commande bien enregistré</span>
+            </div>
+          )}
+        </Modal>
       </div>
     </Paper>
   );

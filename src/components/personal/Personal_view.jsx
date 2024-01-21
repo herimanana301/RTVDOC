@@ -18,7 +18,7 @@ import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import confirmationModal from "../../services/alertConfirmation";
+import { confirmationModal } from "../../services/alertConfirmation";
 import Swal from "sweetalert2";
 import urls from "../../services/urls";
 
