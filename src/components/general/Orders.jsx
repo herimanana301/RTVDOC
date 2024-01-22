@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Avatar,
   Badge,
@@ -12,6 +12,8 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
+import axios from 'axios';
+import urls from '../../services/urls';
 
 const stateColors = {
   engineer: "blue",
@@ -19,10 +21,34 @@ const stateColors = {
   designer: "pink",
 };
 
+const fetchCommandeData = async () => {
+  try {
+    const response = await axios.get(`${urls.StrapiUrl}api/commandes?populate=*`)
+    console.log(response)
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching data from Strapi:', error);
+    return [];
+  }
+};
+
+
 export default function Orders() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [commandeData, setCommandeData] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleModal = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchCommandeData();
+      setCommandeData(data);
+    };
+
+    fetchData();
+  }, []);
+
+  const handleModal = (item) => {
+    setSelectedItem(item);
     setIsModalOpen(true);
   }
   
@@ -39,85 +65,85 @@ export default function Orders() {
     }
   };
 
-  const data = [
-    {
-      avatar: "https://example.com/avatar/1",
-      name: "Pub AKAMA FULL",
-      state: "En cours de diffusion",
-      email: "john.doe@example.com",
-      phone: "+1234567890",
-      dateDebut :"2023-12-18",
-      dateFin : "2024-01-17",
-      qte: "70",
-      pu: "10000",
-      responsable: "Orange Madagascar",
-    },
-    {
-      avatar: "https://example.com/avatar/2",
-      name: "Pub YELLOW 200",
-      state: "En attente de paiement",
-      email: "jane.smith@example.com",
-      phone: "+0987654321",
-      dateDebut: "2024-11-27",
-      dateFin: "2024-12-27",
-      qte: "50",
-      pu: "10000",
-      responsable: "Telma",
-    },
-  ];
-
   const theme = useMantineTheme();
-  const rows = data.map((item) => (
-    <tr key={item.name}>
-      <td>
-        <Group spacing="sm">
-          <Avatar size={30} src={item.avatar} radius={30} />
-          <Text fz="sm" fw={500}>
-            {item.name.split(' ').map((word, index) => (
-              <React.Fragment key={index}>
-                {word}
-                <br />
-              </React.Fragment>
-            ))}
-          </Text>
-        </Group>
-      </td>
-      <td>
-        <Text size="sm">{item.dateDebut}</Text>
-      </td>
-      <td>
-        <Text size="sm">{item.dateFin}</Text>
-      </td>
-      <td>
-        <Text size="sm">{ item.qte }</Text>
-      </td>
-      <td>
-        <Text size="sm"> { item.pu }</Text>
-      </td>
+  
+  const rows = commandeData.map((item, index) => (
+    <>
+      <tr key={index}>
+        <td>
+          <Group spacing="sm">
+            <Avatar size={30} src={item.avatar} radius={30} />
+            <Text fz="sm" fw={500}>
+              {item.attributes.prestations.data[0].attributes.servicename.split(' ').map((word, index) => (
+                <React.Fragment key={index}>
+                  {word}
+                  <br />
+                </React.Fragment>
+              ))}
+            </Text>
+          </Group>
+        </td>
+        <td>
+          <Text size="sm">{item.attributes.startDate}</Text>
+        </td>
+        <td>
+          <Text size="sm">{item.attributes.endDate}</Text>
+        </td>
+        <td>
+          <Text size="sm">{ item.attributes.prestations.data[0].attributes.quantity }</Text>
+        </td>
+        <td>
+          <Text size="sm"> { item.attributes.prestations.data[0].attributes.unityprice }</Text>
+        </td>
+        <td>
+          <Badge
+            color={stateColors[diffusionStatus]}
+            variant={theme.colorScheme === "dark" ? "light" : "outline"}
+          >
+            {diffusionStatus(item.dateDebut, item.dateFin)}
+          </Badge>
+        </td>
+        <td>
+          <Text size="sm"> { item.attributes.prestations.data[0].attributes.quantity * item.attributes.prestations.data[0].attributes.unityprice } </Text>
+        </td>
+        <td>
+          <Text size="sm"> { item.attributes.client.data.attributes.raisonsocial }</Text>
+        </td>
+        <td>
+          <Text size="sm"> { item.attributes.responsableCommande } </Text>
+        </td>
+        <td>
+          <Group spacing={0} position="right">
+            <ActionIcon onClick={() => handleModal(item)}>
+              <IconBolt size="1rem" stroke={1.5}/>
+            </ActionIcon>
+          </Group>
+        </td>
+      </tr>
 
-      <td>
-        <Badge
-          color={stateColors[diffusionStatus]}
-          variant={theme.colorScheme === "dark" ? "light" : "outline"}
-        >
-          {diffusionStatus(item.dateDebut, item.dateFin)}
-        </Badge>
-      </td>
-      <td>
-        <Text size="sm"> { item.qte * item.pu } </Text>
-      </td>
-      <td>
-        <Text size="sm"> { item.responsable } </Text>
-      </td>
-      <td>
-        <Group spacing={0} position="right">
-          <ActionIcon onClick={ handleModal }>
-            <IconBolt size="1rem" stroke={1.5}/>
-          </ActionIcon>
-        </Group>
-      </td>
-    </tr>
-  ));
+      {/* Modal */}
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        style={{ alignItems: 'center'}}
+        title={<Text fz="sm" fw={500}>Récapitulation</Text>}
+        centered
+      >
+
+        <Text size="sm">
+          
+          <Text>Type de publicité : {item.attributes.prestations.data[0].attributes.plateform}</Text>
+          <Text>Durée de la diffusion : {item.attributes.prestations.data[0].attributes.quantity} jours</Text>
+          {/* <Text>Fréquence : Lundi, 19h00, après 1re série</Text> */}
+          <Text>
+            Nom du fichier : <Anchor component="button">{item.attributes.publicites.data[0].attributes.intitule}</Anchor>{" "}
+          </Text>
+        
+        </Text>
+        
+      </Modal>
+    </>    
+    ));
 
   return (
     <>
@@ -133,6 +159,7 @@ export default function Orders() {
             <th>P.U.</th>
             <th>Status</th>
             <th>Montant</th>
+            <th>Client</th>
             <th>Responsable de commande</th>
             <th />
           </tr>
@@ -140,26 +167,7 @@ export default function Orders() {
         <tbody>{rows}</tbody>
       </Table>
     </ScrollArea>
-    {/* Modal */}
-    <Modal
-      opened={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      style={{ alignItems: 'center'}}
-      title={<Text fz="sm" fw={500}>Récapitulation</Text>}
-      centered
-    >
-
-      <Text size="sm">
-        
-        <Text>Type de publicité :</Text>
-        <Text>Durée de la diffusion :</Text>
-        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
-        <Text>
-          Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
-        </Text>
-      
-      </Text>
-    </Modal>
+    
     </>
   );
 }
