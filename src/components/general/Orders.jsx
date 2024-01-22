@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -12,8 +12,8 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
-import axios from 'axios';
-import urls from '../../services/urls';
+import urls from "../../services/urls";
+import axios from "axios";
 
 const stateColors = {
   engineer: "blue",
@@ -50,8 +50,8 @@ export default function Orders() {
   const handleModal = (item) => {
     setSelectedItem(item);
     setIsModalOpen(true);
-  }
-  
+  };
+
   const diffusionStatus = (dateDebut, dateFin) => {
     const currentDate = new Date();
     const startDate = new Date(dateDebut);
