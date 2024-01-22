@@ -4,7 +4,7 @@ import {
   IconHome2,
   IconReceipt2,
   IconTicket,
-  IconFiles,
+  IconCalendar,
   IconUsersGroup,
 } from "@tabler/icons-react";
 
@@ -28,13 +28,14 @@ import Commande from "../commande/Commande";
 import Personal from "../personal/Personal_view";
 import Conges from "../personal/conge/conge_view";
 import { Welcome } from "../welcome/Welcome";
+import Bookinginput from "../input/bookinginput/Bookinginput";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
   { link: "", label: "Clients", icon: IconUser },
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
-  { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
+  { link: "", label: "Programmation", icon: IconCalendar },
   {
     label: "Personnels",
     icon: IconUsersGroup,
@@ -175,12 +176,12 @@ export default function Navigation() {
           return <Facture />;
         case "Bons de commandes":
           return <Commande />;
-        case "Congés":
-          return <div>Congés Component</div>;
+        case "Historique congés":
+          return <Conges />;
         case "Liste du personnel":
           return <Personal />;
-        case "Fichier Vidéo et Audio":
-          return null;
+        case "Programmation":
+          return <Bookinginput />;
         default:
           return null;
       }
@@ -238,23 +239,7 @@ export default function Navigation() {
         </Header>
       }
     >
-      {active === "Général" ? (
-        <General />
-      ) : active === "Clients" ? (
-        <Clients />
-      ) : active === "Factures" ? (
-        <Facture />
-      ) : active === "Bons de commandes" ? (
-        <Commande />
-      ) : active === "Historique congés" ? (
-        <Conges />
-      ) : active === "Liste du personnel" ? (
-        <Personal />
-      ) : active === "Fichier Vidéo et Audio" ? null : localStorage.getItem(
-          "firstConnex"
-        ) ? null : (
-        <Welcome setActive={setActive} />
-      )}
+      <Selection />
     </AppShell>
   );
 }

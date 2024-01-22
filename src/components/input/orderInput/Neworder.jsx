@@ -25,12 +25,6 @@ import wrong from "../../../assets/icons/wrong.gif";
 
 //Demande collaboration avec service en retour = Gratuit pour l'annonceur si validation du N+1
 //retracer les moyen de paiement (mobile money, chèque, virement bancaire), avec des numéro de références, les recettes établie
-// À réimplementer plus tard dans handleCreateCommand
-/*         const updatedDatas = datas.map((element) => ({
-          ...element,
-          description: "",
-        }));
-        setDatas(updatedDatas); */
 
 import useStyles from "../inputstyles/neworderstyle.js";
 import accordionStyle from "./newOrder.css?inline";
