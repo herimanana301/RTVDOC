@@ -118,7 +118,10 @@ export default function Orders() {
             color={stateColors[diffusionStatus]}
             variant={theme.colorScheme === "dark" ? "light" : "outline"}
           >
-            {diffusionStatus(item.dateDebut, item.dateFin)}
+            {diffusionStatus(
+              item.attributes.startDate,
+              item.attributes.endDate
+            )}
           </Badge>
         </td>
         <td>
@@ -143,6 +146,16 @@ export default function Orders() {
         className="modalOrder"
         centered
       >
+        <Text>
+          Preuve de commande :{" "}
+          <Anchor
+            target="_blank"
+            size="sm"
+            href={`${urls.ForUpload}${item.attributes.evidence}`}
+          >
+            Cliquez ici
+          </Anchor>{" "}
+        </Text>
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
@@ -157,7 +170,7 @@ export default function Orders() {
           </thead>
           <tbody>
             {item.attributes.prestations.data.map((prestation) => (
-              <tr key={index}>
+              <tr key={prestation.id}>
                 <td>
                   <Text fz="sm" fw={500}>
                     {prestation.attributes.plateform}
@@ -176,26 +189,6 @@ export default function Orders() {
                   <Text size="sm">{prestation.attributes.totalservice}Ar</Text>
                 </td>
                 <td>
-                  {/*                   {item.attributes.publicites.data.map((pub) => {
-                    prestation.attributes.plateform === "RADIO" &&
-                    /\.(mp3|wav|ogg|flac|m4a|aac|wma|aiff)$/i.test(
-                      pub.attributes.intitule
-                    ) ? (
-                      <Anchor
-                        size="sm"
-                        href={`${urls.ForUpload}${pub.attributes.lien}`}
-                      >
-                        {pub.attributes.intitule}
-                      </Anchor>
-                    ) : (
-                      <Anchor
-                        size="sm"
-                        href={`${urls.ForUpload}${pub.attributes.lien}`}
-                      >
-                        {pub.attributes.intitule}
-                      </Anchor>
-                    );
-                  })} */}
                   {prestation.attributes.plateform === "RADIO"
                     ? item.attributes.publicites.data
                         .filter((pub) =>
