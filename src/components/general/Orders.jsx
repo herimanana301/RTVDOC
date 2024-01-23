@@ -25,7 +25,7 @@ const stateColors = {
 const fetchCommandeData = async () => {
   try {
     const response = await axios.get(
-      `${urls.StrapiUrl}api/commandes?populate=*`
+      `${urls.StrapiUrl}api/commandes?populate=*&_limit=-1`
     );
     console.log(response);
     return response.data.data;

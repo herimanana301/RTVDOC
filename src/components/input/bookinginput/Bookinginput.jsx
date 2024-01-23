@@ -19,16 +19,18 @@ export default function Bookinginput() {
   const [selectedDate, setSelectedDate] = useState("");
   const [programmedList, setProgrammedList] = useState([]);
   useEffect(() => {
-    axios.get(`${urls.StrapiUrl}api/publicites`).then((response) => {
+    axios.get(`${urls.StrapiUrl}api/publicites?_limit=-1`).then((response) => {
       const publiciteData = response.data.data;
       setMediaList(publiciteData);
     });
   }, []);
   const programmationData = () => {
-    axios.get(`${urls.StrapiUrl}api/programmations`).then((response) => {
-      const programmationList = response.data.data;
-      setProgrammedList(programmationList);
-    });
+    axios
+      .get(`${urls.StrapiUrl}api/programmations?_limit=-1`)
+      .then((response) => {
+        const programmationList = response.data.data;
+        setProgrammedList(programmationList);
+      });
   };
   useEffect(() => {
     programmationData();
