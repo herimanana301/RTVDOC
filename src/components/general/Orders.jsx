@@ -14,6 +14,7 @@ import {
 import { IconBolt } from "@tabler/icons-react";
 import urls from "../../services/urls";
 import axios from "axios";
+import "./order.css";
 
 const stateColors = {
   engineer: "blue",
@@ -23,15 +24,16 @@ const stateColors = {
 
 const fetchCommandeData = async () => {
   try {
-    const response = await axios.get(`${urls.StrapiUrl}api/commandes?populate=*`)
-    console.log(response)
+    const response = await axios.get(
+      `${urls.StrapiUrl}api/commandes?populate=*`
+    );
+    console.log(response);
     return response.data.data;
   } catch (error) {
-    console.error('Error fetching data from Strapi:', error);
+    console.error("Error fetching data from Strapi:", error);
     return [];
   }
 };
-
 
 export default function Orders() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,34 +68,50 @@ export default function Orders() {
   };
 
   const theme = useMantineTheme();
-  
+
   const rows = commandeData.map((item, index) => (
     <>
       <tr key={index}>
         <td>
           <Group spacing="sm">
-            <Avatar size={30} src={item.avatar} radius={30} />
             <Text fz="sm" fw={500}>
-              {item.attributes.prestations.data[0].attributes.servicename.split(' ').map((word, index) => (
-                <React.Fragment key={index}>
-                  {word}
-                  <br />
-                </React.Fragment>
-              ))}
+              {item.attributes.client.data.attributes.raisonsocial.includes(" ")
+                ? item.attributes.client.data.attributes.raisonsocial
+                    .split(" ")
+                    .map((word, index) => (
+                      <React.Fragment key={index}>
+                        {word}
+                        <br />
+                      </React.Fragment>
+                    ))
+                : item.attributes.client.data.attributes.raisonsocial}
             </Text>
           </Group>
         </td>
         <td>
-          <Text size="sm">{item.attributes.startDate}</Text>
+          <Text size="sm"> {item.attributes.responsableCommande} </Text>
         </td>
         <td>
-          <Text size="sm">{item.attributes.endDate}</Text>
+          <Text size="sm"> {item.attributes.reference} </Text>
         </td>
         <td>
-          <Text size="sm">{ item.attributes.prestations.data[0].attributes.quantity }</Text>
+          <Text size="sm">
+            {new Date(item.attributes.startDate).toLocaleDateString()}
+          </Text>
         </td>
         <td>
-          <Text size="sm"> { item.attributes.prestations.data[0].attributes.unityprice }</Text>
+          <Text size="sm">
+            {new Date(item.attributes.endDate).toLocaleDateString()}
+          </Text>
+        </td>
+        <td>
+          <Text size="sm">
+            {" "}
+            {item.attributes.prestations.data.reduce((sum, element) => {
+              return sum + element.attributes.totalservice;
+            }, 0)}{" "}
+            Ar
+          </Text>
         </td>
         <td>
           <Badge
@@ -104,18 +122,9 @@ export default function Orders() {
           </Badge>
         </td>
         <td>
-          <Text size="sm"> { item.attributes.prestations.data[0].attributes.quantity * item.attributes.prestations.data[0].attributes.unityprice } </Text>
-        </td>
-        <td>
-          <Text size="sm"> { item.attributes.client.data.attributes.raisonsocial }</Text>
-        </td>
-        <td>
-          <Text size="sm"> { item.attributes.responsableCommande } </Text>
-        </td>
-        <td>
           <Group spacing={0} position="right">
             <ActionIcon onClick={() => handleModal(item)}>
-              <IconBolt size="1rem" stroke={1.5}/>
+              <IconBolt size="1rem" stroke={1.5} />
             </ActionIcon>
           </Group>
         </td>
@@ -125,52 +134,127 @@ export default function Orders() {
       <Modal
         opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        style={{ alignItems: 'center'}}
-        title={<Text fz="sm" fw={500}>Récapitulation</Text>}
+        style={{ alignItems: "center", overflow: "visible" }}
+        title={
+          <Text fz="sm" fw={500}>
+            Récapitulation
+          </Text>
+        }
+        className="modalOrder"
         centered
       >
-
-        <Text size="sm">
-          
-          <Text>Type de publicité : {item.attributes.prestations.data[0].attributes.plateform}</Text>
-          <Text>Durée de la diffusion : {item.attributes.prestations.data[0].attributes.quantity} jours</Text>
-          {/* <Text>Fréquence : Lundi, 19h00, après 1re série</Text> */}
-          <Text>
-            Nom du fichier : <Anchor component="button">{item.attributes.publicites.data[0].attributes.intitule}</Anchor>{" "}
-          </Text>
-        
-        </Text>
-        
+        <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+          <thead>
+            <tr>
+              <th>Type de publicité </th>
+              <th>Intitulé prestation</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Montant total</th>
+              <th>Fichier</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {item.attributes.prestations.data.map((prestation) => (
+              <tr key={index}>
+                <td>
+                  <Text fz="sm" fw={500}>
+                    {prestation.attributes.plateform}
+                  </Text>
+                </td>
+                <td>
+                  <Text size="sm"> {prestation.attributes.servicename} </Text>
+                </td>
+                <td>
+                  <Text size="sm"> {prestation.attributes.quantity} </Text>
+                </td>
+                <td>
+                  <Text size="sm">{prestation.attributes.unityprice}Ar</Text>
+                </td>
+                <td>
+                  <Text size="sm">{prestation.attributes.totalservice}Ar</Text>
+                </td>
+                <td>
+                  {/*                   {item.attributes.publicites.data.map((pub) => {
+                    prestation.attributes.plateform === "RADIO" &&
+                    /\.(mp3|wav|ogg|flac|m4a|aac|wma|aiff)$/i.test(
+                      pub.attributes.intitule
+                    ) ? (
+                      <Anchor
+                        size="sm"
+                        href={`${urls.ForUpload}${pub.attributes.lien}`}
+                      >
+                        {pub.attributes.intitule}
+                      </Anchor>
+                    ) : (
+                      <Anchor
+                        size="sm"
+                        href={`${urls.ForUpload}${pub.attributes.lien}`}
+                      >
+                        {pub.attributes.intitule}
+                      </Anchor>
+                    );
+                  })} */}
+                  {prestation.attributes.plateform === "RADIO"
+                    ? item.attributes.publicites.data
+                        .filter((pub) =>
+                          /\.(mp3|wav|ogg|flac|m4a|aac|wma|aiff)$/i.test(
+                            pub.attributes.intitule
+                          )
+                        )
+                        .map((pub) => (
+                          <Anchor
+                            key={pub.id}
+                            size="sm"
+                            href={`${urls.ForUpload}${pub.attributes.lien}`}
+                          >
+                            {pub.attributes.intitule}
+                          </Anchor>
+                        ))
+                    : item.attributes.publicites.data
+                        .filter((pub) =>
+                          /\.(mp4|avi|mkv|mov|wmv|flv|webm|mpeg|mpg)$/i.test(
+                            pub.attributes.intitule
+                          )
+                        )
+                        .map((pub) => (
+                          <Anchor
+                            key={pub.id}
+                            size="sm"
+                            href={`${urls.ForUpload}${pub.attributes.lien}`}
+                          >
+                            {pub.attributes.intitule}
+                          </Anchor>
+                        ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </Modal>
-    </>    
-    ));
+    </>
+  ));
 
   return (
     <>
-    <ScrollArea>
-      <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
-        <thead>
-          <tr>
-            <th> Nom </th>
-            {/*<th>Récapitulation</th>*/}
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>Qte</th>
-            <th>P.U.</th>
-            <th>Status</th>
-            <th>Montant</th>
-            <th>Client</th>
-            <th>Responsable de commande</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
-    </ScrollArea>
-    
+      <ScrollArea>
+        <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Responsable de commande</th>
+              <th>Numéro de commande</th>
+              <th>Date de début</th>
+              <th>Date de fin</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </ScrollArea>
     </>
   );
 }
-
-
-
