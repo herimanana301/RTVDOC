@@ -1,58 +1,66 @@
 import React from 'react';
-import { Modal, FileInput, SimpleGrid, Switch, Button, Text } from '@mantine/core';
+import { Modal, FileInput, SimpleGrid, Switch, Button, Text, Group, ActionIcon,NumberInput } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import checked from "../../assets/icons/checked.gif";
+import { useDisclosure } from "@mantine/hooks";
+import { IconBolt } from "@tabler/icons-react";
 
-const FactureModal = ({ isOpen, onClose, selectedItem}) => {
-    
-    const print = () =>{
-        FactureContent();
-    }
-    
+export default function FactureModal({ datas }) {
+    const [opened, { open, close }] = useDisclosure(false);
+
     return (
-        <Modal
-            opened={isOpen}
-            onClose={onClose}
-            style={{ alignItems: 'center' }}
-            title={<Text fz="sm" fw={500}>Aperçu de la facture</Text>}
-            centered
-        >
-            <DatePickerInput
-                dropdownType="modal"
-                clearable
-                valueFormat="DD MMM YYYY"
-                label="Date de paiement"
-                placeholder="Sélectionnez une date"
-                
-            />
-            <br />
-            <FileInput
-                label="Preuve de paiement"
-                description="Capture d'écran avec moyen de paiement"
-                placeholder="Placez votre fichier ici."
-                clearable
-            />
-            <br />
-            <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
-                <Switch mt="md" label="Payé" /><br />
-            </SimpleGrid>
-
-            <Button
-                style={{ marginTop: 15 }}
-<<<<<<< HEAD
-                onClick={() => print}
-=======
-                component="a"
-                href="/facture"
->>>>>>> 0197e516165dcb7b411a095ebac3eb8874397979
-                disabled={selectedItem && selectedItem.status === 'Non Payé'}
+        <>
+            <Group spacing={0} position="right">
+                <ActionIcon onClick={() => open()}>
+                    <IconBolt size="1rem" stroke={1.5} />
+                </ActionIcon>
+            </Group>
+            <Modal
+                opened={opened}
+                onClose={close}
+                centered
+                title="Information facture"
+                overlayProps={{
+                    backgroundopacity: 0.55,
+                    blur: 3,
+                }}
             >
-                Aperçu avant impression
-            </Button>
-        </Modal>
+
+                <DatePickerInput
+                    dropdownType="modal"
+                    clearable
+                    valueFormat="DD MMM YYYY"
+                    label="Date de paiement"
+                    placeholder="Sélectionnez une date"
+
+                />
+                <br />
+                <FileInput
+                    label="Preuve de paiement"
+                    description="Capture d'écran avec moyen de paiement"
+                    placeholder="Placez votre fichier ici."
+                    clearable
+                />
+
+                <NumberInput
+                    label="Montant total"
+                    placeholder="Montant en Ariary"
+                    mt="md"
+                />
+                <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+                    <Switch mt="md" label="Payé" /><br />
+                </SimpleGrid>
+
+                <Button
+                    style={{ marginTop: 15 }}
+                    component="a"
+                    href={`/facture/${datas}`}
+                >
+                    Imprimer une facture
+                </Button>
+
+            </Modal>
+        </>
     );
 
-
-
 };
-
-export default FactureModal;
