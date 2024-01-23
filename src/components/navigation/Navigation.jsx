@@ -29,6 +29,8 @@ import Personal from "../personal/Personal_view";
 import Conges from "../personal/conge/conge_view";
 import { Welcome } from "../welcome/Welcome";
 import Bookinginput from "../input/bookinginput/Bookinginput";
+import urls from "../../services/urls";
+import axios from "axios";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
@@ -108,6 +110,7 @@ export default function Navigation() {
   const [opened, setOpened] = useState(false);
   const { classes, cx } = useStyles();
   const [active, setActive] = useState("");
+  const [authentication, setAuthentication] = useState(false);
   const links = data.map((item) =>
     item.submenu ? (
       <div key={item.label}>
@@ -193,53 +196,76 @@ export default function Navigation() {
       setActive(localStorage.getItem("menuActive"));
     }
   }, [active]);
+  const firstAuthentication = () => {
+    const authSubmit = prompt("Entrez le mot de passe connexion");
+    localStorage.setItem("authentication", authSubmit);
+    location.reload();
+  };
+
+  useEffect(() => {
+    axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
+      console.log(response);
+      if (
+        localStorage.getItem("authentication") ===
+        response.data.data[0].attributes.password
+      ) {
+        setAuthentication(true);
+      } else {
+        firstAuthentication();
+      }
+    });
+  }, []);
 
   return (
-    <AppShell
-      styles={{
-        main: {
-          background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
-        },
-      }}
-      navbarOffsetBreakpoint="sm"
-      asideOffsetBreakpoint="sm"
-      navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="sm"
-          hidden={!opened}
-          width={{ sm: 200, lg: 300 }}
+    <>
+      {authentication && (
+        <AppShell
+          styles={{
+            main: {
+              background:
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[8]
+                  : theme.colors.gray[0],
+            },
+          }}
+          navbarOffsetBreakpoint="sm"
+          asideOffsetBreakpoint="sm"
+          navbar={
+            <Navbar
+              p="md"
+              hiddenBreakpoint="sm"
+              hidden={!opened}
+              width={{ sm: 200, lg: 300 }}
+            >
+              {links}
+            </Navbar>
+          }
+          header={
+            <Header height={{ base: 50, md: 70 }} p="md">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  height: "100%",
+                }}
+              >
+                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                  <Burger
+                    opened={opened}
+                    onClick={() => setOpened((o) => !o)}
+                    size="sm"
+                    color={theme.colors.gray[6]}
+                    mr="xl"
+                  />
+                </MediaQuery>
+                <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
+              </div>
+            </Header>
+          }
         >
-          {links}
-        </Navbar>
-      }
-      header={
-        <Header height={{ base: 50, md: 70 }} p="md">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              height: "100%",
-            }}
-          >
-            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
-            <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
-          </div>
-        </Header>
-      }
-    >
-      <Selection />
-    </AppShell>
+          <Selection />
+        </AppShell>
+      )}{" "}
+    </>
   );
 }
