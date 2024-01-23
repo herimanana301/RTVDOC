@@ -7,7 +7,7 @@ import Navigation from "./components/navigation/Navigation";
 import { useEffect } from "react";
 import MajConge from "./services/majConge";
 import FactureContent from "./components/facture/FactureContent";
-
+import Bookingdisplay from "./components/display/bookingdisplay/Bookingdisplay";
 
 function App() {
   const router = createBrowserRouter([
@@ -36,21 +36,23 @@ function App() {
       element: <NewPersonal />,
     },
     {
-      path:"/facture",
+      path: "/facture",
       element: <FactureContent />,
-    }
-
+    },
+    {
+      path: "/station",
+      element: <Bookingdisplay />,
+    },
   ]);
 
   /************* Mise à jour des jour de congé *************/
-
 
   /********************************************************/
 
   return (
     <>
       <RouterProvider router={router} />
-      <MajConge/>
+      <MajConge />
     </>
   );
 }
