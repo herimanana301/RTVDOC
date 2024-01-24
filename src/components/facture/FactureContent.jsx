@@ -8,6 +8,8 @@ import {
 import logo from "../../assets/icons/logo.png";
 import { useParams, useLocation } from "react-router-dom";
 import { FindOneCommande } from "./hanldeFacture";
+import LoadingModal from "./LoadingModal";
+import NumberToLetter from "./nombre_en_lettre";
 
 
 const FactureContent = () => {
@@ -27,12 +29,16 @@ const FactureContent = () => {
         total: 1,
     });
     const [NowDate, setNowDate] = useState(new Date());
+    const [isLoading, setIsLoading] = useState(true);
+    const [TVA, setTVA] = useState(false);
+    const [remise, setRemise] = useState(false);
 
-    useEffect(() => {
-
-        FindOneCommande(id, setDatasCommande,setDatasClient,setDatasPrestation);
-
-    }, []);
+    //Calcul 
+    const [MontantTotal, setMontantTotal] = useState(0);
+    const [TVAValue, setTVAValue] = useState(0);
+    const [RemiseValue, setRemiseValue] = useState(0);
+    const [totalTTC, setTotalTTC] = useState(0);
+    
 
     const formatDate = (date) => {
   
@@ -55,9 +61,42 @@ const FactureContent = () => {
       </tr>      
     ))
 
-    const TotalMontants = prestation.map((prestation) => (
+    /*const TotalMontants = prestation.map((prestation) => (
         TotalMontant = TotalMontant + (prestation.attributes.quantity*prestation.attributes.unityprice)
-    ))
+    ));*/
+
+    // Confirmation de données
+    // Confirmation de données
+    const handleSubmit = () => {
+        let MontantTotalCalc = 0;
+    
+        prestation.forEach((prestation) => {
+            MontantTotalCalc += prestation.attributes.quantity * prestation.attributes.unityprice;
+        });
+    
+        setMontantTotal(MontantTotalCalc);
+    
+        const TVAValue = TVA ? 0.2 * MontantTotalCalc : 0;
+        setTVAValue(TVAValue);
+    
+        const RemiseValue = remise ? 0.1 * MontantTotalCalc : 0;
+        setRemiseValue(RemiseValue);
+    
+        const TotalTTC = MontantTotalCalc + TVAValue - RemiseValue;
+        setTotalTTC(TotalTTC);
+    
+        setIsLoading(false);
+        
+        close();
+    };
+    
+    const ValeurEnLettres = NumberToLetter(totalTTC, null, null);
+
+    useEffect(() => {
+
+        FindOneCommande(id, setDatasCommande,setDatasClient,setDatasPrestation);
+
+    }, []);
 
     return (
         <>
@@ -130,23 +169,28 @@ const FactureContent = () => {
                 </Text>
                 <Text fz={"sm"}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end",}}>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {TotalMontants}</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {"tva"}</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {"totalTTC"}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {MontantTotal}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {TVAValue}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>Remise 10%: </p> {RemiseValue}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {totalTTC}</span>
                     </div>
                     <div style={{textAlign:"center"}}>
-                        <p>Arrêté la présente facture à la somme de: <span>{"Valeur en lettres"}</span></p>
+                        <p>Arrêté la présente facture à la somme de: <span style={{ textTransform: "uppercase" }}>{ValeurEnLettres} Ariary</span></p>
                         <span>
                             <p> Fianarantsoa, le {formatDate(NowDate)}</p>
-                            <p>La Responsable, {"//Signature//"}</p>
+                            <p>La Responsable,</p>
                         </span>
                     </div>
                 </Text>
             </div>
             
+                <LoadingModal
+                    onSubmit={handleSubmit}
+                    onTVAChange={setTVA} 
+                    onRemiseChange={setRemise}
+                    close={close}
+                /> 
         </>
-
-
     );
 }
 

@@ -60,7 +60,7 @@ export default function FactureModal({ datas }) {
             <Menu.Dropdown>
               <Menu.Item> <Link style={{textDecoration:'none'}} to={{pathname: `/facture/${datas}`,}}>Facturation</Link></Menu.Item>
               <Menu.Item onClick={() => open()}>Payement</Menu.Item>
-              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas)} color="red">Achiver</Menu.Item>
+              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas)} color="yellow">Achiver</Menu.Item>
             </Menu.Dropdown>
 
           </Menu>

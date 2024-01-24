@@ -78,4 +78,4 @@ const ArchiverCommandeConfirm = (id) => {
 
 /******************************* *******************************/
 
-export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommande};
+export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommandeConfirm};
