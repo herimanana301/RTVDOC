@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { FactureconfirmationModal } from '../../services/alertConfirmation';
 import { Link } from "react-router-dom";
 import { ArchiverCommandeConfirm } from "../../services/alertConfirmation"
+import { ArchiverCommande } from "./hanldeFacture"
 
 import {
     IconPencil,
@@ -43,6 +44,13 @@ export default function FactureModal({ datas }) {
     const [Status, setStatus] = useState(false);
 
 
+    const submitButton = async () => {
+        
+        
+
+    }
+
+
     return (
         <>
         <Menu
@@ -60,7 +68,7 @@ export default function FactureModal({ datas }) {
             <Menu.Dropdown>
               <Menu.Item> <Link style={{textDecoration:'none'}} to={{pathname: `/facture/${datas}`,}}>Facturation</Link></Menu.Item>
               <Menu.Item onClick={() => open()}>Payement</Menu.Item>
-              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas)} color="yellow">Achiver</Menu.Item>
+              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas,ArchiverCommande)} color="yellow">Achiver</Menu.Item>
             </Menu.Dropdown>
 
           </Menu>
@@ -75,7 +83,7 @@ export default function FactureModal({ datas }) {
                     blur: 3,
                 }}
             >
-                <form>
+                <form onSubmit={(event) => event.preventDefault()}>
 
                     <DatePickerInput
                         dropdownType="modal"
@@ -118,7 +126,7 @@ export default function FactureModal({ datas }) {
                     />
 
                     <Group style={{ display: "flex", justifyContent: "space-between" }} mt="md">
-                        <Button type="submit">Sauvegarder</Button>
+                        <Button onClick={submitButton} type="submit">Sauvegarder</Button>
                     </Group>
 
                 </form>

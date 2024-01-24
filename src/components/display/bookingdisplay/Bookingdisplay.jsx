@@ -6,7 +6,7 @@ import axios from "axios";
 import urls from "../../../services/urls";
 
 const Bookingdisplay = () => {
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([new Date()]);
   const [programmedList, setProgrammedList] = useState([]);
 
   const handleSelect = (date) => {
@@ -49,7 +49,7 @@ const Bookingdisplay = () => {
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             justifyContent: "center",
             padding: "3rem",
           }}

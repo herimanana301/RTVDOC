@@ -58,7 +58,7 @@ const FactureconfirmationModal = (setStatus) => {
   });
 };
 
-const ArchiverCommandeConfirm = (id) => {
+const ArchiverCommandeConfirm = (id,ArchiverCommande) => {
   Swal.fire({
     title: 'Archiver la commande?',
     text: "Vous etes sûr?",
@@ -70,7 +70,7 @@ const ArchiverCommandeConfirm = (id) => {
     cancelButtonText: 'Annuler',
   }).then((result) => {
     if (result.isConfirmed) {
-        
+      ArchiverCommande(id);
     }
   });
 };

@@ -9,11 +9,10 @@ import {
   rem,
   Modal,
   Avatar,
-  Switch
-
+  Switch,
 } from "@mantine/core";
 import { useParams, useLocation } from "react-router-dom";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DateInput } from "@mantine/dates";
 import { Dropzone } from "@mantine/dropzone";
 import ContactIcons from "../input/ContactIcons";
 import urls from "../../services/urls";
@@ -47,10 +46,11 @@ const useStyles = createStyles((theme) => {
         theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.white,
       borderRadius: theme.radius.lg,
       padding: rem(4),
-      border: `${rem(1)} solid ${theme.colorScheme === "dark"
+      border: `${rem(1)} solid ${
+        theme.colorScheme === "dark"
           ? theme.colors.dark[8]
           : theme.colors.gray[2]
-        }`,
+      }`,
 
       [BREAKPOINT]: {
         flexDirection: "column",
@@ -168,11 +168,10 @@ export default function NewPersonal() {
 
   /************* Formater et changer la date ****************/
 
-
   const formatDate = (date) => {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
 
     return `${day}/${month}/${year}`;
   };
@@ -184,9 +183,10 @@ export default function NewPersonal() {
     prenom: "",
     departement: "",
     salaire: "",
-    dateEmbauche: formatDate(new Date),
+    dateEmbauche: formatDate(new Date()),
+    CIN: "",
+    datedebauche: null,
   });
-
 
   const resetInputs = () => {
     setInputValues({
@@ -194,7 +194,9 @@ export default function NewPersonal() {
       prenom: "",
       departement: "",
       salaire: "",
-      dateEmbauche: formatDate(new Date),
+      dateEmbauche: formatDate(new Date()),
+      CIN: "",
+      datedebauche: "",
       // Réinitialise les valeurs après envoi
     });
     setImageFile(null);
@@ -223,12 +225,12 @@ export default function NewPersonal() {
   };
 
   const [Status, setStatus] = useState(false);
-  const [StatusTxt, setStatusTxt] = useState('');
+  const [StatusTxt, setStatusTxt] = useState("");
 
   const handleStatusChange = (status) => {
     setStatus(status);
-    status ? setStatusTxt('Actif') : setStatusTxt('Non actif');
-  }
+    status ? setStatusTxt("Actif") : setStatusTxt("Non actif");
+  };
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -236,7 +238,7 @@ export default function NewPersonal() {
     const dateObj1 = new Date(date1);
     const dateObj2 = new Date(date2);
     return Math.round((dateObj2 - dateObj1) / (24 * 60 * 60 * 1000));
-  }
+  };
 
   /*************** Insert personal data *********************/
 
@@ -245,80 +247,110 @@ export default function NewPersonal() {
       if (imageFile) {
         // Si une image est présente, procéder à l'envoi de l'image à Strapi
         const formData = new FormData();
-        const renamedFile = new File([imageFile], 'avatar.png', { type: imageFile.type });
-        formData.append('files', renamedFile);
+        const renamedFile = new File([imageFile], "avatar.png", {
+          type: imageFile.type,
+        });
+        formData.append("files", renamedFile);
 
         // Envoi de l'image à Strapi
-        const imageResponse = await axios.post(`${urls.StrapiUrl}api/upload/`, formData);
-        console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
+        const imageResponse = await axios.post(
+          `${urls.StrapiUrl}api/upload/`,
+          formData
+        );
+        console.log("Image envoyée avec succès à Strapi:", imageResponse.data);
         // Envoi des données personnelles à Strapi
 
-        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+        const formattedDate = `${currentDate.getFullYear()}-${(
+          currentDate.getMonth() + 1
+        )
           .toString()
-          .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
-      
+          .padStart(2, "0")}-${currentDate
+          .getDate()
+          .toString()
+          .padStart(2, "0")}`;
 
-        const differenceJours = differenceEnJours(inputValues.dateEmbauche,formattedDate);
+        const differenceJours = differenceEnJours(
+          inputValues.dateEmbauche,
+          formattedDate
+        );
 
         // Calculer le nombre d'ajouts de 2.5 sur la période
         const nombreAjours = Math.floor(differenceJours / 30);
         const ajoutTotal = nombreAjours * 2.5;
 
-        const personnelResponse = await axios.post(`${urls.StrapiUrl}api/personnels`, {
-          data: {
-            nom: inputValues.nom,
-            prenom: inputValues.prenom,
-            adresse: datas[2].description,
-            contact: datas[0].description,
-            email: datas[1].description,
-            departement: inputValues.departement,
-            poste: datas[3].description,
-            salaire: inputValues.salaire,
-            date_embauche: inputValues.dateEmbauche,
-            avatar: imageResponse.data[0].hash + '.png',
-            conge: ajoutTotal < 0 ? 0 : ajoutTotal,
-            status: 'Actif',
-            dateDernierConge:formattedDate,
-          },
-        });
+        const personnelResponse = await axios.post(
+          `${urls.StrapiUrl}api/personnels`,
+          {
+            data: {
+              nom: inputValues.nom,
+              CIN: inputValues.CIN,
+              prenom: inputValues.prenom,
+              adresse: datas[2].description,
+              contact: datas[0].description,
+              email: datas[1].description,
+              departement: inputValues.departement,
+              poste: datas[3].description,
+              salaire: inputValues.salaire,
+              date_embauche: inputValues.dateEmbauche,
+              avatar: imageResponse.data[0].hash + ".png",
+              conge: ajoutTotal < 0 ? 0 : ajoutTotal,
+              status: "Actif",
+              dateDernierConge: formattedDate,
+            },
+          }
+        );
 
         if (personnelResponse.status === 200) {
           setOpened(true);
-          const updatedDatas = datas.map((element) => ({ ...element, description: "" }));
+          const updatedDatas = datas.map((element) => ({
+            ...element,
+            description: "",
+          }));
           setDatas(updatedDatas);
           resetInputs();
         }
       } else {
-
-        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+        const formattedDate = `${currentDate.getFullYear()}-${(
+          currentDate.getMonth() + 1
+        )
           .toString()
-          .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
-      
+          .padStart(2, "0")}-${currentDate
+          .getDate()
+          .toString()
+          .padStart(2, "0")}`;
 
-        const differenceJours = differenceEnJours(inputValues.dateEmbauche,formattedDate);
+        const differenceJours = differenceEnJours(
+          inputValues.dateEmbauche,
+          formattedDate
+        );
 
         // Calculer le nombre d'ajouts de 2.5 sur la période
         const nombreAjours = Math.floor(differenceJours / 30);
         const ajoutTotal = nombreAjours * 2.5;
-        
+
         // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
-        const personnelResponse = await axios.post(`${urls.StrapiUrl}api/personnels`, {
-          data: {
-            nom: inputValues.nom,
-            prenom: inputValues.prenom,
-            adresse: datas[2].description,
-            contact: datas[0].description,
-            email: datas[1].description,
-            departement: inputValues.departement,
-            poste: datas[3].description,
-            salaire: inputValues.salaire,
-            date_embauche: inputValues.dateEmbauche,
-            avatar: 'default_profile1_cc255a96f9.png',
-            conge: ajoutTotal < 0 ? 0 : ajoutTotal,
-            status: 'Actif',
-            dateDernierConge:formattedDate,
-          },
-        });
+        const personnelResponse = await axios.post(
+          `${urls.StrapiUrl}api/personnels`,
+          {
+            data: {
+              nom: inputValues.nom,
+              prenom: inputValues.prenom,
+              CIN: inputValues.CIN,
+
+              adresse: datas[2].description,
+              contact: datas[0].description,
+              email: datas[1].description,
+              departement: inputValues.departement,
+              poste: datas[3].description,
+              salaire: inputValues.salaire,
+              date_embauche: inputValues.dateEmbauche,
+              avatar: "default_profile1_cc255a96f9.png",
+              conge: ajoutTotal < 0 ? 0 : ajoutTotal,
+              status: "Actif",
+              dateDernierConge: formattedDate,
+            },
+          }
+        );
 
         // Vérification du statut de la mise à jour
         if (personnelResponse.status === 200) {
@@ -326,43 +358,51 @@ export default function NewPersonal() {
         }
       }
     } catch (error) {
-      console.error('Erreur lors de la maj des données à Strapi:', error);
+      console.error("Erreur lors de la maj des données à Strapi:", error);
       setSubmitError(true);
     }
-
   };
 
   /*************** Update personal data *********************/
 
   const updatePersonal = async () => {
-
     try {
       if (imageFile) {
         // Si une image est présente, procéder à l'envoi de l'image à Strapi
         const formData = new FormData();
-        const renamedFile = new File([imageFile], 'avatar.png', { type: imageFile.type });
-        formData.append('files', renamedFile);
+        const renamedFile = new File([imageFile], "avatar.png", {
+          type: imageFile.type,
+        });
+        formData.append("files", renamedFile);
 
         // Envoi de l'image à Strapi
-        const imageResponse = await axios.post(`${urls.StrapiUrl}api/upload/`, formData);
-        console.log('Image envoyée avec succès à Strapi:', imageResponse.data);
+        const imageResponse = await axios.post(
+          `${urls.StrapiUrl}api/upload/`,
+          formData
+        );
+        console.log("Image envoyée avec succès à Strapi:", imageResponse.data);
 
         // Mise à jour des données personnelles avec l'ID spécifié et l'URL de l'image
-        const updatePersonnelResponse = await axios.put(`${urls.StrapiUrl}api/personnels/${id}`, {
-          data: {
-            nom: inputValues.nom,
-            prenom: inputValues.prenom,
-            adresse: datas[2].description,
-            contact: datas[0].description,
-            email: datas[1].description,
-            departement: inputValues.departement,
-            poste: datas[3].description,
-            salaire: inputValues.salaire,
-            date_embauche: inputValues.dateEmbauche,
-            avatar: imageResponse.data[0].hash + '.png',
-            status: StatusTxt,
-          },
-        });
+        const updatePersonnelResponse = await axios.put(
+          `${urls.StrapiUrl}api/personnels/${id}`,
+          {
+            data: {
+              nom: inputValues.nom,
+              prenom: inputValues.prenom,
+              CIN: inputValues.CIN,
+              adresse: datas[2].description,
+              contact: datas[0].description,
+              email: datas[1].description,
+              departement: inputValues.departement,
+              poste: datas[3].description,
+              salaire: inputValues.salaire,
+              date_embauche: inputValues.dateEmbauche,
+              datedebauche: new Date(inputValues.datedebauche),
+              avatar: imageResponse.data[0].hash + ".png",
+              status: StatusTxt,
+            },
+          }
+        );
 
         // Vérification du statut de la mise à jour
         if (updatePersonnelResponse.status === 200) {
@@ -370,20 +410,25 @@ export default function NewPersonal() {
         }
       } else {
         // Si aucune image n'est présente, effectuer directement la mise à jour des données personnelles
-        const updatePersonnelResponse = await axios.put(`${urls.StrapiUrl}api/personnels/${id}`, {
-          data: {
-            nom: inputValues.nom,
-            prenom: inputValues.prenom,
-            adresse: datas[2].description,
-            contact: datas[0].description,
-            email: datas[1].description,
-            departement: inputValues.departement,
-            poste: datas[3].description,
-            salaire: inputValues.salaire,
-            date_embauche: inputValues.dateEmbauche,
-            status: StatusTxt,
-          },
-        });
+        const updatePersonnelResponse = await axios.put(
+          `${urls.StrapiUrl}api/personnels/${id}`,
+          {
+            data: {
+              nom: inputValues.nom,
+              prenom: inputValues.prenom,
+              CIN: inputValues.CIN,
+              adresse: datas[2].description,
+              contact: datas[0].description,
+              email: datas[1].description,
+              departement: inputValues.departement,
+              poste: datas[3].description,
+              salaire: inputValues.salaire,
+              datedebauche: new Date(inputValues.datedebauche),
+              date_embauche: inputValues.dateEmbauche,
+              status: StatusTxt,
+            },
+          }
+        );
 
         // Vérification du statut de la mise à jour
         if (updatePersonnelResponse.status === 200) {
@@ -391,25 +436,27 @@ export default function NewPersonal() {
         }
       }
     } catch (error) {
-      console.error('Erreur lors de la maj des données à Strapi:', error);
+      console.error("Erreur lors de la maj des données à Strapi:", error);
       setSubmitError(true);
     }
-
   };
   useEffect(() => {
     if (id) {
-      inputValues.nom = currentPersonal.nom;
-      inputValues.prenom = currentPersonal.prenom;
-      inputValues.departement = currentPersonal.departement;
-      inputValues.salaire = currentPersonal.salaire;
-      inputValues.dateEmbauche = currentPersonal.date_embauche;
+      setInputValues({
+        nom: currentPersonal.nom,
+        prenom: currentPersonal.prenom,
+        departement: currentPersonal.departement,
+        salaire: currentPersonal.salaire,
+        dateEmbauche: currentPersonal.date_embauche,
+        CIN: currentPersonal.CIN,
+        datedebauche: currentPersonal.datedebauche,
+      });
 
       updateDescription(2, currentPersonal.adresse);
       updateDescription(0, currentPersonal.contact);
       updateDescription(1, currentPersonal.email);
       updateDescription(3, currentPersonal.poste);
-      currentPersonal.status === 'Actif' ? setStatus(true) : setStatus(false);
-
+      currentPersonal.status === "Actif" ? setStatus(true) : setStatus(false);
     }
   }, []);
 
@@ -422,10 +469,9 @@ export default function NewPersonal() {
       // Stocker le fichier dans l'état
       setImageFile(firstFile);
     }
-  }
+  };
 
   return (
-
     <Paper shadow="md" radius="lg">
       <Button component="a" href="/" className={classes.buttonreturn}>
         <IconArrowNarrowLeft size={20} strokeWidth={2} color={"white"} />
@@ -434,14 +480,21 @@ export default function NewPersonal() {
 
       <div className={classes.wrapper}>
         <div className={classes.contacts}>
-          <Paper style={{ background: 'linear-gradient(135deg, #228be6 36%, #4dabf7 100%)' }} radius="md" withBorder p="lg" bg="var(--mantine-color-body)">
-
+          <Paper
+            style={{
+              background: "linear-gradient(135deg, #228be6 36%, #4dabf7 100%)",
+            }}
+            radius="md"
+            withBorder
+            p="lg"
+            bg="var(--mantine-color-body)"
+          >
             {imageFile ? (
               <Avatar
                 style={{
-                  border: '5px solid white',
+                  border: "5px solid white",
                 }}
-                src={URL.createObjectURL(imageFile)}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                src={URL.createObjectURL(imageFile)} // Utiliser l'URL objet pour afficher l'image depuis le fichier
                 size={190}
                 radius={120}
                 mx="auto"
@@ -449,9 +502,9 @@ export default function NewPersonal() {
             ) : id ? (
               <Avatar
                 style={{
-                  border: '5px solid white',
+                  border: "5px solid white",
                 }}
-                src={`${urls.StrapiUrl}uploads/` + currentPersonal.avatar}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                src={`${urls.StrapiUrl}uploads/` + currentPersonal.avatar} // Utiliser l'URL objet pour afficher l'image depuis le fichier
                 size={190}
                 radius={120}
                 mx="auto"
@@ -459,21 +512,27 @@ export default function NewPersonal() {
             ) : (
               <Avatar
                 style={{
-                  border: '5px solid white',
+                  border: "5px solid white",
                 }}
-                src={`${urls.StrapiUrl}uploads/default_profile1_cc255a96f9.png`}  // Utiliser l'URL objet pour afficher l'image depuis le fichier
+                src={`${urls.StrapiUrl}uploads/default_profile1_cc255a96f9.png`} // Utiliser l'URL objet pour afficher l'image depuis le fichier
                 size={190}
                 radius={120}
                 mx="auto"
               />
-            )
-            }
+            )}
 
-            <Text style={{ color: 'white' }} ta="center" fz="lg" fw={500} mt="md">
+            <Text
+              style={{ color: "white" }}
+              ta="center"
+              fz="lg"
+              fw={500}
+              mt="md"
+            >
               {inputValues.nom}
             </Text>
-            <Text style={{ color: 'white' }} ta="center" c="dark" fw={300}>
-              {inputValues.prenom}<br></br>
+            <Text style={{ color: "white" }} ta="center" c="dark" fw={300}>
+              {inputValues.prenom}
+              <br></br>
             </Text>
             <ContactIcons variant="white" display={datas} />
           </Paper>
@@ -497,6 +556,13 @@ export default function NewPersonal() {
                 required
               />
               <TextInput
+                label="CIN"
+                placeholder="Numéro CIN"
+                value={inputValues.CIN}
+                onChange={(e) => handleInputChange("CIN", e.target.value)}
+                required
+              />
+              <TextInput
                 label="Adresse mail"
                 placeholder="herimanana@bluepix.mg"
                 value={datas[1].description}
@@ -508,7 +574,7 @@ export default function NewPersonal() {
                 label="Prénom"
                 placeholder="Prénom du personnel"
                 value={inputValues.prenom}
-                onChange={(e) => handleInputChange('prenom', e.target.value)}
+                onChange={(e) => handleInputChange("prenom", e.target.value)}
                 required
               />
               <TextInput
@@ -555,7 +621,9 @@ export default function NewPersonal() {
                 value={new Date(inputValues.dateEmbauche)}
                 label="Date d'embauche"
                 placeholder="January 10, 2026"
-                onChange={(date) => handleInputChange('dateEmbauche', formatDate(date))}
+                onChange={(date) =>
+                  handleInputChange("dateEmbauche", formatDate(date))
+                }
               />
 
               <TextInput
@@ -567,46 +635,83 @@ export default function NewPersonal() {
 
               <Dropzone
                 onDrop={handleDrop}
-                onReject={(files) => console.log('rejected files', files)}
+                onReject={(files) => console.log("rejected files", files)}
               >
-                <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+                <Group
+                  justify="center"
+                  gap="xl"
+                  mih={220}
+                  style={{ pointerEvents: "none" }}
+                >
                   <Dropzone.Accept>
                     <IconUpload
-                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
+                      style={{
+                        width: rem(52),
+                        height: rem(52),
+                        color: "var(--mantine-color-blue-6)",
+                      }}
                       stroke={1.5}
                     />
                   </Dropzone.Accept>
                   <Dropzone.Reject>
                     <IconX
-                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
+                      style={{
+                        width: rem(52),
+                        height: rem(52),
+                        color: "var(--mantine-color-red-6)",
+                      }}
                       stroke={1.5}
                     />
                   </Dropzone.Reject>
                   <Dropzone.Idle>
                     <IconPhoto
-                      style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
+                      style={{
+                        width: rem(52),
+                        height: rem(52),
+                        color: "var(--mantine-color-dimmed)",
+                      }}
                       stroke={1.5}
                     />
                   </Dropzone.Idle>
 
                   <div>
                     <Text size="xl" inline>
-                      Glisser l'image ici ou cliquez pour sélectionner le fichier
+                      Glisser l'image ici ou cliquez pour sélectionner le
+                      fichier
                     </Text>
                     <Text size="sm" c="dimmed" inline mt={7}>
-                      Joignez une image que vous souhaitez, le fichier ne doit pas dépasser 5 Mo.
+                      Joignez une image que vous souhaitez, le fichier ne doit
+                      pas dépasser 5 Mo.
                     </Text>
                   </div>
                 </Group>
               </Dropzone>
-              {id && <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-                <Switch
-                  mt="md"
-                  label="Personnel actif"
-                  onChange={(event) => handleStatusChange(event.target.checked)}
-                  checked={Status}
-                /><br />
-              </SimpleGrid>}
+              {id && (
+                <SimpleGrid
+                  cols={2}
+                  breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+                >
+                  <DateInput
+                    label="Date de débauche"
+                    placeholder="Insérez date de débauche"
+                    value={
+                      inputValues.datedebauche != null
+                        ? new Date(inputValues.datedebauche)
+                        : inputValues.datedebauche
+                    }
+                    onChange={(e) => handleInputChange("datedebauche", e)}
+                  />
+                  <Switch
+                    mt="md"
+                    label="Personnel actif"
+                    onChange={(event) =>
+                      handleStatusChange(event.target.checked)
+                    }
+                    checked={Status}
+                  />
+                  <br />
+                </SimpleGrid>
+              )}
             </SimpleGrid>
             <Group position="right" mt="md">
               <Button
