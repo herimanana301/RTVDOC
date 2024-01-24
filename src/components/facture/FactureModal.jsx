@@ -7,8 +7,8 @@ import { IconBolt } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { FactureconfirmationModal } from '../../services/alertConfirmation';
 import { Link } from "react-router-dom";
-import { ArchiverCommandeConfirm } from "../../services/alertConfirmation"
-import { ArchiverCommande } from "./hanldeFacture"
+import { ArchiverCommandeConfirm, DesarchiverCommandeConfirm} from "../../services/alertConfirmation";
+import { ArchiverCommande, DesarchiverCommande } from "./hanldeFacture";
 
 import {
     IconPencil,
@@ -19,7 +19,8 @@ import {
     IconDots,
 } from '@tabler/icons-react';
 
-export default function FactureModal({ datas }) {
+export default function FactureModal(props) {
+    const { id, archive } = props.datas;
     const [opened, { open, close }] = useDisclosure(false);
 
     const formatDate = (date) => {
@@ -51,6 +52,7 @@ export default function FactureModal({ datas }) {
     }
     return (
         <>
+
             <Menu
                 transitionProps={{ transition: 'pop' }}
                 withArrow
@@ -64,11 +66,18 @@ export default function FactureModal({ datas }) {
                 </Menu.Target>
 
                 <Menu.Dropdown>
-                    <Menu.Item> <Link style={{ textDecoration: 'none' }} to={{ pathname: `/facture/${datas}`, }}>Facturation</Link></Menu.Item>
+                    <Menu.Item> <Link style={{ textDecoration: 'none' }} to={{ pathname: `/facture/${id}`, }}>Facturation</Link></Menu.Item>
                     <Menu.Item onClick={() => open()}>Paiement</Menu.Item>
-                    <Menu.Item onClick={() => ArchiverCommandeConfirm(datas, ArchiverCommande)} color="yellow">Achiver</Menu.Item>
+                    {archive ? (
+                        <Menu.Item onClick={() => DesarchiverCommandeConfirm(id, DesarchiverCommande)} color="yellow">
+                            Desarchiver
+                        </Menu.Item>
+                    ) : (
+                        <Menu.Item onClick={() => ArchiverCommandeConfirm(id, ArchiverCommande)} color="yellow">
+                            Archiver
+                        </Menu.Item>
+                    )}
                 </Menu.Dropdown>
-
             </Menu>
 
             <Modal

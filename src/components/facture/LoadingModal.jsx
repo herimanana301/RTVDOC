@@ -22,16 +22,10 @@ const LoadingModal = ({ onSubmit, onTVAChange, onRemiseChange }) => {
                 backgroundopacity: 0.55,
                 blur: 3,
             }}
+            withCloseButton={false}
+            closeOnClickOutside={false}
         >
             <Stack>
-                <Checkbox
-                    checked={isTVAChecked}
-                    onChange={(event) => {
-                        setTVAChecked(event.target.checked);
-                        onTVAChange(event.target.checked);
-                    }}
-                    label="TVA 20%"
-                />
                 <Checkbox
                     checked={isRemiseChecked}
                     onChange={(event) => {
@@ -39,6 +33,14 @@ const LoadingModal = ({ onSubmit, onTVAChange, onRemiseChange }) => {
                         onRemiseChange(event.target.checked);
                     }}
                     label="Remise 10%"
+                />
+                <Checkbox
+                    checked={isTVAChecked}
+                    onChange={(event) => {
+                        setTVAChecked(event.target.checked);
+                        onTVAChange(event.target.checked);
+                    }}
+                    label="TVA 20%"
                 />
                 <Button 
                 onClick={() => {

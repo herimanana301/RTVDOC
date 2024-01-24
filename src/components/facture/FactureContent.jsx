@@ -177,10 +177,15 @@ const FactureContent = () => {
                 </Text>
                 <Text fz={"sm"}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end",}}>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {MontantTotal}</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {TVAValue}</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>Remise 10%: </p> {RemiseValue}</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {totalTTC}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {MontantTotal} Ar</span>
+                        { remise && 
+                        (<div>
+                            <span style={{display: "flex", alignItems: "center"}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
+                            <span style={{display: "flex", alignItems: "center"}}><p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar</span>
+                        </div>)
+                        }
+                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {TVAValue} Ar</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {totalTTC} Ar</span>
                     </div>
                     <div style={{textAlign:"center"}}>
                         <p>Arrêté la présente facture à la somme de: <span style={{ textTransform: "uppercase" }}>{ValeurEnLettres} Ariary</span></p>
