@@ -43,7 +43,12 @@ export default function Commande() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "En attente de diffusion", "En cours de diffusion", "Diffusion terminée"]}
+                data={[
+                  "",
+                  "En attente de diffusion",
+                  "En cours de diffusion",
+                  "Diffusion terminée",
+                ]}
                 label="État de diffusion"
                 radius="md"
               />
@@ -58,21 +63,6 @@ export default function Commande() {
           </Menu.Dropdown>
         </Menu>
       </div>
-      <Accordion
-        style={{ marginTop: "2rem" }}
-        variant="contained"
-        radius="md"
-        defaultValue="customization"
-      >
-        <Accordion.Item value="date">
-          <Accordion.Control>Date des données : 29/07/2023 </Accordion.Control>
-          <Accordion.Panel>
-            <Group position="center">
-              <Calendar />
-            </Group>
-          </Accordion.Panel>
-        </Accordion.Item>
-      </Accordion>
       <Orders />
     </>
   );

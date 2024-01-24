@@ -39,10 +39,10 @@ export default function Orders() {
   });
   const [authentication, setAuthentication] = useState(false);
   const [authenticationModal, setAuthenticationModal] = useState(true);
-  const authentificationcredential = {
-    username: "ericrtvsoafia",
-    password: "29novembre1982",
-  };
+  const [authentificationcredential, setAuthenticationcredential] = useState({
+    username: "",
+    password: "",
+  });
   const [inputAuthentication, setInputAuthentication] = useState({
     username: "",
     password: "",
@@ -108,8 +108,13 @@ export default function Orders() {
       const data = await fetchCommandeData();
       setCommandeData(data);
     };
-
     fetchData();
+    axios.get(`${urls.StrapiUrl}api/users`).then((response) => {
+      setAuthenticationcredential({
+        username: response.data[0].username,
+        password: response.data[0].passwordfororder,
+      });
+    });
   }, []);
   const handleModal = (item) => {
     setSelectedItem(item);

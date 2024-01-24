@@ -113,4 +113,4 @@ const DesarchiverCommandeConfirm = (id,DesarchiverCommande) => {
 
 /******************************* *******************************/
 
-export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommandeConfirm,DesarchiverCommandeConfirm};
+export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommandeConfirm,DesarchiverCommandeConfirm, confirmationPutModal};
