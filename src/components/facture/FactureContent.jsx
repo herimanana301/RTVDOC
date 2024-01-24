@@ -180,7 +180,7 @@ const FactureContent = () => {
                         <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {MontantTotal} Ar</span>
                         { remise && 
                         (<div>
-                            <span style={{display: "flex", alignItems: "center"}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
+                            <span style={{}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
                             <span style={{display: "flex", alignItems: "center"}}><p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar</span>
                         </div>)
                         }
