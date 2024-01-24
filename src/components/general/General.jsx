@@ -1,10 +1,10 @@
-import { Grid, Skeleton, Container } from '@mantine/core';
+import { Grid, Skeleton, Container } from "@mantine/core";
 
 export default function General() {
   const child = <Skeleton height={140} radius="md" animate={false} />;
 
   return (
-        <Container my="md">
+    <Container my="md">
       <Grid>
         <Grid.Col xs={4}>{child}</Grid.Col>
         <Grid.Col xs={8}>{child}</Grid.Col>
