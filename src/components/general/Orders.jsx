@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -12,6 +12,9 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconBolt } from "@tabler/icons-react";
+import urls from "../../services/urls";
+import axios from "axios";
+import "./order.css";
 
 const stateColors = {
   engineer: "blue",
@@ -19,13 +22,38 @@ const stateColors = {
   designer: "pink",
 };
 
+const fetchCommandeData = async () => {
+  try {
+    const response = await axios.get(
+      `${urls.StrapiUrl}api/commandes?populate=*&_limit=-1`
+    );
+    console.log(response);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching data from Strapi:", error);
+    return [];
+  }
+};
+
 export default function Orders() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [commandeData, setCommandeData] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleModal = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchCommandeData();
+      setCommandeData(data);
+    };
+
+    fetchData();
+  }, []);
+
+  const handleModal = (item) => {
+    setSelectedItem(item);
     setIsModalOpen(true);
-  }
-  
+  };
+
   const diffusionStatus = (dateDebut, dateFin) => {
     const currentDate = new Date();
     const startDate = new Date(dateDebut);
@@ -39,121 +67,187 @@ export default function Orders() {
     }
   };
 
-  const data = [
-    {
-      avatar: "https://example.com/avatar/1",
-      name: "Herimanana Rasolonirina",
-      state: "En cours de diffusion",
-      email: "john.doe@example.com",
-      phone: "+1234567890",
-      dateDebut :"2023-12-18",
-      dateFin : "2024-01-17",
-      qte: "70",
-      pu: "10000",
-    },
-    {
-      avatar: "https://example.com/avatar/2",
-      name: "Telma",
-      state: "En attente de paiement",
-      email: "jane.smith@example.com",
-      phone: "+0987654321",
-      dateDebut: "2024-11-27",
-      dateFin: "2024-12-27",
-      qte: "50",
-      pu: "10000",
-    },
-  ];
-
   const theme = useMantineTheme();
-  const rows = data.map((item) => (
-    <tr key={item.name}>
-      <td>
-        <Group spacing="sm">
-          <Avatar size={30} src={item.avatar} radius={30} />
-          <Text fz="sm" fw={500}>
-            {item.name.split(' ').map((word, index) => (
-              <React.Fragment key={index}>
-                {word}
-                <br />
-              </React.Fragment>
-            ))}
-          </Text>
-        </Group>
-      </td>
-      <td>
-        <Text size="sm">{item.dateDebut}</Text>
-      </td>
-      <td>
-        <Text size="sm">{item.dateFin}</Text>
-      </td>
-      <td>
-        <Text size="sm">{ item.qte }</Text>
-      </td>
-      <td>
-        <Text size="sm"> { item.pu }</Text>
-      </td>
 
-      <td>
-        <Badge
-          color={stateColors[diffusionStatus]}
-          variant={theme.colorScheme === "dark" ? "light" : "outline"}
-        >
-          {diffusionStatus(item.dateDebut, item.dateFin)}
-        </Badge>
-      </td>
-      <td>
-        <Text size="sm"> { item.qte * item.pu } </Text>
-      </td>
-      <td>
-        <Group spacing={0} position="right">
-          <ActionIcon onClick={ handleModal }>
-            <IconBolt size="1rem" stroke={1.5}/>
-          </ActionIcon>
-        </Group>
-      </td>
-    </tr>
+  const rows = commandeData.map((item, index) => (
+    <>
+      <tr key={index}>
+        <td>
+          <Group spacing="sm">
+            <Text fz="sm" fw={500}>
+              {item.attributes.client.data.attributes.raisonsocial.includes(" ")
+                ? item.attributes.client.data.attributes.raisonsocial
+                    .split(" ")
+                    .map((word, index) => (
+                      <React.Fragment key={index}>
+                        {word}
+                        <br />
+                      </React.Fragment>
+                    ))
+                : item.attributes.client.data.attributes.raisonsocial}
+            </Text>
+          </Group>
+        </td>
+        <td>
+          <Text size="sm"> {item.attributes.responsableCommande} </Text>
+        </td>
+        <td>
+          <Text size="sm"> {item.attributes.reference} </Text>
+        </td>
+        <td>
+          <Text size="sm">
+            {new Date(item.attributes.startDate).toLocaleDateString()}
+          </Text>
+        </td>
+        <td>
+          <Text size="sm">
+            {new Date(item.attributes.endDate).toLocaleDateString()}
+          </Text>
+        </td>
+        <td>
+          <Text size="sm">
+            {" "}
+            {item.attributes.prestations.data.reduce((sum, element) => {
+              return sum + element.attributes.totalservice;
+            }, 0)}{" "}
+            Ar
+          </Text>
+        </td>
+        <td>
+          <Badge
+            color={stateColors[diffusionStatus]}
+            variant={theme.colorScheme === "dark" ? "light" : "outline"}
+          >
+            {diffusionStatus(
+              item.attributes.startDate,
+              item.attributes.endDate
+            )}
+          </Badge>
+        </td>
+        <td>
+          <Group spacing={0} position="right">
+            <ActionIcon onClick={() => handleModal(item)}>
+              <IconBolt size="1rem" stroke={1.5} />
+            </ActionIcon>
+          </Group>
+        </td>
+      </tr>
+
+      {/* Modal */}
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        style={{ alignItems: "center", overflow: "visible" }}
+        title={
+          <Text fz="sm" fw={500}>
+            Récapitulation
+          </Text>
+        }
+        className="modalOrder"
+        centered
+      >
+        <Text>
+          Preuve de commande :{" "}
+          <Anchor
+            target="_blank"
+            size="sm"
+            href={`${urls.ForUpload}${item.attributes.evidence}`}
+          >
+            Cliquez ici
+          </Anchor>{" "}
+        </Text>
+        <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+          <thead>
+            <tr>
+              <th>Type de publicité </th>
+              <th>Intitulé prestation</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Montant total</th>
+              <th>Fichier</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {item.attributes.prestations.data.map((prestation) => (
+              <tr key={prestation.id}>
+                <td>
+                  <Text fz="sm" fw={500}>
+                    {prestation.attributes.plateform}
+                  </Text>
+                </td>
+                <td>
+                  <Text size="sm"> {prestation.attributes.servicename} </Text>
+                </td>
+                <td>
+                  <Text size="sm"> {prestation.attributes.quantity} </Text>
+                </td>
+                <td>
+                  <Text size="sm">{prestation.attributes.unityprice}Ar</Text>
+                </td>
+                <td>
+                  <Text size="sm">{prestation.attributes.totalservice}Ar</Text>
+                </td>
+                <td>
+                  {prestation.attributes.plateform === "RADIO"
+                    ? item.attributes.publicites.data
+                        .filter((pub) =>
+                          /\.(mp3|wav|ogg|flac|m4a|aac|wma|aiff)$/i.test(
+                            pub.attributes.intitule
+                          )
+                        )
+                        .map((pub) => (
+                          <Anchor
+                            key={pub.id}
+                            size="sm"
+                            href={`${urls.ForUpload}${pub.attributes.lien}`}
+                          >
+                            {pub.attributes.intitule}
+                          </Anchor>
+                        ))
+                    : item.attributes.publicites.data
+                        .filter((pub) =>
+                          /\.(mp4|avi|mkv|mov|wmv|flv|webm|mpeg|mpg)$/i.test(
+                            pub.attributes.intitule
+                          )
+                        )
+                        .map((pub) => (
+                          <Anchor
+                            key={pub.id}
+                            size="sm"
+                            href={`${urls.ForUpload}${pub.attributes.lien}`}
+                          >
+                            {pub.attributes.intitule}
+                          </Anchor>
+                        ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Modal>
+    </>
   ));
 
   return (
     <>
-    <ScrollArea>
-      <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
-        <thead>
-          <tr>
-            <th> Nom </th>
-            {/*<th>Récapitulation</th>*/}
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>Qte</th>
-            <th>P.U.</th>
-            <th>Status</th>
-            <th>Montant</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
-    </ScrollArea>
-    {/* Modal */}
-    <Modal
-      opened={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      style={{ alignItems: 'center'}}
-      title={<Text fz="sm" fw={500}>Récapitulation</Text>}
-      centered
-    >
-
-      <Text size="sm">
-        
-        <Text>Type de publicité :</Text>
-        <Text>Durée de la diffusion :</Text>
-        <Text>Fréquence : Lundi, 19h00, après 1re série</Text>
-        <Text>
-          Nom du fichier : <Anchor component="button">test.mp4</Anchor>{" "}
-        </Text>
-      
-      </Text>
-    </Modal>
+      <ScrollArea>
+        <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Responsable de commande</th>
+              <th>Numéro de commande</th>
+              <th>Date de début</th>
+              <th>Date de fin</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </ScrollArea>
     </>
   );
 }

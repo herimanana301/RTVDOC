@@ -41,7 +41,20 @@ export default function ArchiveModal() {
   };
 
   const rows = datasCommandeArchived.map((Commande) => (
-   console.log(Commande)
+    <tr key={Commande.id}>
+      <td>{Commande.attributes.reference}</td>
+      <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
+      <td>Du {formatDate(Commande.attributes.startDate)} au {formatDate(Commande.attributes.endDate)}</td>
+      <td>{Commande.attributes.responsableCommande}</td>
+      <td>{Commande.attributes.status}</td>
+
+      <td>
+        <Group spacing={0} position="right">
+        <ModalCommande datas={Commande.id} />
+        </Group>
+      </td>
+
+    </tr>
 ))
 
 
@@ -59,7 +72,7 @@ export default function ArchiveModal() {
       <Modal
         opened={opened}
         onClose={close}
-        title="Archive BC"
+        title="Liste des archives"
         overlayProps={{
           backgroundopacity: 0.55,
           blur: 3,

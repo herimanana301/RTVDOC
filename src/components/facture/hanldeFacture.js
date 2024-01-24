@@ -59,6 +59,18 @@ export const FindOneCommande = (id, setDatasCommande,setDatasClient,setDatasPres
 
 };
 
+export const ArchiverCommande = (id) => {
+    axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
+      data: {
+        archive: true,
+      },
+    }).then((response) => {
+    if(response.status == 200){
+      Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
+  }})
+
+};
+
 
 
 export default FetchAllCommande;

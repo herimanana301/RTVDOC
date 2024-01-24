@@ -95,6 +95,15 @@ const useStyles = createStyles((theme) => {
       voucher: {
         backgroundColor: "orange",
       },
+      popup: {
+        fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+        display: "flex",
+        justifyContent: "space-evenly",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingBottom: rem(50),
+        fontSize: rem(20),
+      },
     };
   });
 

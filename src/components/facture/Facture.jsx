@@ -10,6 +10,14 @@ import FactureModal from "./FactureModal";
 import FetchAllCommande from "./hanldeFacture";
 import ModalCommande from "./FactureModal";
 import ArchiveModal from "./archiveModal";
+import {
+  IconPencil,
+  IconMessages,
+  IconNote,
+  IconReportAnalytics,
+  IconTrash,
+  IconDots,
+} from '@tabler/icons-react';
 
 export default function Facture() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +47,7 @@ export default function Facture() {
     const month = (date1.getMonth() + 1).toString().padStart(2, "0");
     const day = date1.getDate().toString().padStart(2, "0");
 
-    return `${day}-${month}-${year}`;
+    return `${day}/${month}/${year}`;
   };
 
   const rows = datasCommande.map((Commande) => (
@@ -52,7 +60,7 @@ export default function Facture() {
 
       <td>
         <Group spacing={0} position="right">
-        <ModalCommande datas={Commande.id} />
+        <ModalCommande datas={Commande.id}/>
         </Group>
       </td>
 
@@ -113,7 +121,7 @@ export default function Facture() {
               <th>Client</th>
               <th>Période de diffusion</th>
               <th>Responsable commande</th>
-              <th>Status</th>
+              <th>Status payement</th>
               <th />
             </tr>
           </thead>

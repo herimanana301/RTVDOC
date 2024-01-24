@@ -4,7 +4,7 @@ import {
   IconHome2,
   IconReceipt2,
   IconTicket,
-  IconFiles,
+  IconCalendar,
   IconUsersGroup,
 } from "@tabler/icons-react";
 
@@ -28,13 +28,16 @@ import Commande from "../commande/Commande";
 import Personal from "../personal/Personal_view";
 import Conges from "../personal/conge/conge_view";
 import { Welcome } from "../welcome/Welcome";
+import Bookinginput from "../input/bookinginput/Bookinginput";
+import urls from "../../services/urls";
+import axios from "axios";
 
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
   { link: "", label: "Clients", icon: IconUser },
   { link: "", label: "Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
-  { link: "", label: "Fichier Vidéo et Audio", icon: IconFiles },
+  { link: "", label: "Programmation", icon: IconCalendar },
   {
     label: "Personnels",
     icon: IconUsersGroup,
@@ -107,6 +110,7 @@ export default function Navigation() {
   const [opened, setOpened] = useState(false);
   const { classes, cx } = useStyles();
   const [active, setActive] = useState("");
+  const [authentication, setAuthentication] = useState(false);
   const links = data.map((item) =>
     item.submenu ? (
       <div key={item.label}>
@@ -175,12 +179,12 @@ export default function Navigation() {
           return <Facture />;
         case "Bons de commandes":
           return <Commande />;
-        case "Congés":
-          return <div>Congés Component</div>;
+        case "Historique congés":
+          return <Conges />;
         case "Liste du personnel":
           return <Personal />;
-        case "Fichier Vidéo et Audio":
-          return null;
+        case "Programmation":
+          return <Bookinginput />;
         default:
           return null;
       }
@@ -192,69 +196,76 @@ export default function Navigation() {
       setActive(localStorage.getItem("menuActive"));
     }
   }, [active]);
+  const firstAuthentication = () => {
+    const authSubmit = prompt("Entrez le mot de passe connexion");
+    localStorage.setItem("authentication", authSubmit);
+    location.reload();
+  };
+
+  // useEffect(() => {
+  //   axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
+  //     console.log(response);
+  //     if (
+  //       localStorage.getItem("authentication") ===
+  //       response.data.data[0].attributes.password
+  //     ) {
+  //       setAuthentication(true);
+  //     } else {
+  //       firstAuthentication();
+  //     }
+  //   });
+  // }, []);
 
   return (
-    <AppShell
-      styles={{
-        main: {
-          background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
-        },
-      }}
-      navbarOffsetBreakpoint="sm"
-      asideOffsetBreakpoint="sm"
-      navbar={
-        <Navbar
-          p="md"
-          hiddenBreakpoint="sm"
-          hidden={!opened}
-          width={{ sm: 200, lg: 300 }}
+    <>
+      {(
+        <AppShell
+          styles={{
+            main: {
+              background:
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[8]
+                  : theme.colors.gray[0],
+            },
+          }}
+          navbarOffsetBreakpoint="sm"
+          asideOffsetBreakpoint="sm"
+          navbar={
+            <Navbar
+              p="md"
+              hiddenBreakpoint="sm"
+              hidden={!opened}
+              width={{ sm: 200, lg: 300 }}
+            >
+              {links}
+            </Navbar>
+          }
+          header={
+            <Header height={{ base: 50, md: 70 }} p="md">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  height: "100%",
+                }}
+              >
+                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                  <Burger
+                    opened={opened}
+                    onClick={() => setOpened((o) => !o)}
+                    size="sm"
+                    color={theme.colors.gray[6]}
+                    mr="xl"
+                  />
+                </MediaQuery>
+                <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
+              </div>
+            </Header>
+          }
         >
-          {links}
-        </Navbar>
-      }
-      header={
-        <Header height={{ base: 50, md: 70 }} p="md">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              height: "100%",
-            }}
-          >
-            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
-            <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
-          </div>
-        </Header>
-      }
-    >
-      {active === "Général" ? (
-        <General />
-      ) : active === "Clients" ? (
-        <Clients />
-      ) : active === "Factures" ? (
-        <Facture />
-      ) : active === "Bons de commandes" ? (
-        <Commande />
-      ) : active === "Historique congés" ? (
-        <Conges />
-      ) : active === "Liste du personnel" ? (
-        <Personal />
-      ) : active === "Fichier Vidéo et Audio" ? null : localStorage.getItem(
-          "firstConnex"
-        ) ? null : (
-        <Welcome setActive={setActive} />
-      )}
-    </AppShell>
+          <Selection />
+        </AppShell>
+      )}{" "}
+    </>
   );
 }

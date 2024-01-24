@@ -117,8 +117,8 @@ const FactureContent = () => {
                         <Table>
                             <thead>
                                 <tr>
-                                    <th>PLATEFORM</th>
-                                    <th>SERVICES</th>
+                                    <th>PERIODE</th>
+                                    <th>LIBELLES</th>
                                     <th>QTE</th>
                                     <th>PRIX UNIT</th>
                                     <th>MONTANT</th>
@@ -129,12 +129,12 @@ const FactureContent = () => {
                     </div>
                 </Text>
                 <Text fz={"sm"}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", }}>
-                        <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL HT: </p> <span style={{marginLeft:'7px'}}> {TotalMontant}</span></span>
-                        <span style={{ display: "flex", alignItems: "center" }}><p>TVA 20%: </p> {"tva"}</span>
-                        <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL TTC: </p> {"totalTTC"}</span>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end",}}>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {TotalMontants}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {"tva"}</span>
+                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {"totalTTC"}</span>
                     </div>
-                    <div style={{ textAlign: "center" }}>
+                    <div style={{textAlign:"center"}}>
                         <p>Arrêté la présente facture à la somme de: <span>{"Valeur en lettres"}</span></p>
                         <span>
                             <p> Fianarantsoa, le {formatDate(NowDate)}</p>
@@ -143,7 +143,7 @@ const FactureContent = () => {
                     </div>
                 </Text>
             </div>
-
+            
         </>
 
 
