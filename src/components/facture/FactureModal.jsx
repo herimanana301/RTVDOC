@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Select, SimpleGrid, Button, Text, Group, ActionIcon, NumberInput, TextInput,Menu } from '@mantine/core';
+import { Modal, Select, SimpleGrid, Button, Text, Group, ActionIcon, NumberInput, TextInput, Menu } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import checked from "../../assets/icons/checked.gif";
 import { useDisclosure } from "@mantine/hooks";
@@ -17,7 +17,7 @@ import {
     IconReportAnalytics,
     IconTrash,
     IconDots,
-  } from '@tabler/icons-react';
+} from '@tabler/icons-react';
 
 export default function FactureModal({ datas }) {
     const [opened, { open, close }] = useDisclosure(false);
@@ -38,46 +38,44 @@ export default function FactureModal({ datas }) {
         datePayement: new Date(),
         payement: '',
         montantTotal: '',
-        typePayement:'Complet'
+        typePayement: 'Complet'
     });
 
     const [Status, setStatus] = useState(false);
 
 
     const submitButton = async () => {
-        
-        
+
+
 
     }
-
-
     return (
         <>
-        <Menu
-            transitionProps={{ transition: 'pop' }}
-            withArrow
-            position="bottom-end"
-            withinPortal
-          >
-            <Menu.Target>
-              <ActionIcon variant="subtle" color="gray">
-                <IconDots style={{ width: '16rem', height: '16rem' }} stroke={1.5} />
-              </ActionIcon>
-            </Menu.Target>
-            
-            <Menu.Dropdown>
-              <Menu.Item> <Link style={{textDecoration:'none'}} to={{pathname: `/facture/${datas}`,}}>Facturation</Link></Menu.Item>
-              <Menu.Item onClick={() => open()}>Payement</Menu.Item>
-              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas,ArchiverCommande)} color="yellow">Achiver</Menu.Item>
-            </Menu.Dropdown>
+            <Menu
+                transitionProps={{ transition: 'pop' }}
+                withArrow
+                position="bottom-end"
+                withinPortal
+            >
+                <Menu.Target>
+                    <ActionIcon variant="subtle" color="gray" >
+                        <IconDots />
+                    </ActionIcon>
+                </Menu.Target>
 
-          </Menu>
+                <Menu.Dropdown>
+                    <Menu.Item> <Link style={{ textDecoration: 'none' }} to={{ pathname: `/facture/${datas}`, }}>Facturation</Link></Menu.Item>
+                    <Menu.Item onClick={() => open()}>Paiement</Menu.Item>
+                    <Menu.Item onClick={() => ArchiverCommandeConfirm(datas, ArchiverCommande)} color="yellow">Achiver</Menu.Item>
+                </Menu.Dropdown>
+
+            </Menu>
 
             <Modal
                 opened={opened}
                 onClose={close}
                 centered
-                title="Information sur le payement"
+                title="Information sur le paiement"
                 overlayProps={{
                     backgroundopacity: 0.55,
                     blur: 3,
@@ -104,16 +102,16 @@ export default function FactureModal({ datas }) {
                         placeholder="Preuve du payement"
                         required
                     />
-                      <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+                    <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
                         <Select
                             label="Payement"
                             data={['Avance', 'Complet']}
                             defaultValue="Complet"
                             onChange={(e) =>
-                            setFormData((prevData) => {
-                                const newData = { ...prevData, typePayement: e};
-                                return newData;
-                            })}
+                                setFormData((prevData) => {
+                                    const newData = { ...prevData, typePayement: e };
+                                    return newData;
+                                })}
                         />
                     </SimpleGrid>
 

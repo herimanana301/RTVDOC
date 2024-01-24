@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useReactToPrint } from "react-to-print";
 import {
     Button,
     Table,
@@ -98,10 +99,17 @@ const FactureContent = () => {
 
     }, []);
 
+    const componentRef = useRef();
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+        documentTitle: 'Facture',
+        onAfterPrint: () => console.log('Imprimé avec succès!'),
+    });
+
     return (
         <>
-            <Button style={{ marginBottom: "2em" }}>Imprimer</Button>
-            <div id="contenu">
+            <Button onClick={handlePrint} style={{ margin: "2em auto", display: "block", width: "15rem"}}>Imprimer</Button>
+            <div id="contenu" ref={componentRef} style={{ maxWidth: "600px", margin:"0 auto" }}>
                 <Text fz="xs">
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontWeight: "bold" }}>
