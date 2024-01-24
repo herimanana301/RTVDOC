@@ -54,6 +54,7 @@ function App() {
     <>
       <RouterProvider router={router} />
       <MajConge/>
+      <MajFacture/>
     </>
   );
 }

@@ -71,6 +71,18 @@ export const ArchiverCommande = (id) => {
 
 };
 
+export const InsertFacture = (commande,datePayement,refPayement,montant) => {
+  axios.post(`${urls.StrapiUrl}api/commandes`, {
+    data: {
+      archive: true,
+    },
+  }).then((response) => {
+  if(response.status == 200){
+    Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
+}})
+
+};
+
 
 
 export default FetchAllCommande;
