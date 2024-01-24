@@ -202,23 +202,23 @@ export default function Navigation() {
     location.reload();
   };
 
-  useEffect(() => {
-    axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
-      console.log(response);
-      if (
-        localStorage.getItem("authentication") ===
-        response.data.data[0].attributes.password
-      ) {
-        setAuthentication(true);
-      } else {
-        firstAuthentication();
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
+  //     console.log(response);
+  //     if (
+  //       localStorage.getItem("authentication") ===
+  //       response.data.data[0].attributes.password
+  //     ) {
+  //       setAuthentication(true);
+  //     } else {
+  //       firstAuthentication();
+  //     }
+  //   });
+  // }, []);
 
   return (
     <>
-      {authentication && (
+      {(
         <AppShell
           styles={{
             main: {

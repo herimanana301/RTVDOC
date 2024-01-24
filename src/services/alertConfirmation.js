@@ -38,7 +38,44 @@ const confirmationModal = (id,deletedUser) => {
   });
 };
 
+const FactureconfirmationModal = (setStatus) => {
+  Swal.fire({
+    title: 'Etes vous sure?',
+    text: "Confirmer le payement?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, confirmer!',
+    cancelButtonText: 'Annuler',
+  }).then((result) => {
+    if (result.isConfirmed) {
+        console.log('ok')
+    }
+    else{
+      setStatus(false);
+    }
+  });
+};
+
+const ArchiverCommandeConfirm = (id) => {
+  Swal.fire({
+    title: 'Archiver la commande?',
+    text: "Vous etes sûr?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, archiver!',
+    cancelButtonText: 'Annuler',
+  }).then((result) => {
+    if (result.isConfirmed) {
+        
+    }
+  });
+};
+
 
 /******************************* *******************************/
 
-export {inputConfirmation,confirmationModal};
+export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommande};

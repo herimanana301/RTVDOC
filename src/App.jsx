@@ -6,6 +6,7 @@ import "./App.css";
 import Navigation from "./components/navigation/Navigation";
 import { useEffect } from "react";
 import MajConge from "./services/majConge";
+import MajFacture from "./services/majFature";
 import FactureContent from "./components/facture/FactureContent";
 import Bookingdisplay from "./components/display/bookingdisplay/Bookingdisplay";
 
@@ -36,7 +37,7 @@ function App() {
       element: <NewPersonal />,
     },
     {
-      path: "/facture",
+      path:"/facture/:id",
       element: <FactureContent />,
     },
     {
@@ -52,7 +53,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <MajConge />
+      <MajConge/>
     </>
   );
 }

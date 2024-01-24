@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActionIcon, Autocomplete, Button, Group,
   Menu, NativeSelect, ScrollArea, Table
@@ -7,41 +7,60 @@ import {
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import { IconBolt } from "@tabler/icons-react";
 import FactureModal from "./FactureModal";
+import FetchAllCommande from "./hanldeFacture";
+import ModalCommande from "./FactureModal";
+import ArchiveModal from "./archiveModal";
+import {
+  IconPencil,
+  IconMessages,
+  IconNote,
+  IconReportAnalytics,
+  IconTrash,
+  IconDots,
+} from '@tabler/icons-react';
 
 export default function Facture() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const handleModal = (item) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
-  };
-
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
-  const tableData = [
-    { id: 1, name: "Facture N° 8395/24", label: "Herimanana Rasolonirina", period: "Du 2024-01-16 au 2024-01-31", qte: "70", pu: "10000", status: "Payé" },
-    
-    { id: 2, name: "Facture N° 8396/24", label: "Telma", period: "Du 2024-11-27 au 2024-12-27", qte: "70", pu: "10000", status: "Non Payé" },
-  ];
-  const rows = tableData.map((item) => (
-    <tr key={item.id}>
-      <td>{item.name}</td>
-      <td>{item.label}</td>
-      <td>{item.period}</td>
-      <td>{item.qte}</td>
-      <td>{item.pu}</td>
-      <td>{item.qte * item.pu}</td>
-      <td>{item.status}</td>
 
+  const [datasCommande, setDatasCommande] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    total: 1,
+  });
+
+
+  useEffect(() => {
+    FetchAllCommande(setDatasCommande, setPageInfo);
+  }, []);
+
+  const formatDate = (date) => {
+  
+    const date1 = new Date(date);
+
+    const year = date1.getFullYear();
+    const month = (date1.getMonth() + 1).toString().padStart(2, "0");
+    const day = date1.getDate().toString().padStart(2, "0");
+
+    return `${day}/${month}/${year}`;
+  };
+
+  const rows = datasCommande.map((Commande) => (
+      <tr key={Commande.id}>
+      <td>{Commande.attributes.reference}</td>
+      <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
+      <td>Du {formatDate(Commande.attributes.startDate)} au {formatDate(Commande.attributes.endDate)}</td>
+      <td>{Commande.attributes.responsableCommande}</td>
+      <td>{Commande.attributes.status}</td>
 
       <td>
         <Group spacing={0} position="right">
-          <ActionIcon onClick={() => handleModal(item)}>
-            <IconBolt size="1rem" stroke={1.5} />
-          </ActionIcon>
+        <ModalCommande datas={Commande.id}/>
         </Group>
       </td>
 
@@ -54,9 +73,9 @@ export default function Facture() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Button component="a" href="/newinvoice">
-          + Nouveau
-        </Button>
+
+      <ArchiveModal />
+
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
@@ -98,24 +117,18 @@ export default function Facture() {
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Libellé</th>
-              <th>Période</th>
-              <th>Qte</th>
-              <th>P.U.</th>
-              <th>Montant</th>
-              <th>Status</th>
+              <th>Référence BC</th>
+              <th>Client</th>
+              <th>Période de diffusion</th>
+              <th>Responsable commande</th>
+              <th>Status payement</th>
               <th />
             </tr>
           </thead>
           <tbody>{rows}</tbody>
         </Table>
       </ScrollArea>
-      <FactureModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        selectedItem={selectedItem}
-      />
+      
     </div>
   );
 }
