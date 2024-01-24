@@ -47,6 +47,7 @@ export default function Neworder() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [datecommande, setDatecommande] = useState("");
   const [laterinformation, setLaterinformation] = useState({
     clientId: 0,
     serviceId: [],
@@ -67,7 +68,7 @@ export default function Neworder() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const updateDescription = (index, newDescription) => {
     setDatas((prevDatas) => {
-      let newDatas = [...prevDatas]; // Create a shallow copy of the array
+      let newDatas = [...prevDatas];
       newDatas[index] = {
         ...newDatas[index],
         description: newDescription,
@@ -123,6 +124,7 @@ export default function Neworder() {
           client: parseInt(laterinformation.clientId),
           reference: datas[1].description,
           responsableCommande: datas[2].description,
+          datecommande: new Date(datecommande),
           startDate: new Date(startDate),
           endDate: new Date(endDate),
           evidence: evidenceFileId,
@@ -236,6 +238,12 @@ export default function Neworder() {
                 onChange={(e) => {
                   updateFromdropdown(e);
                 }}
+              />
+              <DateInput
+                label="Date de commande"
+                placeholder="Selectionner date de commande"
+                value={datecommande}
+                onChange={(e) => setDatecommande(e)}
               />
             </SimpleGrid>
 
