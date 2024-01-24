@@ -71,6 +71,18 @@ export const ArchiverCommande = (id) => {
 
 };
 
+export const DesarchiverCommande = (id) => {
+  axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
+    data: {
+      archive: false,
+    },
+  }).then((response) => {
+  if(response.status == 200){
+    Swal.fire("Desarchivée!", "Voir la commande dans Facture.", "success");
+}})
+
+};
+
 export const InsertFacture = (commande,datePayement,refPayement,montant) => {
   axios.post(`${urls.StrapiUrl}api/commandes`, {
     data: {

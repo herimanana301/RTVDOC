@@ -51,7 +51,7 @@ export default function Facture() {
   };
 
   const rows = datasCommande.map((Commande) => (
-      <tr key={Commande.id}>
+    <tr key={Commande.id}>
       <td>{Commande.attributes.reference}</td>
       <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
       <td>Du {formatDate(Commande.attributes.startDate)} au {formatDate(Commande.attributes.endDate)}</td>
@@ -60,16 +60,14 @@ export default function Facture() {
 
       <td>
         <Group spacing={0} position="right">
-        <ModalCommande datas={Commande.id}/>
+          <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }}/>
         </Group>
       </td>
 
     </tr>
   ))
 
-  const handlePrint = () => {
-    console.log('Printed !');
-  };
+  
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -113,6 +111,7 @@ export default function Facture() {
         </Menu>
       </div>
       {/* Table */}
+      <br />
       <ScrollArea>
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>

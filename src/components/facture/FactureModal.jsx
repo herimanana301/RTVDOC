@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Select, SimpleGrid, Button, Text, Group, ActionIcon, NumberInput, TextInput,Menu } from '@mantine/core';
+import { Modal, Select, SimpleGrid, Button, Text, Group, ActionIcon, NumberInput, TextInput, Menu } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import checked from "../../assets/icons/checked.gif";
 import { useDisclosure } from "@mantine/hooks";
@@ -7,8 +7,8 @@ import { IconBolt } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { FactureconfirmationModal } from '../../services/alertConfirmation';
 import { Link } from "react-router-dom";
-import { ArchiverCommandeConfirm } from "../../services/alertConfirmation"
-import { ArchiverCommande } from "./hanldeFacture"
+import { ArchiverCommandeConfirm, DesarchiverCommandeConfirm} from "../../services/alertConfirmation";
+import { ArchiverCommande, DesarchiverCommande } from "./hanldeFacture";
 
 import {
     IconPencil,
@@ -17,9 +17,10 @@ import {
     IconReportAnalytics,
     IconTrash,
     IconDots,
-  } from '@tabler/icons-react';
+} from '@tabler/icons-react';
 
-export default function FactureModal({ datas }) {
+export default function FactureModal(props) {
+    const { id, archive } = props.datas;
     const [opened, { open, close }] = useDisclosure(false);
 
     const formatDate = (date) => {
@@ -38,46 +39,52 @@ export default function FactureModal({ datas }) {
         datePayement: new Date(),
         payement: '',
         montantTotal: '',
-        typePayement:'Complet'
+        typePayement: 'Complet'
     });
 
     const [Status, setStatus] = useState(false);
 
 
     const submitButton = async () => {
-        
-        
+
+
 
     }
-
-
     return (
         <>
-        <Menu
-            transitionProps={{ transition: 'pop' }}
-            withArrow
-            position="bottom-end"
-            withinPortal
-          >
-            <Menu.Target>
-              <ActionIcon variant="subtle" color="gray">
-                <IconDots style={{ width: '16rem', height: '16rem' }} stroke={1.5} />
-              </ActionIcon>
-            </Menu.Target>
-            
-            <Menu.Dropdown>
-              <Menu.Item> <Link style={{textDecoration:'none'}} to={{pathname: `/facture/${datas}`,}}>Facturation</Link></Menu.Item>
-              <Menu.Item onClick={() => open()}>Payement</Menu.Item>
-              <Menu.Item onClick={() => ArchiverCommandeConfirm(datas,ArchiverCommande)} color="yellow">Achiver</Menu.Item>
-            </Menu.Dropdown>
 
-          </Menu>
+            <Menu
+                transitionProps={{ transition: 'pop' }}
+                withArrow
+                position="bottom-end"
+                withinPortal
+            >
+                <Menu.Target>
+                    <ActionIcon variant="subtle" color="gray" >
+                        <IconDots />
+                    </ActionIcon>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                    <Menu.Item> <Link style={{ textDecoration: 'none' }} to={{ pathname: `/facture/${id}`, }}>Facturation</Link></Menu.Item>
+                    <Menu.Item onClick={() => open()}>Paiement</Menu.Item>
+                    {archive ? (
+                        <Menu.Item onClick={() => DesarchiverCommandeConfirm(id, DesarchiverCommande)} color="yellow">
+                            Desarchiver
+                        </Menu.Item>
+                    ) : (
+                        <Menu.Item onClick={() => ArchiverCommandeConfirm(id, ArchiverCommande)} color="yellow">
+                            Archiver
+                        </Menu.Item>
+                    )}
+                </Menu.Dropdown>
+            </Menu>
 
             <Modal
                 opened={opened}
                 onClose={close}
                 centered
-                title="Information sur le payement"
+                title="Information sur le paiement"
                 overlayProps={{
                     backgroundopacity: 0.55,
                     blur: 3,
@@ -104,16 +111,16 @@ export default function FactureModal({ datas }) {
                         placeholder="Preuve du payement"
                         required
                     />
-                      <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+                    <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
                         <Select
                             label="Payement"
                             data={['Avance', 'Complet']}
                             defaultValue="Complet"
                             onChange={(e) =>
-                            setFormData((prevData) => {
-                                const newData = { ...prevData, typePayement: e};
-                                return newData;
-                            })}
+                                setFormData((prevData) => {
+                                    const newData = { ...prevData, typePayement: e };
+                                    return newData;
+                                })}
                         />
                     </SimpleGrid>
 
