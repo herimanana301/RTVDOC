@@ -8,7 +8,6 @@ import { IconSearch, IconFilter } from "@tabler/icons-react";
 import { IconBolt } from "@tabler/icons-react";
 import FactureModal from "./FactureModal";
 import FetchAllCommande from "./hanldeFacture";
-import ModalCommande from "./FactureModal";
 import ArchiveModal from "./archiveModal";
 import {
   IconPencil,
@@ -60,7 +59,7 @@ export default function Facture() {
 
       <td>
         <Group spacing={0} position="right">
-        <ModalCommande datas={Commande.id}/>
+        <FactureModal datas={Commande.id}/>
         </Group>
       </td>
 

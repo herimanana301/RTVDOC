@@ -50,7 +50,7 @@ export default function ArchiveModal() {
 
       <td>
         <Group spacing={0} position="right">
-        <ModalCommande datas={Commande.id} />
+        <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
         </Group>
       </td>
 

@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { FactureconfirmationModal } from '../../services/alertConfirmation';
 import { Link } from "react-router-dom";
 import { ArchiverCommandeConfirm } from "../../services/alertConfirmation"
-import { ArchiverCommande } from "./hanldeFacture"
+import { ArchiverCommande,InsertFacture } from "./hanldeFacture"
 
 import {
     IconPencil,
@@ -22,32 +22,21 @@ import {
 export default function FactureModal({ datas }) {
     const [opened, { open, close }] = useDisclosure(false);
 
-    const formatDate = (date) => {
 
-        const date1 = new Date(date);
-
-        const year = date1.getFullYear();
-        const month = (date1.getMonth() + 1).toString().padStart(2, "0");
-        const day = date1.getDate().toString().padStart(2, "0");
-
-        return `${day}-${month}-${year}`;
-    };
-
+    const [refPayement, setRefPayement] = useState('');
 
     const [FormData, setFormData] = useState({
         datePayement: new Date(),
-        payement: '',
         montantTotal: '',
-        typePayement:'Complet'
+        typePayement:'Payé'
     });
 
-    const [Status, setStatus] = useState(false);
 
+    const submitButton = async () => {     
 
-    const submitButton = async () => {
-        
-        
-
+        if(FormData.montantTotal !=='' && refPayement !== ''){
+            InsertFacture(datas,FormData,refPayement,close)
+        }
     }
 
 
@@ -61,7 +50,7 @@ export default function FactureModal({ datas }) {
           >
             <Menu.Target>
               <ActionIcon variant="subtle" color="gray">
-                <IconDots style={{ width: '16rem', height: '16rem' }} stroke={1.5} />
+                <IconDots/>
               </ActionIcon>
             </Menu.Target>
             
@@ -92,7 +81,7 @@ export default function FactureModal({ datas }) {
                         placeholder="Sélectionnez une date"
                         onChange={(e) =>
                             setFormData((prevData) => {
-                                const newData = { ...prevData, datePayement: e };
+                                const newData = { ...prevData, datePayement:e };
                                 return newData;
                             })
                         }
@@ -103,17 +92,19 @@ export default function FactureModal({ datas }) {
                         label="Réfence du payement"
                         placeholder="Preuve du payement"
                         required
+                        onChange={(event) =>setRefPayement(event.target.value)}
+                        value={refPayement}
                     />
                       <SimpleGrid cols={1} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
                         <Select
                             label="Payement"
-                            data={['Avance', 'Complet']}
-                            defaultValue="Complet"
+                            data={['Avance', 'Payé']}
                             onChange={(e) =>
                             setFormData((prevData) => {
                                 const newData = { ...prevData, typePayement: e};
                                 return newData;
                             })}
+                            value={FormData.typePayement}
                         />
                     </SimpleGrid>
 
@@ -123,6 +114,11 @@ export default function FactureModal({ datas }) {
                         placeholder="Montant en Ariary"
                         mt="md"
                         required
+                        onChange={(e) =>
+                            setFormData((prevData) => {
+                                const newData = { ...prevData, montantTotal: e};
+                                return newData;
+                            })}
                     />
 
                     <Group style={{ display: "flex", justifyContent: "space-between" }} mt="md">

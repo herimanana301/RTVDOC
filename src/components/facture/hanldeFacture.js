@@ -2,6 +2,17 @@ import axios from "axios";
 import urls from '../../services/urls';
 import Swal from 'sweetalert2';
 
+const formatDate = (date) => {
+
+  const date1 = new Date(date);
+
+  const year = date1.getFullYear();
+  const month = (date1.getMonth() + 1).toString().padStart(2, "0");
+  const day = date1.getDate().toString().padStart(2, "0");
+
+  return `${day}/${month}/${year}`;
+};
+
 const FetchAllCommande = (setDatasCommande, setPageInfo) => {
   axios
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
@@ -71,14 +82,20 @@ export const ArchiverCommande = (id) => {
 
 };
 
-export const InsertFacture = (commande,datePayement,refPayement,montant) => {
-  axios.post(`${urls.StrapiUrl}api/commandes`, {
+export const InsertFacture = (id,FormData,refPayement,close) => {
+
+ axios.post(`${urls.StrapiUrl}api/payements`, {
     data: {
-      archive: true,
+      commande:id,
+      datePayement: formatDate(FormData.datePayement.toString()),
+      refPayement: refPayement,
+      montant: FormData.montantTotal.toString(),
+      typePayement: FormData.typePayement.toString(),
     },
   }).then((response) => {
   if(response.status == 200){
-    Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
+    Swal.fire("Succès!", "Payement sauvegarder avec succès.", "success");
+    close();
 }})
 
 };
