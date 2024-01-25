@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { SimpleGrid, Paper, Text, ScrollArea } from "@mantine/core";
+import { SimpleGrid, Paper, Text, ScrollArea, Anchor } from "@mantine/core";
 import dayjs from "dayjs";
 import { Calendar } from "@mantine/dates";
 import axios from "axios";
@@ -86,6 +86,14 @@ const Bookingdisplay = () => {
                 }).format(new Date(programm.attributes.datediffusion))}
               </Text>
               <Text>Titre du fichier: {programm.attributes.nomfichier}</Text>
+              <Anchor
+                href={`${urls.ForUpload}${programm.attributes.lien}`}
+                target="_blank"
+                download
+              >
+                {" "}
+                Télecharger{" "}
+              </Anchor>
             </Paper>
           ))}
         </ScrollArea>

@@ -15,8 +15,8 @@ import useStyles from "../inputstyles/neworderstyle";
 export default function Bookinginput() {
   const { classes } = useStyles();
   const [mediaList, setMediaList] = useState([]);
-  const [selectedUpload, setSelectedUpload] = useState({ lien: "", nom: "" });
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedUpload, setSelectedUpload] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [programmedList, setProgrammedList] = useState([]);
   useEffect(() => {
     axios.get(`${urls.StrapiUrl}api/publicites?_limit=-1`).then((response) => {
@@ -41,11 +41,15 @@ export default function Bookinginput() {
   }, []);
   const submitBooking = () => {
     try {
+      const FileNametoSend = mediaList.find(
+        (element) => element.attributes.lien === selectedUpload
+      );
       axios
         .post(`${urls.StrapiUrl}api/programmations`, {
           data: {
             datediffusion: new Date(selectedDate),
-            nomfichier: selectedUpload.nom,
+            nomfichier: FileNametoSend.attributes.intitule,
+            lien: selectedUpload,
           },
         })
         .then((response) => {
@@ -73,7 +77,7 @@ export default function Bookinginput() {
             dropdownType="modal"
             label="Date et heure de diffusion"
             placeholder="Veuillez saisir la date et heure de diffusion"
-            value={selectedDate}
+            value={new Date(selectedDate)}
             onChange={(e) => setSelectedDate(e)}
           />
           <Select
@@ -83,14 +87,11 @@ export default function Bookinginput() {
             searchable
             data={mediaList.map((media) => {
               return {
-                value: {
-                  lien: media.attributes.lien,
-                  nom: media.attributes.intitule,
-                },
+                value: media.attributes.lien,
                 label: media.attributes.intitule,
               };
             })}
-            onChange={(e) => setSelectedUpload({ lien: e.lien, nom: e.nom })}
+            onChange={(e) => setSelectedUpload(e)}
           />
           <Button
             style={{ marginTop: "2rem" }}
