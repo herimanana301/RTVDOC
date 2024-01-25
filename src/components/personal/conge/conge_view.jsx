@@ -40,31 +40,21 @@ export default function Conges() {
   const filterData = datas
     .filter((data) =>
       search.length > 0
-        ? data.attributes.nom.toLowerCase().includes(search) ||
-          data.attributes.prenom.toLowerCase().includes(search) ||
-          data.attributes.motif.toLowerCase().includes(search) ||
-          data.attributes.type_conge.toLowerCase().includes(search)
+        ? data.attributes.nom.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.prenom.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.motif.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.type_conge
+            .toLowerCase()
+            .includes(search.toLowerCase())
         : true
     )
     .filter((data) =>
       setupFilter.length > 0
-        ? data.attributes.type_conge.toLowerCase().includes(setupFilter)
+        ? data.attributes.type_conge
+            .toLowerCase()
+            .includes(setupFilter.toLowerCase())
         : true
-    )
-    .sort((a, b) => {
-      switch (setupFilter) {
-        case "Plus récent":
-          return (
-            new Date(b.attributes.createdAt) - new Date(a.attributes.createdAt)
-          );
-        case "Plus ancien":
-          return (
-            new Date(a.attributes.createdAt) - new Date(b.attributes.createdAt)
-          );
-        default:
-          return 0;
-      }
-    });
+    );
 
   const rows = filterData.map((item) => (
     <tr key={item.id}>
@@ -148,15 +138,6 @@ export default function Conges() {
               <NativeSelect
                 data={["", "Payé"]}
                 label="Type de congé"
-                radius="md"
-                value={setupFilter}
-                onChange={(value) => setSetupFilter(value.target.value)}
-              />
-            </Menu.Item>
-            <Menu.Item>
-              <NativeSelect
-                data={["", "Plus récent", "Plus ancien"]}
-                label="Ordre de tri"
                 radius="md"
                 value={setupFilter}
                 onChange={(value) => setSetupFilter(value.target.value)}
