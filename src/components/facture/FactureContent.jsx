@@ -8,7 +8,7 @@ import {
     from '@mantine/core';
 import logo from "../../assets/icons/logo.png";
 import { useParams, useLocation } from "react-router-dom";
-import { FindOneCommande } from "./hanldeFacture";
+import { FindOneCommande, GetnumFacture } from "./hanldeFacture";
 import LoadingModal from "./LoadingModal";
 import NumberToLetter from "./nombre_en_lettre";
 
@@ -22,9 +22,11 @@ const FactureContent = () => {
         : null;
 
     const [datasCommande, setDatasCommande] = useState([]);
-    const [DatasPayement, setDatasPayement] = useState([]);
+    const [DatasPayement, setDatasPayement] = useState();
     const [client, setDatasClient] = useState([]);
     const [prestation, setDatasPrestation] = useState([]);
+    const [numFacture, setnumFacture] = useState([]);
+
     let TotalMontant = 0;
     const [pageInfo, setPageInfo] = useState({
         page: 1,
@@ -40,27 +42,27 @@ const FactureContent = () => {
     const [TVAValue, setTVAValue] = useState(0);
     const [RemiseValue, setRemiseValue] = useState(0);
     const [totalTTC, setTotalTTC] = useState(0);
-    
+
 
     const formatDate = (date) => {
-  
+
         const date1 = new Date(date);
-    
+
         const year = date1.getFullYear();
         const month = (date1.getMonth() + 1).toString().padStart(2, "0");
         const day = date1.getDate().toString().padStart(2, "0");
-    
+
         return `${day}-${month}-${year}`;
-      };
+    };
 
     const rows = prestation.map((prestation) => (
         <tr key={prestation.id}>
-        <td>{prestation.attributes.plateform}</td>
-        <td>{prestation.attributes.servicename}</td>
-        <td>{prestation.attributes.quantity}</td>
-        <td>{prestation.attributes.unityprice}</td>
-        <td>{prestation.attributes.quantity*prestation.attributes.unityprice}</td>
-      </tr>      
+            <td>{prestation.attributes.plateform}</td>
+            <td>{prestation.attributes.servicename}</td>
+            <td>{prestation.attributes.quantity}</td>
+            <td>{prestation.attributes.unityprice}</td>
+            <td>{prestation.attributes.quantity * prestation.attributes.unityprice}</td>
+        </tr>
     ))
 
     /*const TotalMontants = prestation.map((prestation) => (
@@ -71,42 +73,51 @@ const FactureContent = () => {
     // Confirmation de données
     const handleSubmit = () => {
         let MontantTotalCalc = 0;
-    
+
         prestation.forEach((prestation) => {
             MontantTotalCalc += prestation.attributes.quantity * prestation.attributes.unityprice;
         });
-    
+
         setMontantTotal(MontantTotalCalc);
-    
+
         const TVAValue = TVA ? 0.2 * MontantTotalCalc : 0;
         setTVAValue(TVAValue);
-    
+
         const RemiseValue = remise ? 0.1 * MontantTotalCalc : 0;
         setRemiseValue(RemiseValue);
-    
+
         const TotalTTC = MontantTotalCalc + TVAValue - RemiseValue;
         setTotalTTC(TotalTTC);
-    
+
         setIsLoading(false);
-        
+
         close();
     };
-    
+
     const ValeurEnLettres = NumberToLetter(totalTTC, null, null);
 
     useEffect(() => {
 
-        FindOneCommande(id, setDatasCommande,setDatasClient,setDatasPrestation,setDatasPayement);
-        
+        FindOneCommande(id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement);
+
 
     }, []);
 
     useEffect(() => {
 
-        console.log(DatasPayement);
-        
+        if (DatasPayement) {
+            if (DatasPayement.attributes.refFacture) {
+                setnumFacture(DatasPayement.attributes.refFacture);
+            }            
+        }
+        else{
 
-    }, [DatasPayement]);
+            GetnumFacture(setnumFacture);
+
+        }
+
+
+    }, [setDatasPayement]);
 
     const componentRef = useRef();
     const handlePrint = useReactToPrint({
@@ -117,8 +128,8 @@ const FactureContent = () => {
 
     return (
         <>
-            <Button onClick={handlePrint} style={{ margin: "2em auto", display: "block", width: "15rem"}}>Imprimer</Button>
-            <div id="contenu" ref={componentRef} style={{ maxWidth: "600px", margin:"0 auto" }}>
+            <Button onClick={handlePrint} style={{ margin: "2em auto", display: "block", width: "15rem" }}>Imprimer</Button>
+            <div id="contenu" ref={componentRef} style={{ maxWidth: "600px", margin: "0 auto" }}>
                 <Text fz="xs">
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ fontWeight: "bold" }}>
@@ -160,9 +171,9 @@ const FactureContent = () => {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                         <div style={{ padding: "15px", border: "1px solid black", textAlign: "center" }}>
-                            Facture N° 8395/23
+                            Facture N° {numFacture}/23
                         </div>
-                        <div style={{ fontWeight: "bold" , marginLeft: '30px'}}>
+                        <div style={{ fontWeight: "bold", marginLeft: '30px' }}>
                             <span style={{ marginLeft: '-27px' }}><u>Doit</u></span> {client.raisonsocial}<br />
                             {client.NIF}<br />
                             {client.STAT}<br />
@@ -185,18 +196,18 @@ const FactureContent = () => {
                     </div>
                 </Text>
                 <Text fz={"sm"}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end",}}>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL HT: </p> {MontantTotal} Ar</span>
-                        { remise && 
-                        (<div>
-                            <span style={{}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
-                            <span style={{display: "flex", alignItems: "center"}}><p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar</span>
-                        </div>)
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", }}>
+                        <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL HT: </p> {MontantTotal} Ar</span>
+                        {remise &&
+                            (<div>
+                                <span style={{}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
+                                <span style={{ display: "flex", alignItems: "center" }}><p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar</span>
+                            </div>)
                         }
-                        <span style={{display: "flex", alignItems: "center"}}><p>TVA 20%: </p> {TVAValue} Ar</span>
-                        <span style={{display: "flex", alignItems: "center"}}><p>TOTAL TTC: </p> {totalTTC} Ar</span>
+                        <span style={{ display: "flex", alignItems: "center" }}><p>TVA 20%: </p> {TVAValue} Ar</span>
+                        <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL TTC: </p> {totalTTC} Ar</span>
                     </div>
-                    <div style={{textAlign:"center"}}>
+                    <div style={{ textAlign: "center" }}>
                         <p>Arrêté la présente facture à la somme de: <span style={{ textTransform: "uppercase" }}>{ValeurEnLettres} Ariary</span></p>
                         <span>
                             <p> Fianarantsoa, le {formatDate(NowDate)}</p>
@@ -205,13 +216,13 @@ const FactureContent = () => {
                     </div>
                 </Text>
             </div>
-            
-                <LoadingModal
-                    onSubmit={handleSubmit}
-                    onTVAChange={setTVA} 
-                    onRemiseChange={setRemise}
-                    close={close}
-                /> 
+
+            <LoadingModal
+                onSubmit={handleSubmit}
+                onTVAChange={setTVA}
+                onRemiseChange={setRemise}
+                close={close}
+            />
         </>
     );
 }

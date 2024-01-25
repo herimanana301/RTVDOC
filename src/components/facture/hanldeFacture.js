@@ -147,27 +147,24 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
   }
 };
 
-export const GetnumFacture = async (id, FormData, refPayement, close) => {
-
+export const GetnumFacture = async (setnumFacture) => {
   try {
-    const response = await axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
-      data: {
-        typePayement: FormData.typePayement.toString(),
-        refPayement: refPayement,
-        datePayement: formatDate(FormData.datePayement.toString()),
-        montantTotal: FormData.montantTotal.toString(),
-        avance: 0,
-      },
-    });
+    const response = await axios.get(`${urls.StrapiUrl}api/payements`);
+    
+    const sortedPayments = response.data.data.sort((a, b) => b.id - a.id); // Sort payments by id in descending order
 
-    if (response.status === 200) {
-      Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
-      close();
+    const latestPayment = sortedPayments[0]; // Assuming the response is an array
+    if (latestPayment) {
+      const numFacture = latestPayment.attributes.refFacture;
+      setnumFacture(numFacture);
+      console.log("Latest invoice number:", numFacture);
+    } else {
+      setnumFacture(1);
     }
+
   } catch (error) {
     console.error("An error occurred:", error);
     // Handle error, show user-friendly message, etc.
-    Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
   }
 };
 
