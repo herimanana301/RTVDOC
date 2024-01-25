@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import { Calendar } from "@mantine/dates";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Orders from "../general/Orders";
 
 export default function Commande() {
@@ -16,17 +16,25 @@ export default function Commande() {
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Button component="a" href="/neworder">
           + Nouveau
         </Button>
+
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
           data={[]}
+          value={searchQuery}
+          onChange={(value) => setSearchQuery(value)}
         />
+
         <Menu
           shadow="md"
           width={"auto"}
@@ -51,19 +59,14 @@ export default function Commande() {
                 ]}
                 label="État de diffusion"
                 radius="md"
-              />
-            </Menu.Item>
-            <Menu.Item>
-              <NativeSelect
-                data={["", "Payé", "Non Payé"]}
-                label="Ètat de paiement"
-                radius="md"
+                value={filterStatus}
+                onChange={(value) => setFilterStatus(value.target.value)}
               />
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
       </div>
-      <Orders />
+      <Orders searchQuery={searchQuery} filterStatus={filterStatus} />
     </>
   );
 }

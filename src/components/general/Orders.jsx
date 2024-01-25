@@ -27,7 +27,7 @@ import urls from "../../services/urls";
 import axios from "axios";
 import "./order.css";
 import { confirmationPutModal } from "../../services/alertConfirmation";
-export default function Orders() {
+export default function Orders({ searchQuery, filterStatus }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [update, setUpdate] = useState(false);
   const [commandeData, setCommandeData] = useState([]);
@@ -148,95 +148,117 @@ export default function Orders() {
 
   const theme = useMantineTheme();
 
-  const rows = commandeData.map((item, index) => (
-    <>
-      <tr key={index}>
-        <td>
-          <Group spacing="sm">
-            <Text fz="sm" fw={500}>
-              {item.attributes.client.data.attributes.raisonsocial.includes(" ")
-                ? item.attributes.client.data.attributes.raisonsocial
-                    .split(" ")
-                    .map((word, index) => (
-                      <React.Fragment key={index}>
-                        {word}
-                        <br />
-                      </React.Fragment>
-                    ))
-                : item.attributes.client.data.attributes.raisonsocial}
+  const rows = commandeData
+    .filter(
+      (item) =>
+        item.attributes.client.data.attributes.raisonsocial
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.attributes.responsableCommande
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.attributes.reference
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+    )
+    .filter(
+      (item) =>
+        filterStatus === "" ||
+        diffusionStatus(item.attributes.startDate, item.attributes.endDate)
+          .toLowerCase()
+          .includes(filterStatus.toLowerCase())
+    )
+    .map((item, index) => (
+      <>
+        <tr key={index}>
+          <td>
+            <Group spacing="sm">
+              <Text fz="sm" fw={500}>
+                {item.attributes.client.data.attributes.raisonsocial.includes(
+                  " "
+                )
+                  ? item.attributes.client.data.attributes.raisonsocial
+                      .split(" ")
+                      .map((word, index) => (
+                        <React.Fragment key={index}>
+                          {word}
+                          <br />
+                        </React.Fragment>
+                      ))
+                  : item.attributes.client.data.attributes.raisonsocial}
+              </Text>
+            </Group>
+          </td>
+          <td>
+            <Text size="sm"> {item.attributes.responsableCommande} </Text>
+          </td>
+          <td>
+            <Text size="sm"> {item.attributes.reference} </Text>
+          </td>
+          <td>
+            <Text size="sm">
+              {new Date(item.attributes.startDate).toLocaleDateString()}
             </Text>
-          </Group>
-        </td>
-        <td>
-          <Text size="sm"> {item.attributes.responsableCommande} </Text>
-        </td>
-        <td>
-          <Text size="sm"> {item.attributes.reference} </Text>
-        </td>
-        <td>
-          <Text size="sm">
-            {new Date(item.attributes.startDate).toLocaleDateString()}
-          </Text>
-        </td>
-        <td>
-          <Text size="sm">
-            {new Date(item.attributes.endDate).toLocaleDateString()}
-          </Text>
-        </td>
-        <td>
-          <Text size="sm">
-            {" "}
-            {item.attributes.prestations.data.reduce((sum, element) => {
-              return sum + element.attributes.totalservice;
-            }, 0)}{" "}
-            Ar
-          </Text>
-        </td>
-        <td>
-          <Badge
-            color={
-              diffusionStatus(
+          </td>
+          <td>
+            <Text size="sm">
+              {new Date(item.attributes.endDate).toLocaleDateString()}
+            </Text>
+          </td>
+          <td>
+            <Text size="sm">
+              {" "}
+              {item.attributes.prestations.data.reduce((sum, element) => {
+                return sum + element.attributes.totalservice;
+              }, 0)}{" "}
+              Ar
+            </Text>
+          </td>
+          <td>
+            <Badge
+              color={
+                diffusionStatus(
+                  item.attributes.startDate,
+                  item.attributes.endDate
+                ) === "En cours de diffusion"
+                  ? "green"
+                  : diffusionStatus(
+                      item.attributes.startDate,
+                      item.attributes.endDate
+                    ) === "En attente de diffusion"
+                  ? "orange"
+                  : diffusionStatus(
+                      item.attributes.startDate,
+                      item.attributes.endDate
+                    ) === "Diffusion terminée" && "blue"
+              }
+              variant={theme.colorScheme === "dark" ? "light" : "outline"}
+            >
+              {diffusionStatus(
                 item.attributes.startDate,
                 item.attributes.endDate
-              ) === "En cours de diffusion"
-                ? "green"
-                : diffusionStatus(
-                    item.attributes.startDate,
-                    item.attributes.endDate
-                  ) === "En attente de diffusion"
-                ? "orange"
-                : diffusionStatus(
-                    item.attributes.startDate,
-                    item.attributes.endDate
-                  ) === "Diffusion terminée" && "blue"
-            }
-            variant={theme.colorScheme === "dark" ? "light" : "outline"}
-          >
-            {diffusionStatus(
-              item.attributes.startDate,
-              item.attributes.endDate
-            )}
-          </Badge>
-        </td>
-        <td>
-          <Group spacing={0} position="right">
-            {item.attributes.tofacture === false ? (
-              <ActionIcon
-                onClick={() => confirmationPutModal(item.id, toIncoice)}
-              >
-                <IconFileInvoice size="2rem" stroke={1.5} />
+              )}
+            </Badge>
+          </td>
+          <td>
+            <Group spacing={0} position="right">
+              {item.attributes.tofacture === false ? (
+                <ActionIcon
+                  onClick={() => confirmationPutModal(item.id, toIncoice)}
+                >
+                  <IconFileInvoice size="2rem" stroke={1.5} />
+                </ActionIcon>
+              ) : (
+                <IconCheck size="2rem" stroke={1.5} color="green" />
+              )}
+              <ActionIcon onClick={() => handleModal(item)}>
+                <IconEye size="2rem" stroke={1.5} />
               </ActionIcon>
-            ) : (
-              <IconCheck size="2rem" stroke={1.5} color="green" />
-            )}
-            <ActionIcon onClick={() => handleModal(item)}>
-              <IconEye size="2rem" stroke={1.5} />
-            </ActionIcon>
-          </Group>
-        </td>
-      </tr>
-    </>
-  ));
+            </Group>
+          </td>
+        </tr>
+      </>
+    ));
 
   return (
     <>
