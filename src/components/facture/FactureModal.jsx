@@ -91,9 +91,12 @@ export default function FactureModal(props) {
           typePayement: datasPayement.attributes.typePayement,
         });
 
+      if(datasPayement.attributes.typePayement === "Totalement-payé"){       
         setdatePayementIs(true);
         setrefPayementIs(true);
         settypePayementIs(true);
+      }
+
       }
       setRefPayement(datasPayement.attributes.refPayement);
     }

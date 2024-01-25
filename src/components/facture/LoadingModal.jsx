@@ -25,6 +25,7 @@ const LoadingModal = ({ onSubmit, onTVAChange, onRemiseChange }) => {
             withCloseButton={false}
             closeOnClickOutside={false}
         >
+            <br />
             <Stack>
                 <Checkbox
                     checked={isRemiseChecked}

@@ -8,6 +8,8 @@ import {
   NativeSelect,
   ScrollArea,
   Table,
+  Badge,
+  useMantineTheme
 } from "@mantine/core";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import { IconBolt } from "@tabler/icons-react";
@@ -28,6 +30,7 @@ export default function Facture() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState(""); // New state for search query
   const [paymentStatus, setPaymentStatus] = useState("");
+  const theme = useMantineTheme();
 
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
@@ -70,7 +73,7 @@ export default function Facture() {
         paymentStatus === "" ||
         (Commande.attributes.payement.data &&
           Commande.attributes.payement.data.attributes.typePayement ===
-            paymentStatus)
+          paymentStatus)
     )
     .map((Commande) => (
       <tr key={Commande.id}>
@@ -82,9 +85,24 @@ export default function Facture() {
         </td>
         <td>{Commande.attributes.responsableCommande}</td>
         <td>
-          {Commande.attributes.payement.data
-            ? Commande.attributes.payement.data.attributes.typePayement
-            : "Non-payé"}
+          <Badge
+            color={
+              Commande.attributes.payement.data
+                ? Commande.attributes.payement.data.attributes.typePayement === "Totalement-payé"
+                  ? "green"
+                  : Commande.attributes.payement.data.attributes.typePayement === "Partiellement-payé"
+                    ? "yellow"
+                    : "gray"
+                : "gray"
+            }
+            variant={theme.colorScheme === "dark" ? "light" : "filled"}
+          >
+            {Commande.attributes.payement.data
+              ? Commande.attributes.payement.data.attributes.typePayement
+              : "Non-payé"}
+          </Badge>
+
+
         </td>
         <td>
           <Group spacing={0} position="right">
