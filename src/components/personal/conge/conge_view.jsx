@@ -11,6 +11,8 @@ import {
   rem,
   ActionIcon,
   Avatar,
+  Badge,
+  useMantineTheme
 } from "@mantine/core";
 
 import { IconSearch, IconFilter } from "@tabler/icons-react";
@@ -31,6 +33,7 @@ export default function Conges() {
   const [pageInfo, setPageInfo] = useState({ page: 1, total: 1 });
   const [datas1, setDatas1] = useState([]);
   const [pageInfo1, setPageInfo1] = useState({ page: 1, total: 1 });
+  const theme = useMantineTheme();
 
   useEffect(() => {
     FetchAllConge(setDatas, setPageInfo);
@@ -101,9 +104,11 @@ export default function Conges() {
         </Text>
       </td>
       <td>
-        <Text fz="sm" c="dimmed">
-          {item.attributes.type_conge}
-        </Text>
+        <Badge
+          color={item.attributes.type_conge === "Payé" ? "blue" : "white"}
+          variant={theme.colorScheme === "dark" ? "light" : "dot"}
+        >{item.attributes.type_conge}
+        </Badge>
       </td>
     </tr>
   ));

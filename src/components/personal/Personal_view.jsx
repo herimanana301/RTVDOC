@@ -11,6 +11,9 @@ import {
   rem,
   ActionIcon,
   Avatar,
+  Badge,
+  useMantineTheme
+  
 } from "@mantine/core";
 
 import { IconPencil, IconTrash } from "@tabler/icons-react";
@@ -28,6 +31,8 @@ export default function Personals() {
     page: 1,
     total: 1,
   });
+
+  const theme = useMantineTheme();
 
   const [datas, setDatas] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,10 +141,13 @@ export default function Personals() {
           </Text>
         </td>
         <td>
-          <Text fz="xs" c="dimmed">
-            {item.attributes.status}
-          </Text>
+          <Badge
+              color={item.attributes.status === "Actif" ? "green" : "gray" }
+              variant={theme.colorScheme === "dark" ? "light" : "dot"}
+            >{item.attributes.status}
+            </Badge>
         </td>
+
 
         <td>
           <Group gap={0} justify="flex-end">
@@ -172,6 +180,7 @@ export default function Personals() {
         </td>
       </tr>
     ));
+
 
   return (
     <>

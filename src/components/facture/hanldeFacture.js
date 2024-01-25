@@ -147,30 +147,71 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
   }
 };
 
-export const GetnumFacture = async (id, FormData, refPayement, close) => {
-
+export const GetnumFacture = async (setnumFacture) => {
   try {
-    const response = await axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
-      data: {
-        typePayement: FormData.typePayement.toString(),
-        refPayement: refPayement,
-        datePayement: formatDate(FormData.datePayement.toString()),
-        montantTotal: FormData.montantTotal.toString(),
-        avance: 0,
-      },
-    });
+    const response = await axios.get(`${urls.StrapiUrl}api/payements`);
+    
+    const sortedPayments = response.data.data.sort((a, b) => b.id - a.id); // Sort payments by id in descending order
 
-    if (response.status === 200) {
-      Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
-      close();
+    const latestPayment = sortedPayments[0]; // Assuming the response is an array
+    if (latestPayment) {
+
+      if(latestPayment.attributes.refFacture){
+        const numFacture = latestPayment.attributes.refFacture;
+        setnumFacture(parseInt(numFacture)+1);
+      }else{
+        setnumFacture(1);
+      }
+    
     }
+
   } catch (error) {
     console.error("An error occurred:", error);
     // Handle error, show user-friendly message, etc.
-    Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
   }
 };
 
+export const InsertFacturePrint = (id,refFacture) => {
+
+  axios
+  .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
+  .then((response) => {
+    if(response.data.data.attributes.payement.data){
+     
+      console.log();
+
+    }else{
+      
+      try {
+        axios.post(`${urls.StrapiUrl}api/payements`, {
+          data: {
+            commande: id,
+            refFacture: refFacture,
+            datePayement:formatDate(new Date()),
+            typePayement:'Non-payé',
+            refPayement:'',
+            montantTotal:0,
+            avance:0
+
+          },
+        }).then((response) => {
+          if (response.status !== 200) {
+            console.log('Erreur lors de l\'enregistrement de la numero de reference');
+          }
+        })
+      }
+      catch (error) {
+        console.error("An error occurred:", error);
+      }
+      
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+  
+
+};
 
 
 export default FetchAllCommande;
