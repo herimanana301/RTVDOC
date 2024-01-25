@@ -143,7 +143,7 @@ export default function Personals() {
         <td>
           <Badge
               color={item.attributes.status === "Actif" ? "green" : "gray" }
-              variant={theme.colorScheme === "dark" ? "light" : "outline"}
+              variant={theme.colorScheme === "dark" ? "light" : "dot"}
             >{item.attributes.status}
             </Badge>
         </td>

@@ -8,7 +8,7 @@ import {
     from '@mantine/core';
 import logo from "../../assets/icons/logo.png";
 import { useParams, useLocation } from "react-router-dom";
-import { FindOneCommande, GetnumFacture,InsertFacturePrint } from "./hanldeFacture";
+import { FindOneCommande, GetnumFacture, InsertFacturePrint } from "./hanldeFacture";
 import LoadingModal from "./LoadingModal";
 import NumberToLetter from "./nombre_en_lettre";
 
@@ -123,8 +123,8 @@ const FactureContent = () => {
 
     const InsertFactureBtn = () => {
 
-        if(numFacture!==1){
-            InsertFacturePrint(id,numFacture);
+        if (numFacture !== 1) {
+            InsertFacturePrint(id, numFacture);
         }
 
         useReactToPrint({
@@ -134,6 +134,11 @@ const FactureContent = () => {
         });
 
     }
+
+    var dateStr = formatDate(new Date());
+
+    // Extraire les deux derniers caractères du jour du mois
+    var jourDuMois = dateStr.substring(8, 10);
 
 
     return (
@@ -181,7 +186,7 @@ const FactureContent = () => {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                         <div style={{ padding: "15px", border: "1px solid black", textAlign: "center" }}>
-                            Facture N° {numFacture}/23
+                            Facture N° {numFacture}/{jourDuMois}
                         </div>
                         <div style={{ fontWeight: "bold", marginLeft: '30px' }}>
                             <span style={{ marginLeft: '-27px' }}><u>Doit</u></span> {client.raisonsocial}<br />
