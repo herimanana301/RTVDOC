@@ -22,6 +22,7 @@ const FactureContent = () => {
         : null;
 
     const [datasCommande, setDatasCommande] = useState([]);
+    const [DatasPayement, setDatasPayement] = useState([]);
     const [client, setDatasClient] = useState([]);
     const [prestation, setDatasPrestation] = useState([]);
     let TotalMontant = 0;
@@ -95,9 +96,17 @@ const FactureContent = () => {
 
     useEffect(() => {
 
-        FindOneCommande(id, setDatasCommande,setDatasClient,setDatasPrestation);
+        FindOneCommande(id, setDatasCommande,setDatasClient,setDatasPrestation,setDatasPayement);
+        
 
     }, []);
+
+    useEffect(() => {
+
+        console.log(DatasPayement);
+        
+
+    }, [DatasPayement]);
 
     const componentRef = useRef();
     const handlePrint = useReactToPrint({

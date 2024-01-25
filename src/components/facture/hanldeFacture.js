@@ -18,7 +18,7 @@ const FetchAllCommande = (setDatasCommande, setPageInfo) => {
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-        !Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée"
+        Commande.attributes.tofacture || (!Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
       );
 
       setDatasCommande(filteredCommandes);
@@ -37,9 +37,8 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-        Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée"
+        Commande.attributes.tofacture || (Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
       );
-
       setDatasCommandeArchived(filteredCommandes);
 
       setPageInfoArchive((prevdata) => ({
@@ -125,6 +124,30 @@ export const InsertFacture = (id, FormData, refPayement, close) => {
 };
 
 export const UpdateFacture = async (id, FormData, refPayement, close) => {
+
+  try {
+    const response = await axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
+      data: {
+        typePayement: FormData.typePayement.toString(),
+        refPayement: refPayement,
+        datePayement: formatDate(FormData.datePayement.toString()),
+        montantTotal: FormData.montantTotal.toString(),
+        avance: 0,
+      },
+    });
+
+    if (response.status === 200) {
+      Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
+      close();
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+    // Handle error, show user-friendly message, etc.
+    Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
+  }
+};
+
+export const GetnumFacture = async (id, FormData, refPayement, close) => {
 
   try {
     const response = await axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
