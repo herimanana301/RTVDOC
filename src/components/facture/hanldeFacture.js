@@ -155,11 +155,14 @@ export const GetnumFacture = async (setnumFacture) => {
 
     const latestPayment = sortedPayments[0]; // Assuming the response is an array
     if (latestPayment) {
-      const numFacture = latestPayment.attributes.refFacture;
-      setnumFacture(numFacture);
-      console.log("Latest invoice number:", numFacture);
-    } else {
-      setnumFacture(1);
+
+      if(latestPayment.attributes.refFacture){
+        const numFacture = latestPayment.attributes.refFacture;
+        setnumFacture(parseInt(numFacture)+1);
+      }else{
+        setnumFacture(1);
+      }
+    
     }
 
   } catch (error) {
@@ -168,6 +171,47 @@ export const GetnumFacture = async (setnumFacture) => {
   }
 };
 
+export const InsertFacturePrint = (id,refFacture) => {
+
+  axios
+  .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
+  .then((response) => {
+    if(response.data.data.attributes.payement.data){
+     
+      console.log();
+
+    }else{
+      
+      try {
+        axios.post(`${urls.StrapiUrl}api/payements`, {
+          data: {
+            commande: id,
+            refFacture: refFacture,
+            datePayement:formatDate(new Date()),
+            typePayement:'Non-payé',
+            refPayement:'',
+            montantTotal:0,
+            avance:0
+
+          },
+        }).then((response) => {
+          if (response.status !== 200) {
+            console.log('Erreur lors de l\'enregistrement de la numero de reference');
+          }
+        })
+      }
+      catch (error) {
+        console.error("An error occurred:", error);
+      }
+      
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+  
+
+};
 
 
 export default FetchAllCommande;

@@ -8,7 +8,7 @@ import {
     from '@mantine/core';
 import logo from "../../assets/icons/logo.png";
 import { useParams, useLocation } from "react-router-dom";
-import { FindOneCommande, GetnumFacture } from "./hanldeFacture";
+import { FindOneCommande, GetnumFacture,InsertFacturePrint } from "./hanldeFacture";
 import LoadingModal from "./LoadingModal";
 import NumberToLetter from "./nombre_en_lettre";
 
@@ -25,7 +25,7 @@ const FactureContent = () => {
     const [DatasPayement, setDatasPayement] = useState();
     const [client, setDatasClient] = useState([]);
     const [prestation, setDatasPrestation] = useState([]);
-    const [numFacture, setnumFacture] = useState([]);
+    const [numFacture, setnumFacture] = useState();
 
     let TotalMontant = 0;
     const [pageInfo, setPageInfo] = useState({
@@ -108,27 +108,37 @@ const FactureContent = () => {
         if (DatasPayement) {
             if (DatasPayement.attributes.refFacture) {
                 setnumFacture(DatasPayement.attributes.refFacture);
-            }            
+            }
         }
-        else{
-
+        else {
             GetnumFacture(setnumFacture);
-
         }
 
 
     }, [setDatasPayement]);
 
     const componentRef = useRef();
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-        documentTitle: 'Facture',
-        onAfterPrint: () => console.log('Imprimé avec succès!'),
-    });
+
+
+
+    const InsertFactureBtn = () => {
+
+        if(numFacture!==1){
+            InsertFacturePrint(id,numFacture);
+        }
+
+        useReactToPrint({
+            content: () => componentRef.current,
+            documentTitle: 'Facture',
+            onAfterPrint: () => console.log('Imprimé avec succès!'),
+        });
+
+    }
+
 
     return (
         <>
-            <Button onClick={handlePrint} style={{ margin: "2em auto", display: "block", width: "15rem" }}>Imprimer</Button>
+            <Button onClick={InsertFactureBtn} style={{ margin: "2em auto", display: "block", width: "15rem" }}>Imprimer</Button>
             <div id="contenu" ref={componentRef} style={{ maxWidth: "600px", margin: "0 auto" }}>
                 <Text fz="xs">
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
