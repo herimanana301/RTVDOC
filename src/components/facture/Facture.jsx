@@ -39,41 +39,43 @@ export default function Facture() {
   }, []);
 
   const formatDate = (date) => {
-  
+
     const date1 = new Date(date);
 
     const year = date1.getFullYear();
     const month = (date1.getMonth() + 1).toString().padStart(2, "0");
     const day = date1.getDate().toString().padStart(2, "0");
 
-    return `${day}/${month}/${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   const rows = datasCommande.map((Commande) => (
-      <tr key={Commande.id}>
+    <tr key={Commande.id}>
       <td>{Commande.attributes.reference}</td>
       <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
       <td>Du {formatDate(Commande.attributes.startDate)} au {formatDate(Commande.attributes.endDate)}</td>
       <td>{Commande.attributes.responsableCommande}</td>
-      <td>{Commande.attributes.status}</td>
+      <td>
+        {Commande.attributes.payement.data
+          ? Commande.attributes.payement.data.attributes.typePayement
+          : 'Non-payé'}
+      </td>
 
       <td>
         <Group spacing={0} position="right">
-        <FactureModal datas={Commande.id}/>
+          <FactureModal datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
         </Group>
       </td>
 
     </tr>
   ))
 
-  const handlePrint = () => {
-    console.log('Printed !');
-  };
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
 
-      <ArchiveModal />
+        <ArchiveModal />
 
         <Autocomplete
           placeholder="Rechercher"
@@ -112,6 +114,7 @@ export default function Facture() {
         </Menu>
       </div>
       {/* Table */}
+      <br />
       <ScrollArea>
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
@@ -120,14 +123,14 @@ export default function Facture() {
               <th>Client</th>
               <th>Période de diffusion</th>
               <th>Responsable commande</th>
-              <th>Status payement</th>
+              <th>Status</th>
               <th />
             </tr>
           </thead>
           <tbody>{rows}</tbody>
         </Table>
       </ScrollArea>
-      
+
     </div>
   );
 }

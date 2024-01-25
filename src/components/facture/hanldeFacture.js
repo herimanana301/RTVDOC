@@ -10,15 +10,15 @@ const formatDate = (date) => {
   const month = (date1.getMonth() + 1).toString().padStart(2, "0");
   const day = date1.getDate().toString().padStart(2, "0");
 
-  return `${day}/${month}/${year}`;
+  return `${year}-${month}-${day}`;
 };
 
 const FetchAllCommande = (setDatasCommande, setPageInfo) => {
   axios
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
-      const filteredCommandes = response.data.data.filter((Commande) => 
-        !Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée"
+      const filteredCommandes = response.data.data.filter((Commande) =>
+        !Commande.attributes.archive && Commande.attributes.tofacture  && Commande.attributes.status === "Diffusion terminée"
       );
 
       setDatasCommande(filteredCommandes);
@@ -36,7 +36,7 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
   axios
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
-      const filteredCommandes = response.data.data.filter((Commande) => 
+      const filteredCommandes = response.data.data.filter((Commande) =>
         Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée"
       );
 
@@ -54,15 +54,15 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
 
 
 
-export const FindOneCommande = (id, setDatasCommande,setDatasClient,setDatasPrestation) => {
+export const FindOneCommande = (id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement) => {
   axios
     .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
     .then((response) => {
       // console.log(response.data.data.attributes);
       setDatasCommande(response.data.data.attributes);
       setDatasClient(response.data.data.attributes.client.data.attributes);
-      setDatasPrestation(response.data.data.attributes.prestations.data)
-
+      setDatasPrestation(response.data.data.attributes.prestations.data);
+      response.data.data.attributes.payement.data ? setDatasPayement(response.data.data.attributes.payement.data) : null;
     })
     .catch((error) => {
       console.error(error);
@@ -71,33 +71,81 @@ export const FindOneCommande = (id, setDatasCommande,setDatasClient,setDatasPres
 };
 
 export const ArchiverCommande = (id) => {
-    axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
-      data: {
-        archive: true,
-      },
-    }).then((response) => {
-    if(response.status == 200){
+  axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
+    data: {
+      archive: true,
+    },
+  }).then((response) => {
+    if (response.status == 200) {
       Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
-  }})
+    }
+  })
 
 };
 
-export const InsertFacture = (id,FormData,refPayement,close) => {
-
- axios.post(`${urls.StrapiUrl}api/payements`, {
+export const DesarchiverCommande = (id) => {
+  axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
     data: {
-      commande:id,
-      datePayement: formatDate(FormData.datePayement.toString()),
-      refPayement: refPayement,
-      montant: FormData.montantTotal.toString(),
-      typePayement: FormData.typePayement.toString(),
+      archive: false,
     },
   }).then((response) => {
-  if(response.status == 200){
-    Swal.fire("Succès!", "Payement sauvegarder avec succès.", "success");
-    close();
-}})
+    if (response.status == 200) {
+      Swal.fire("Desarchivée!", "Voir la commande dans Facture.", "success");
+    }
+  })
 
+};
+
+
+export const InsertFacture = (id, FormData, refPayement, close) => {
+
+  try {
+    axios.post(`${urls.StrapiUrl}api/payements`, {
+      data: {
+        commande: id,
+        refPayement: refPayement,
+        typePayement: FormData.typePayement.toString(),
+        datePayement: formatDate(FormData.datePayement.toString()),
+        montantTotal: FormData.montantTotal.toString(),
+        avance: FormData.avanceMontant.toString(),
+      },
+    }).then((response) => {
+      if (response.status == 200) {
+        Swal.fire("Succès!", "Payement sauvegarder avec succès.", "success");
+        close();
+      }
+    })
+  }
+  catch (error) {
+    console.error("An error occurred:", error);
+    // Handle error, show user-friendly message, etc.
+    Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
+  }
+
+};
+
+export const UpdateFacture = async (id, FormData, refPayement, close) => {
+
+  try {
+    const response = await axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
+      data: {
+        typePayement: FormData.typePayement.toString(),
+        refPayement: refPayement,
+        datePayement: formatDate(FormData.datePayement.toString()),
+        montantTotal: FormData.montantTotal.toString(),
+        avance: 0,
+      },
+    });
+
+    if (response.status === 200) {
+      Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
+      close();
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+    // Handle error, show user-friendly message, etc.
+    Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
+  }
 };
 
 

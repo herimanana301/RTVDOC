@@ -21,6 +21,24 @@ const inputConfirmation = (execution)=>{
 
 /********************** Delete confirmation **********************/
 
+const confirmationPutModal = (id,action) => {
+  Swal.fire({
+    title: 'Êtes-vous sûr?',
+    text: "Cette action est irréversible!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, génerer la facture',
+    cancelButtonText: 'Annuler',
+  }).then((result) => {
+    if (result.isConfirmed) {
+        action(id);
+    }
+  });
+};
+
+
 const confirmationModal = (id,deletedUser) => {
   Swal.fire({
     title: 'Êtes-vous sûr?',
@@ -75,7 +93,24 @@ const ArchiverCommandeConfirm = (id,ArchiverCommande) => {
   });
 };
 
+const DesarchiverCommandeConfirm = (id,DesarchiverCommande) => {
+  Swal.fire({
+    title: 'Desarchiver la commande?',
+    text: "Vous etes sûr?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, desarchiver!',
+    cancelButtonText: 'Annuler',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      DesarchiverCommande(id);
+    }
+  });
+};
+
 
 /******************************* *******************************/
 
-export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommandeConfirm};
+export {inputConfirmation,confirmationModal,FactureconfirmationModal,ArchiverCommandeConfirm,DesarchiverCommandeConfirm, confirmationPutModal};

@@ -37,7 +37,7 @@ export default function ArchiveModal() {
     const month = (date1.getMonth() + 1).toString().padStart(2, "0");
     const day = date1.getDate().toString().padStart(2, "0");
 
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   const rows = datasCommandeArchived.map((Commande) => (
@@ -50,7 +50,7 @@ export default function ArchiveModal() {
 
       <td>
         <Group spacing={0} position="right">
-        <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
+          <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
         </Group>
       </td>
 
@@ -81,7 +81,7 @@ export default function ArchiveModal() {
         style={{marginLeft:'-95px'}}
       >
 
-<ScrollArea>
+      <ScrollArea>
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
