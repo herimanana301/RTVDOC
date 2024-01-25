@@ -18,7 +18,7 @@ const FetchAllCommande = (setDatasCommande, setPageInfo) => {
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-        !Commande.attributes.archive && Commande.attributes.tofacture  && Commande.attributes.status === "Diffusion terminée"
+        !Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée"
       );
 
       setDatasCommande(filteredCommandes);
