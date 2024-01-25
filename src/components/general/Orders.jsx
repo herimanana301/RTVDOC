@@ -220,12 +220,14 @@ export default function Orders() {
         </td>
         <td>
           <Group spacing={0} position="right">
-            {item.attributes.tofacture === false && (
+            {item.attributes.tofacture === false ? (
               <ActionIcon
                 onClick={() => confirmationPutModal(item.id, toIncoice)}
               >
                 <IconFileInvoice size="2rem" stroke={1.5} />
               </ActionIcon>
+            ) : (
+              <IconCheck size="2rem" stroke={1.5} color="green" />
             )}
             <ActionIcon onClick={() => handleModal(item)}>
               <IconEye size="2rem" stroke={1.5} />
