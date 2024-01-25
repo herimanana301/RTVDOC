@@ -131,7 +131,6 @@ export default function NewClient() {
       });
   };
   useEffect(() => {
-    console.log(currentClient);
     if (id) {
       updateDescription(0, currentClient.raisonsocial);
       updateDescription(1, currentClient.email);
