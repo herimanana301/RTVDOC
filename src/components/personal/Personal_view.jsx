@@ -30,6 +30,9 @@ export default function Personals() {
   });
 
   const [datas, setDatas] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
@@ -51,17 +54,13 @@ export default function Personals() {
       });
   }, []);
 
-  /*************** Delete personal data *********************/
-
   const deletedUser = async (id) => {
     try {
       const response = await axios.delete(
         urls.StrapiUrl + `api/personnels/${id}`
       );
-      console.log("Delete Response:", response); // Vérifiez la réponse ici
-      if (response.status == 200) {
-        // Assurez-vous de vérifier la réponse appropriée pour votre API
-
+      console.log("Delete Response:", response);
+      if (response.status === 200) {
         setDatas((prevData) => {
           const newData = prevData.filter(
             (data) => data.id !== response.data.data.id
@@ -76,82 +75,103 @@ export default function Personals() {
     }
   };
 
-  const rows = datas.map((item) => (
-    <tr key={item.id}>
-      <td>
-        <Group gap="sm">
-          <Avatar
-            size={50}
-            radius={50}
-            src={urls.StrapiUrl + "uploads/" + item.attributes.avatar}
-          />
-          <Text fz="sm" fw={500}>
-            {item.attributes.nom} {item.attributes.prenom}
-            <br />
-            <Text fz="xs" c="dimmed">
-              {item.attributes.contact}
+  const filteredRows = datas
+    .filter(
+      (item) =>
+        item.attributes.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.attributes.prenom
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.attributes.adresse
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.attributes.email
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.attributes.poste.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(
+      (item) =>
+        !filterStatus ||
+        (filterStatus === "Actif" && item.attributes.status === "Actif") ||
+        (filterStatus === "Non actif" && item.attributes.status === "Non actif")
+    )
+    .map((item) => (
+      <tr key={item.id}>
+        <td>
+          <Group gap="sm">
+            <Avatar
+              size={50}
+              radius={50}
+              src={urls.StrapiUrl + "uploads/" + item.attributes.avatar}
+            />
+            <Text fz="sm" fw={500}>
+              {item.attributes.nom} {item.attributes.prenom}
+              <br />
+              <Text fz="xs" c="dimmed">
+                {item.attributes.contact}
+              </Text>
             </Text>
+          </Group>
+        </td>
+
+        <td>
+          <Text fz="xs" c="dimmed">
+            {item.attributes.adresse}
           </Text>
-        </Group>
-      </td>
+        </td>
+        <td>
+          <Text fz="xs" c="dimmed">
+            {item.attributes.email}
+          </Text>
+        </td>
+        <td>
+          <Text fz="xs" c="dimmed">
+            {item.attributes.poste}
+          </Text>
+        </td>
+        <td>
+          <Text fz="xs" c="dimmed">
+            {item.attributes.conge} Jour(s)
+          </Text>
+        </td>
+        <td>
+          <Text fz="xs" c="dimmed">
+            {item.attributes.status}
+          </Text>
+        </td>
 
-      <td>
-        <Text fz="xs" c="dimmed">
-          {item.attributes.adresse}
-        </Text>
-      </td>
-      <td>
-        <Text fz="xs" c="dimmed">
-          {item.attributes.email}
-        </Text>
-      </td>
-      <td>
-        <Text fz="xs" c="dimmed">
-          {item.attributes.poste}
-        </Text>
-      </td>
-      <td>
-        <Text fz="xs" c="dimmed">
-          {item.attributes.conge} Jour(s)
-        </Text>
-      </td>
-      <td>
-        <Text fz="xs" c="dimmed">
-          {item.attributes.status}
-        </Text>
-      </td>
-
-      <td>
-        <Group gap={0} justify="flex-end">
-          <ActionIcon variant="subtle" color="gray">
-            <Link
-              to={{
-                pathname: `/personal/${item.id}`,
+        <td>
+          <Group gap={0} justify="flex-end">
+            <ActionIcon variant="subtle" color="gray">
+              <Link
+                to={{
+                  pathname: `/personal/${item.id}`,
+                }}
+                state={{ personalDatas: item.attributes }}
+              >
+                <IconPencil
+                  style={{ width: rem(16), height: rem(16) }}
+                  stroke={1.5}
+                />
+              </Link>
+            </ActionIcon>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              onClick={() => {
+                confirmationModal(item.id, deletedUser);
               }}
-              state={{ personalDatas: item.attributes }}
             >
-              <IconPencil
-                style={{ width: rem(16), height: rem(16) }}
+              <IconTrash
+                style={{ width: rem(16), height: rem(16), color: "red" }}
                 stroke={1.5}
               />
-            </Link>
-          </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            onClick={() => {
-              confirmationModal(item.id, deletedUser);
-            }}
-          >
-            <IconTrash
-              style={{ width: rem(16), height: rem(16), color: "red" }}
-              stroke={1.5}
-            />
-          </ActionIcon>
-        </Group>
-      </td>
-    </tr>
-  ));
+            </ActionIcon>
+          </Group>
+        </td>
+      </tr>
+    ));
 
   return (
     <>
@@ -163,6 +183,8 @@ export default function Personals() {
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
           data={[]}
+          value={searchQuery}
+          onChange={(value) => setSearchQuery(value)}
         />
         <Menu
           shadow="md"
@@ -180,16 +202,11 @@ export default function Personals() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "En attente de diffusion", "En cours de diffusion"]}
-                label="État de diffusion"
+                data={["", "Actif", "Non actif"]}
+                label="Status"
                 radius="md"
-              />
-            </Menu.Item>
-            <Menu.Item>
-              <NativeSelect
-                data={["", "Payé", "Non Payé"]}
-                label="Ètat de paiement"
-                radius="md"
+                value={filterStatus}
+                onChange={(value) => setFilterStatus(value.target.value)}
               />
             </Menu.Item>
           </Menu.Dropdown>
@@ -208,7 +225,7 @@ export default function Personals() {
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>{rows}</tbody>
+          <tbody>{filteredRows}</tbody>
         </Table>
       </ScrollArea>
     </>

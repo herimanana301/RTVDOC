@@ -35,32 +35,37 @@ export default function Conges() {
   useEffect(() => {
     FetchAllConge(setDatas, setPageInfo);
     FetchAllPersonnel(setDatas1, setPageInfo1);
-
   }, []);
-  const filterData =
-    search.length > 0
-      ? datas.filter(
-          (data) =>
-            data.attributes.nom.toLowerCase().includes(search) ||
-            data.attributes.prenom.toLowerCase().includes(search) ||
-            data.attributes.motif.toLowerCase().includes(search) ||
-            data.attributes.type_conge.toLowerCase().includes(search)
-        )
-      : search === "Blacklisté"
-      ? datas.filter((data) => data.attributes.blacklist)
-      : setupFilter === "Plus récent"
-      ? datas.sort((a, b) => {
+
+  const filterData = datas
+    .filter((data) =>
+      search.length > 0
+        ? data.attributes.nom.toLowerCase().includes(search) ||
+          data.attributes.prenom.toLowerCase().includes(search) ||
+          data.attributes.motif.toLowerCase().includes(search) ||
+          data.attributes.type_conge.toLowerCase().includes(search)
+        : true
+    )
+    .filter((data) =>
+      setupFilter.length > 0
+        ? data.attributes.type_conge.toLowerCase().includes(setupFilter)
+        : true
+    )
+    .sort((a, b) => {
+      switch (setupFilter) {
+        case "Plus récent":
           return (
             new Date(b.attributes.createdAt) - new Date(a.attributes.createdAt)
           );
-        })
-      : setupFilter === "Plus ancien"
-      ? datas.sort((a, b) => {
+        case "Plus ancien":
           return (
             new Date(a.attributes.createdAt) - new Date(b.attributes.createdAt)
           );
-        })
-      : datas;
+        default:
+          return 0;
+      }
+    });
+
   const rows = filterData.map((item) => (
     <tr key={item.id}>
       <td>
@@ -141,16 +146,20 @@ export default function Conges() {
           <Menu.Dropdown>
             <Menu.Item>
               <NativeSelect
-                data={["", "Plus récent", "Plus ancien"]}
-                label="État de diffusion"
+                data={["", "Payé"]}
+                label="Type de congé"
                 radius="md"
+                value={setupFilter}
+                onChange={(value) => setSetupFilter(value.target.value)}
               />
             </Menu.Item>
             <Menu.Item>
               <NativeSelect
-                data={["", "Payé", "Non Payé"]}
-                label="Ètat de paiement"
+                data={["", "Plus récent", "Plus ancien"]}
+                label="Ordre de tri"
                 radius="md"
+                value={setupFilter}
+                onChange={(value) => setSetupFilter(value.target.value)}
               />
             </Menu.Item>
           </Menu.Dropdown>
