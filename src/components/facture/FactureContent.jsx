@@ -126,14 +126,13 @@ const FactureContent = () => {
         if (numFacture !== 1) {
             InsertFacturePrint(id, numFacture);
         }
-
-        useReactToPrint({
-            content: () => componentRef.current,
-            documentTitle: 'Facture',
-            onAfterPrint: () => console.log('Imprimé avec succès!'),
-        });
-
     }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+        documentTitle: 'Facture',
+        onAfterPrint: () => console.log('Imprimé avec succès!'),
+    });
 
     var dateStr = formatDate(new Date());
 
@@ -143,7 +142,7 @@ const FactureContent = () => {
 
     return (
         <>
-            <Button onClick={InsertFactureBtn} style={{ margin: "2em auto", display: "block", width: "15rem" }}>Imprimer</Button>
+            <Button onClick={handlePrint} style={{ margin: "2em auto", display: "block", width: "15rem" }}><a onClick={InsertFactureBtn}>Imprimer</a></Button>
             <div id="contenu" ref={componentRef} style={{ maxWidth: "600px", margin: "0 auto" }}>
                 <Text fz="xs">
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -214,10 +213,10 @@ const FactureContent = () => {
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", }}>
                         <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL HT: </p> {MontantTotal} Ar</span>
                         {remise &&
-                            (<div>
-                                <span style={{}}><p>Remise 10%: </p> {RemiseValue} Ar</span>
+                            (<>
+                                <span style={{ display: "flex", alignItems: "center" }}><p style={{margin: "0px"}}>Remise 10%:</p>{RemiseValue} Ar</span>
                                 <span style={{ display: "flex", alignItems: "center" }}><p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar</span>
-                            </div>)
+                            </>)
                         }
                         <span style={{ display: "flex", alignItems: "center" }}><p>TVA 20%: </p> {TVAValue} Ar</span>
                         <span style={{ display: "flex", alignItems: "center" }}><p>TOTAL TTC: </p> {totalTTC} Ar</span>
