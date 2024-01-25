@@ -71,7 +71,7 @@ export default function General() {
             <Text>Nombre de commande</Text>
           </Paper>
         </Grid.Col>
-        <Grid.Col xs={8}>
+        <Grid.Col xs={12}>
           <Paper
             shadow="xs"
             radius="xl"
