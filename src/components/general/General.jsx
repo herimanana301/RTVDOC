@@ -62,7 +62,7 @@ export default function General() {
 
     return monthlyTotal;
   };
-//////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////
   const filteredData = commandeData.map((payment) => ({
     nomclient: payment.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
     montantTotal: payment.attributes.montantTotal,
@@ -72,25 +72,25 @@ export default function General() {
   // Function to calculate montantTotal for each nomclient depending on every month
   const calculateMonthlyTotalForClients = () => {
     const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
-  
+
     // Iterate through filteredData to compute montantTotal for each nomclient
     filteredData.forEach((payment) => {
       const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
       const nomclient = payment.nomclient;
-  
+
       // Initialize montantTotal for nomclient if not already initialized
       if (!monthlyTotalForClients[nomclient]) {
         monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
       }
-  
+
       // Add montantTotal to corresponding month for nomclient
       monthlyTotalForClients[nomclient][month] += payment.montantTotal; // Adjusted this line
     });
-  
+
     return monthlyTotalForClients;
   };
-  
-  
+
+
 
   //////////////////////////
 
@@ -99,13 +99,13 @@ export default function General() {
     const monthName = new Date(0, index).toLocaleString("default", { month: "long" }); // Convert month index to month name
     const monthlyTotal = calculateMonthlyTotal()[index]; // Get sum of 'montantTotal' for corresponding month
     const clientMonthlyTotal = calculateMonthlyTotalForClients();
-  
+
     // Construct data for each client
     const clientData = Object.keys(clientMonthlyTotal).map(client => ({
       nomclient: client,
       montantTotal: clientMonthlyTotal[client][index]
     }));
-  
+
     return {
       month: monthName,
       montantTotal: monthlyTotal,
