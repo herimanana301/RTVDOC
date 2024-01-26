@@ -13,6 +13,7 @@ export default function General() {
   });
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
+  const [commandeData, setCommandeData] = useState([]);
 
   useEffect(() => {
 
@@ -41,6 +42,10 @@ export default function General() {
     axios.get(`${urls.StrapiUrl}api/payements?_limit=-1`).then((response) => {
       setPaymentData(response.data.data);
     });
+    // Fetch commande data
+    axios.get(`${urls.StrapiUrl}api/payements?populate=commande.client`).then((response) => {
+      setCommandeData(response.data.data);
+    })
   }, []);
 
   const child = <Skeleton height={140} radius="md" animate={false} />;
@@ -52,18 +57,24 @@ export default function General() {
     // Iterate through payment data and sum 'montantTotal' for each month
     paymentData.forEach((payment) => {
       const month = new Date(payment.attributes.datePayement).getMonth(); // Get month index (0 - 11)
-      console.log(month);
       monthlyTotal[month] += payment.attributes.montantTotal; // Add 'montantTotal' to corresponding month
     });
 
     return monthlyTotal;
-
   };
+
+  const filteredData = commandeData.map((payment) => ({
+    nomclient: payment.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
+    montantTotal: payment.attributes.montantTotal,
+    datePayement: payment.attributes.datePayement,
+  }));
+  console.log(filteredData);
 
   // Data for the line chart
   const chartData = Array.from({ length: 12 }).map((_, index) => ({
     month: new Date(0, index).toLocaleString("default", { month: "long" }), // Convert month index to month name
     montantTotal: calculateMonthlyTotal()[index], // Get sum of 'montantTotal' for corresponding month
+    client: filteredData.montantTotal,
   }));
 
   return (
@@ -136,8 +147,9 @@ export default function General() {
               Vue d'ensemble des chiffres d'affaires
             </Title>
             {/* Render the LineChart component with chartData */}
-            <LineChart width={800} height={400} data={chartData} style={{ margin:"2em auto"}}>
-              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8"/>
+            <LineChart width={800} height={400} data={chartData} style={{ margin: "2em auto" }}>
+              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
+              <Line type="monotone" dataKey="client" stroke="#82ca9d" />
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="month" />
               <YAxis />
