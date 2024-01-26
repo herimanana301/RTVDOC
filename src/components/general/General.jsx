@@ -1,13 +1,16 @@
 import {
+  Button,
   Grid,
-  Accordion,
+  Skeleton,
   Container,
+  Menu,
   Paper,
+  Select,
   Title,
   Text,
   Flex,
+  NativeSelect,
 } from "@mantine/core";
-import { MonthPicker, YearPicker } from "@mantine/dates";
 import { useEffect, useState } from "react";
 import urls from "../../services/urls";
 import axios from "axios";
@@ -20,7 +23,8 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { IconPlus } from "@tabler/icons-react";
+import { IconFilter } from "@tabler/icons-react";
+
 export default function General() {
   const [dataNumber, setDataNumber] = useState({
     clientNumber: 0,
@@ -29,15 +33,15 @@ export default function General() {
   });
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
-  const [colors, setColors] = useState([
-    "#F72577",
-    "#3DA5DA",
-    "#FBC02D",
-    "#8C7166",
-    "#2DC99F",
-  ]);
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [selectMonth, setSelectMonth] = useState(new Date().getMonth());
+  const [commandeData, setCommandeData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(
+    String(new Date().getFullYear())
+  );
+  //Menu
+  const [menuVisible, setMenuVisible] = useState(false);
+  const handleMenuToggle = () => {
+    setMenuVisible(!menuVisible);
+  };
 
   useEffect(() => {
     axios.get(`${urls.StrapiUrl}api/clients?_limit=-1`).then((response) => {
@@ -146,58 +150,89 @@ export default function General() {
 
     return monthlyTotal;
   };
+  //////////////////////////////////////////////////////////
 
-  const restOfClient = () => {
-    const uniqueClients = new Set();
+  // Function to calculate montantTotal for each nomclient depending on every month
+  const calculateMonthlyTotalForClients = () => {
+    const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
 
-    const transformedData = paymentData
-      .map((payment) => {
-        const clientName =
-          payment.attributes.commande.data.attributes.client.data.attributes
-            .raisonsocial;
+    // Initialize monthly totals for all clients for each month
+    for (const payment of filteredData) {
+      const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
+      const nomclient = payment.nomclient;
 
-        if (!uniqueClients.has(clientName)) {
-          uniqueClients.add(clientName);
-
-          return { [clientName]: 0 };
-        }
-        return null;
-      })
-      .filter(Boolean)
-      .reduce((acc, obj) => Object.assign(acc, obj), {});
-    return transformedData;
-  };
-
-  const setDifference = (setA, setB) => {
-    const difference = new Set(setA);
-    for (const item of setB) {
-      difference.delete(item);
+      if (!monthlyTotalForClients[nomclient]) {
+        monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
+      }
     }
-    return difference;
+
+    // Iterate through filteredData to compute montantTotal for each nomclient
+    filteredData.forEach((payment) => {
+      const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
+      const nomclient = payment.nomclient;
+
+      // Add montantTotal to corresponding month for nomclient
+      monthlyTotalForClients[nomclient][month] += payment.montantTotal;
+    });
+
+    return monthlyTotalForClients;
   };
+
+  // Function to fetch data based on the selected year and update chart data
+  const fetchData = (year) => {
+    // Fetch payment data based on the selected year
+    axios
+      .get(`${urls.StrapiUrl}api/payements?_limit=-1&datePayment_like=${year}`)
+      .then((response) => {
+        setPaymentData(response.data.data);
+      });
+
+    // Fetch commande data based on the selected year
+    axios
+      .get(
+        `${urls.StrapiUrl}api/payements?populate=commande.client&datePayment_like=${year}`
+      )
+      .then((response) => {
+        setCommandeData(response.data.data);
+      });
+  };
+  const handleYearChange = (value) => {
+    setSelectedYear(value);
+  };
+
+  useEffect(() => {
+    fetchData(selectedYear);
+    console.log(selectedYear);
+    console.log(calculateMonthlyTotal());
+  }, [selectedYear]);
+
+  //Générer une liste d'année
+  const years = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = 2023; i <= currentYear; i++) {
+    years.push({ value: String(i), label: String(i) });
+  }
+
+  //////////////////////////
+
   // Data for the line chart
   const chartData = Array.from({ length: 12 }).map((_, index) => {
-    const month = new Date(0, index).toLocaleString("default", {
+    const monthName = new Date(0, index).toLocaleString("default", {
       month: "long",
-    });
-    const montantTotal = calculateMonthlyTotal()[index];
-    const formattedData = () => {
-      if (clientDataperMonth()[index] === 0) {
-        return restOfClient();
-      } else {
-        return clientDataperMonth()[index].reduce(
-          (acc, { client, monthtotal }) => {
-            acc[client] = monthtotal;
-            return acc;
-          },
-          {}
-        );
-      }
-    };
+    }); // Convert month index to month name
+    const monthlyTotal = calculateMonthlyTotal()[index]; // Get sum of 'montantTotal' for corresponding month
+    const clientMonthlyTotal = calculateMonthlyTotalForClients();
+
+    // Construct data for each client
+    const clientData = Object.keys(clientMonthlyTotal).map((client) => ({
+      nomclient: client,
+      montantTotal: clientMonthlyTotal[client][index],
+    }));
+
     return {
-      month: month,
-      montantTotal: montantTotal,
-      ...formattedData(),
+      month: monthName,
+      montantTotal: monthlyTotal,
+      client: clientData,
     };
   });
 
@@ -268,34 +303,44 @@ export default function General() {
               alignItems: "center",
             }}
           >
+            <Text style={{ margin: "1em auto" }}>
+              Sélectionner une année pour filtrer les données
+            </Text>
+            <Select
+              data={years}
+              value={selectedYear}
+              onChange={(event) => handleYearChange(event)}
+            />
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
             </Title>
-
             <LineChart
-              width={900}
+              width={800}
               height={400}
               data={chartData}
               style={{ margin: "2em auto" }}
             >
-              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
-              {Object.keys(chartData[0]).map((step) => {
-                if (step != "montantTotal" && step != "month") {
-                  return (
-                    <Line
-                      key={step}
-                      type="monotone"
-                      dataKey={step}
-                      stroke={colors[Math.floor(Math.random() * colors.length)]}
-                    />
-                  );
-                }
-              })}
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Legend />
+
+              {/* Render the total montantTotal line */}
+              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
+
+              {/* Map through each client and render a Line for it */}
+              {chartData[0].client.map((client, index) => (
+                <Line
+                  key={client.nomclient}
+                  type="monotone"
+                  dataKey={`client[${index}].montantTotal`}
+                  name={client.nomclient}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                />
+              ))}
             </LineChart>
           </Paper>
         </Grid.Col>
