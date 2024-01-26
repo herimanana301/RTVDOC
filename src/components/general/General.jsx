@@ -1,8 +1,10 @@
-import { Grid, Skeleton, Container, Paper, Title, Text, Flex } from "@mantine/core";
+import { Button, Grid, Skeleton, Container, Menu, Paper, Title, Text, Flex, NativeSelect } from "@mantine/core";
 import { useEffect, useState } from "react";
 import urls from "../../services/urls";
 import axios from "axios";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { IconFilter } from "@tabler/icons-react";
+
 
 
 export default function General() {
@@ -14,6 +16,12 @@ export default function General() {
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
   const [commandeData, setCommandeData] = useState([]);
+
+  //Menu
+  const [menuVisible, setMenuVisible] = useState(false);
+  const handleMenuToggle = () => {
+    setMenuVisible(!menuVisible);
+  };
 
   useEffect(() => {
 
@@ -90,7 +98,21 @@ export default function General() {
     return monthlyTotalForClients;
   };
 
+  //////////YEAR DATA FETCH/////////
+  const extractUniqueYears = () => {
+    const uniqueYears = new Set(); // Use a Set to ensure uniqueness of years
 
+    // Iterate through payment data and extract unique years
+    paymentData.forEach((payment) => {
+        const year = new Date(payment.attributes.datePayment).getFullYear(); // Get the year of the payment
+        uniqueYears.add(year); // Add year to the Set
+    });
+
+    // Convert the Set to an array and sort it if needed
+    const sortedUniqueYears = Array.from(uniqueYears).sort((a, b) => a - b);
+    
+    return sortedUniqueYears;
+  };
 
   //////////////////////////
 
@@ -167,7 +189,7 @@ export default function General() {
             <Text>Nombre de personnel</Text>
           </Paper>
         </Grid.Col>
-
+        
         <Grid.Col xs={12}>
           <Paper
             shadow="xs"
@@ -179,6 +201,25 @@ export default function General() {
               justifyContent: "center",
               alignItems: "center",
             }}>
+              <Menu
+                shadow="md"
+                width={"auto"}
+                position="left"
+                offset={5}
+                opened={menuVisible}
+              >
+                <Menu.Target>
+                  <Button onClick={handleMenuToggle}>
+                    <IconFilter size="1.1rem" stroke={2} />
+                    Années
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item>
+                    
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
             </Title>
