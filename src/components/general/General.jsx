@@ -1,4 +1,4 @@
-import { Button, Grid, Skeleton, Container, Menu, Paper, Title, Text, Flex, NativeSelect } from "@mantine/core";
+import { Button, Grid, Skeleton, Container, Menu, Paper, Select, Title, Text, Flex, NativeSelect } from "@mantine/core";
 import { useEffect, useState } from "react";
 import urls from "../../services/urls";
 import axios from "axios";
@@ -16,7 +16,7 @@ export default function General() {
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
   const [commandeData, setCommandeData] = useState([]);
-
+  const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
   //Menu
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
@@ -45,10 +45,6 @@ export default function General() {
       setDataNumber((prevData) => {
         return { ...prevData, orderNumber: response.data.data.length };
       });
-    });
-    // Fetch payment data
-    axios.get(`${urls.StrapiUrl}api/payements?_limit=-1`).then((response) => {
-      setPaymentData(response.data.data);
     });
     // Fetch commande data
     axios.get(`${urls.StrapiUrl}api/payements?populate=commande.client`).then((response) => {
@@ -98,21 +94,34 @@ export default function General() {
     return monthlyTotalForClients;
   };
 
-  //////////YEAR DATA FETCH/////////
-  const extractUniqueYears = () => {
-    const uniqueYears = new Set(); // Use a Set to ensure uniqueness of years
+  
+  useEffect(() => {
+    fetchData(selectedYear);
+    console.log(selectedYear);
+  }, [selectedYear]);
 
-    // Iterate through payment data and extract unique years
-    paymentData.forEach((payment) => {
-        const year = new Date(payment.attributes.datePayment).getFullYear(); // Get the year of the payment
-        uniqueYears.add(year); // Add year to the Set
+  const fetchData = (year) => {  
+    // Filter commande data based on the selected year
+    const filteredCommandeData = commandeData.filter(commande => {
+      new Date(commande.attributes.datePayment).getFullYear()===year
     });
-
-    // Convert the Set to an array and sort it if needed
-    const sortedUniqueYears = Array.from(uniqueYears).sort((a, b) => a - b);
-    
-    return sortedUniqueYears;
+    console.log(commandeData.map((data)=>{
+      data
+    }))
+    setCommandeData(filteredCommandeData);
   };
+
+  const handleYearChange = (value) => {
+    setSelectedYear(value);
+  };
+
+
+  //Générer une liste d'année 
+  const years = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = 2023; i <= currentYear; i++) {
+    years.push({ value: String(i), label: String(i) });
+  }
 
   //////////////////////////
 
@@ -189,7 +198,7 @@ export default function General() {
             <Text>Nombre de personnel</Text>
           </Paper>
         </Grid.Col>
-        
+
         <Grid.Col xs={12}>
           <Paper
             shadow="xs"
@@ -201,29 +210,15 @@ export default function General() {
               justifyContent: "center",
               alignItems: "center",
             }}>
-              <Menu
-                shadow="md"
-                width={"auto"}
-                position="left"
-                offset={5}
-                opened={menuVisible}
-              >
-                <Menu.Target>
-                  <Button onClick={handleMenuToggle}>
-                    <IconFilter size="1.1rem" stroke={2} />
-                    Années
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item>
-                    
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
+            <Text style={{ margin: "1em auto" }}>Sélectionner une année pour filtrer les données</Text>
+            <Select
+              data={years}
+              value={selectedYear}
+              onChange={(event) => handleYearChange(event)}
+            />
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
             </Title>
-            {/* Render the LineChart component with chartData */}
             <LineChart width={800} height={400} data={chartData} style={{ margin: "2em auto" }}>
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="month" />
