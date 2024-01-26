@@ -62,19 +62,42 @@ export default function General() {
 
     return monthlyTotal;
   };
-
+//////////////////////////////////////////////////////////
   const filteredData = commandeData.map((payment) => ({
     nomclient: payment.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
     montantTotal: payment.attributes.montantTotal,
     datePayement: payment.attributes.datePayement,
   }));
-  console.log(filteredData);
+
+  // Function to calculate montantTotal for each nomclient depending on every month
+  const calculateMonthlyTotalForClients = () => {
+    const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
+  
+    // Iterate through filteredData to compute montantTotal for each nomclient
+    filteredData.forEach((payment) => {
+      const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
+      const nomclient = payment.nomclient;
+  
+      // Initialize montantTotal for nomclient if not already initialized
+      if (!monthlyTotalForClients[nomclient]) {
+        monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
+      }
+  
+      // Add montantTotal to corresponding month for nomclient
+      monthlyTotalForClients[nomclient][month] += payment.montantTotal;
+    });
+  
+    return monthlyTotalForClients;
+  };
+  
+
+  //////////////////////////
 
   // Data for the line chart
   const chartData = Array.from({ length: 12 }).map((_, index) => ({
     month: new Date(0, index).toLocaleString("default", { month: "long" }), // Convert month index to month name
     montantTotal: calculateMonthlyTotal()[index], // Get sum of 'montantTotal' for corresponding month
-    client: filteredData.montantTotal,
+    client: calculateMonthlyTotalForClients(),
   }));
 
   return (
@@ -149,7 +172,16 @@ export default function General() {
             {/* Render the LineChart component with chartData */}
             <LineChart width={800} height={400} data={chartData} style={{ margin: "2em auto" }}>
               <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
-              <Line type="monotone" dataKey="client" stroke="#82ca9d" />
+              {/* Map through each client and render a Line for it */}
+              {Object.keys(chartData[0].client).map((clientName, index) => (
+                <Line
+                  key={clientName}
+                  type="monotone"
+                  dataKey={`client.${clientName}[${index}]`}
+                  name={clientName}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                />
+              ))}
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="month" />
               <YAxis />
