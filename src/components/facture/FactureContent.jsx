@@ -115,7 +115,7 @@ const FactureContent = () => {
         }
 
 
-    }, [setDatasPayement]);
+    }, [DatasPayement]);
 
     const componentRef = useRef();
 
@@ -123,7 +123,7 @@ const FactureContent = () => {
 
     const InsertFactureBtn = () => {
 
-        if (numFacture !== 1) {
+        if (!DatasPayement) {
             InsertFacturePrint(id, numFacture);
         }
     }

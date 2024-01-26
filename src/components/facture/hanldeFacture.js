@@ -149,15 +149,16 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
 
 export const GetnumFacture = async (setnumFacture) => {
   try {
-    const response = await axios.get(`${urls.StrapiUrl}api/payements`);
+    const response = await axios.get(`${urls.StrapiUrl}api/numero-factures`);
     
     const sortedPayments = response.data.data.sort((a, b) => b.id - a.id); // Sort payments by id in descending order
 
     const latestPayment = sortedPayments[0]; // Assuming the response is an array
+    
     if (latestPayment) {
 
-      if(latestPayment.attributes.refFacture){
-        const numFacture = latestPayment.attributes.refFacture;
+      if(latestPayment.attributes.numeroFacture){
+        const numFacture = latestPayment.attributes.numeroFacture;
         setnumFacture(parseInt(numFacture)+1);
       }else{
         setnumFacture(1);
@@ -172,21 +173,12 @@ export const GetnumFacture = async (setnumFacture) => {
 };
 
 export const InsertFacturePrint = (id,refFacture) => {
-
-  axios
-  .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
-  .then((response) => {
-    if(response.data.data.attributes.payement.data){
-     
-      console.log();
-
-    }else{
       
       try {
         axios.post(`${urls.StrapiUrl}api/payements`, {
           data: {
             commande: id,
-            refFacture: refFacture,
+            refFacture: refFacture.toString(),
             datePayement:formatDate(new Date()),
             typePayement:'Non-payé',
             refPayement:'',
@@ -194,24 +186,20 @@ export const InsertFacturePrint = (id,refFacture) => {
             avance:0
 
           },
-        }).then((response) => {
-          if (response.status !== 200) {
-            console.log('Erreur lors de l\'enregistrement de la numero de reference');
-          }
         })
+
+        axios.post(`${urls.StrapiUrl}api/numero-factures`, {
+          data: {
+            numeroFacture: refFacture,
+          },
+        })   
+        
       }
       catch (error) {
         console.error("An error occurred:", error);
       }
-      
-    }
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-  
 
-};
+    }
 
 
 export default FetchAllCommande;
