@@ -60,7 +60,7 @@ export default function General() {
     const monthlyTotal = Array.from({ length: 12 }).fill(0); // Initialize array to hold monthly totals
 
     // Iterate through payment data and sum 'montantTotal' for each month
-    paymentData.forEach((payment) => {
+    exploitedData.forEach((payment) => {
       const month = new Date(payment.attributes.datePayement).getMonth(); // Get month index (0 - 11)
       monthlyTotal[month] += payment.attributes.montantTotal; // Add 'montantTotal' to corresponding month
     });
