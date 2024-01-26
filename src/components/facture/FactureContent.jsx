@@ -8,7 +8,7 @@ import {
     from '@mantine/core';
 import logo from "../../assets/icons/rtvLogo.png";
 import { useParams, useLocation } from "react-router-dom";
-import { FindOneCommande, GetnumFacture, InsertFacturePrint } from "./hanldeFacture";
+import { FindOneCommande, GetnumFacture, InsertFacturePrint,LastRefFacture } from "./hanldeFacture";
 import LoadingModal from "./LoadingModal";
 import NumberToLetter from "./nombre_en_lettre";
 
@@ -109,6 +109,9 @@ const FactureContent = () => {
             if (DatasPayement.attributes.refFacture) {
                 setnumFacture(DatasPayement.attributes.refFacture);
             }
+            else{
+                GetnumFacture(setnumFacture);
+            }
         }
         else {
             GetnumFacture(setnumFacture);
@@ -125,6 +128,8 @@ const FactureContent = () => {
 
         if (!DatasPayement) {
             InsertFacturePrint(id, numFacture);
+        }else{
+            LastRefFacture(DatasPayement.id, numFacture);
         }
     }
 
