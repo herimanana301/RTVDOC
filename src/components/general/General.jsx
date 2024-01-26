@@ -46,10 +46,6 @@ export default function General() {
         return { ...prevData, orderNumber: response.data.data.length };
       });
     });
-    // Fetch payment data
-    axios.get(`${urls.StrapiUrl}api/payements?_limit=-1`).then((response) => {
-      setPaymentData(response.data.data);
-    });
     // Fetch commande data
     axios.get(`${urls.StrapiUrl}api/payements?populate=commande.client`).then((response) => {
       setCommandeData(response.data.data);
@@ -78,58 +74,47 @@ export default function General() {
   }));
 
   // Function to calculate montantTotal for each nomclient depending on every month
-const calculateMonthlyTotalForClients = () => {
-  const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
+  const calculateMonthlyTotalForClients = () => {
+    const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
 
-  // Initialize monthly totals for all clients for each month
-  for (const payment of filteredData) {
-    const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
-    const nomclient = payment.nomclient;
+    // Iterate through filteredData to compute montantTotal for each nomclient
+    filteredData.forEach((payment) => {
+      const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
+      const nomclient = payment.nomclient;
 
-    if (!monthlyTotalForClients[nomclient]) {
-      monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
-    }
-  }
+      // Initialize montantTotal for nomclient if not already initialized
+      if (!monthlyTotalForClients[nomclient]) {
+        monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
+      }
 
-  // Iterate through filteredData to compute montantTotal for each nomclient
-  filteredData.forEach((payment) => {
-    const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
-    const nomclient = payment.nomclient;
+      // Add montantTotal to corresponding month for nomclient
+      monthlyTotalForClients[nomclient][month] += payment.montantTotal; // Adjusted this line
+    });
 
-    // Add montantTotal to corresponding month for nomclient
-    monthlyTotalForClients[nomclient][month] += payment.montantTotal;
-  });
-
-  return monthlyTotalForClients;
-};
-
-
-  
-  
-
-  // Function to fetch data based on the selected year and update chart data
-  const fetchData = (year) => {
-    // Fetch payment data based on the selected year
-    axios.get(`${urls.StrapiUrl}api/payements?_limit=-1&datePayment_like=${year}`)
-      .then((response) => {
-        setPaymentData(response.data.data);
-      });
-
-    // Fetch commande data based on the selected year
-    axios.get(`${urls.StrapiUrl}api/payements?populate=commande.client&datePayment_like=${year}`)
-      .then((response) => {
-        setCommandeData(response.data.data);
-      });
+    return monthlyTotalForClients;
   };
+
+  
+  useEffect(() => {
+    fetchData(selectedYear);
+    console.log(selectedYear);
+  }, [selectedYear]);
+
+  const fetchData = (year) => {  
+    // Filter commande data based on the selected year
+    const filteredCommandeData = commandeData.filter(commande => {
+      new Date(commande.attributes.datePayment).getFullYear()===year
+    });
+    console.log(commandeData.map((data)=>{
+      data
+    }))
+    setCommandeData(filteredCommandeData);
+  };
+
   const handleYearChange = (value) => {
     setSelectedYear(value);
   };
 
-  useEffect(() => {
-    fetchData(selectedYear);
-    console.log(selectedYear);
-    console.log(calculateMonthlyTotal());
-  }, [selectedYear]);
 
   //Générer une liste d'année 
   const years = [];
