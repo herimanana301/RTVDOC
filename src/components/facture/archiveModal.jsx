@@ -14,13 +14,16 @@ import {
   SimpleGrid,
   Switch,
   Badge,
-  useMantineTheme
+  useMantineTheme,
+  Autocomplete
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-
+import { IconSearch } from "@tabler/icons-react";
+ 
 export default function ArchiveModal() {
   const [opened, { open, close }] = useDisclosure(false);
 
+  const [search, setSearch] = useState("");
   const [datasCommandeArchived, setDatasCommandeArchived] = useState([]);
   const [pageInfoArchive, setPageInfoArchive] = useState({
     page: 1,
@@ -43,7 +46,21 @@ export default function ArchiveModal() {
     return `${year}-${month}-${day}`;
   };
 
-  const rows = datasCommandeArchived.map((Commande) => (
+  const filterData = datasCommandeArchived
+    .filter((data) =>
+      search.length > 0
+        ? data.attributes.reference.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.client.data.attributes.raisonsocial.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.startDate.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.endDate.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.payement.data.attributes.typePayement.toLowerCase().includes(search.toLowerCase()) ||
+          data.attributes.responsableCommande
+            .toLowerCase()
+            .includes(search.toLowerCase())
+        : true
+    )
+
+  const rows = filterData.map((Commande) => (
     <tr key={Commande.id}>
       <td>{Commande.attributes.reference}</td>
       <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
@@ -64,58 +81,66 @@ export default function ArchiveModal() {
         {Commande.attributes.payement.data
           ? Commande.attributes.payement.data.attributes.typePayement
           : "Non-payé"}
-        </Badge>
-        </td>
+      </Badge>
+      </td>
 
-        <td>
-          <Group spacing={0} position="right">
-            <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
-          </Group>
-        </td>
+      <td>
+        <Group spacing={0} position="right">
+          <ModalCommande datas={{ id: Commande.id, archive: Commande.attributes.archive }} />
+        </Group>
+      </td>
 
-      </tr>
-        ))
-
-
+    </tr>
+  ))
 
 
-        return (
-        <>
-          <Button
-            onClick={() => {
-              open();
-            }}
-          >
-            Archive
-          </Button>
-          <Modal
-            opened={opened}
-            onClose={close}
-            title="Liste des archives"
-            overlayProps={{
-              backgroundopacity: 0.55,
-              blur: 3,
-            }}
-            size="80%"
-            style={{ marginLeft: '-95px' }}
-          >
 
-            <ScrollArea>
-              <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
-                <thead>
-                  <tr>
-                    <th>Référence BC</th>
-                    <th>Client</th>
-                    <th>Période de diffusion</th>
-                    <th>Responsable commande</th>
-                    <th>Status du payement</th>
-                  </tr>
-                </thead>
-                <tbody>{rows}</tbody>
-              </Table>
-            </ScrollArea>
 
-          </Modal>
-        </>
-        );
+  return (
+    <>
+      <Button
+        onClick={() => {
+          open();
+        }}
+      >
+        Archive
+      </Button>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Liste des archives"
+        overlayProps={{
+          backgroundopacity: 0.55,
+          blur: 3,
+        }}
+        size="80%"
+        style={{ marginLeft: '-95px' }}
+      >
+        <Autocomplete
+          placeholder="Rechercher"
+          icon={<IconSearch size="1rem" stroke={1.5} />}
+          data={[]}
+          style={{width:'400px'}}
+          value={search}
+          onChange={(e) => setSearch(e)}
+        />
+
+        <ScrollArea>
+          <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+            <thead>
+              <tr>
+                <th>Référence BC</th>
+                <th>Client</th>
+                <th>Période de diffusion</th>
+                <th>Responsable commande</th>
+                <th>Status du payement</th>
+              </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </Table>
+        </ScrollArea>
+
+      </Modal>
+    </>
+  );
 }
