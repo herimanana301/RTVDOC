@@ -1,7 +1,24 @@
-import { Grid, Skeleton, Container, Paper, Text } from "@mantine/core";
+import {
+  Grid,
+  Skeleton,
+  Container,
+  Paper,
+  Title,
+  Text,
+  Flex,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import urls from "../../services/urls";
 import axios from "axios";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 export default function General() {
   const [dataNumber, setDataNumber] = useState({
@@ -9,8 +26,9 @@ export default function General() {
     orderNumber: 0,
     personelNumber: 0,
   });
-  const [invoice, setInvoice] = useState([]);
-  const [totalTurnOver, setTotalTurnOver] = useState(0);
+  // Données de paiement
+  const [paymentData, setPaymentData] = useState([]);
+
   useEffect(() => {
     axios.get(`${urls.StrapiUrl}api/clients?_limit=-1`).then((response) => {
       setDataNumber((prevData) => {
@@ -22,20 +40,35 @@ export default function General() {
         return { ...prevData, orderNumber: response.data.data.length };
       });
     });
-    axios.get(`${urls.StrapiUrl}api/personnels?_limit=-1`).then((response) => {
+    axios.get(`${urls.StrapiUrl}api/personnelss?_limit=-1`).then((response) => {
       setDataNumber((prevData) => {
         return { ...prevData, personelNumber: response.data.data.length };
       });
     });
+    // Fetch payment data
     axios.get(`${urls.StrapiUrl}api/payements?_limit=-1`).then((response) => {
-      setInvoice(response.data.data);
+      setPaymentData(response.data.data);
     });
   }, []);
-  useEffect(() => {
-    if (invoice.length > 0) {
-      console.log(invoice);
-    }
-  }, [invoice]);
+
+  // Function to calculate sum of 'montantTotal' for each month
+  const calculateMonthlyTotal = () => {
+    const monthlyTotal = Array.from({ length: 12 }).fill(0); // Initialize array to hold monthly totals
+
+    // Iterate through payment data and sum 'montantTotal' for each month
+    paymentData.forEach((payment) => {
+      const month = new Date(payment.attributes.datePayement).getMonth(); // Get month index (0 - 11)
+      monthlyTotal[month] += payment.attributes.montantTotal; // Add 'montantTotal' to corresponding month
+    });
+
+    return monthlyTotal;
+  };
+
+  // Data for the line chart
+  const chartData = Array.from({ length: 12 }).map((_, index) => ({
+    month: new Date(0, index).toLocaleString("default", { month: "long" }), // Convert month index to month name
+    Chiffre_d_affaire: calculateMonthlyTotal()[index], // Get sum of 'montantTotal' for corresponding month
+  }));
 
   return (
     <Container my="md">
@@ -91,7 +124,8 @@ export default function General() {
             <Text>Nombre de personnel</Text>
           </Paper>
         </Grid.Col>
-        <Grid.Col xs={13}>
+
+        <Grid.Col xs={12}>
           <Paper
             shadow="xs"
             radius="xl"
@@ -103,8 +137,27 @@ export default function General() {
               alignItems: "center",
             }}
           >
-            <Text>Chiffre d'affaire</Text>
-            <Text style={{ fontSize: "4rem" }}></Text>
+            <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
+              Vue d'ensemble des chiffres d'affaires
+            </Title>
+            {/* Render the LineChart component with chartData */}
+            <LineChart
+              width={800}
+              height={400}
+              data={chartData}
+              style={{ margin: "2em auto" }}
+            >
+              <Line
+                type="monotone"
+                dataKey="Chiffre_d_affaire"
+                stroke="#8884d8"
+              />
+              <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+            </LineChart>
           </Paper>
         </Grid.Col>
       </Grid>

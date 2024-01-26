@@ -12,7 +12,7 @@ import {
   ActionIcon,
   Avatar,
   Badge,
-  useMantineTheme
+  useMantineTheme,
 } from "@mantine/core";
 
 import { IconSearch, IconFilter } from "@tabler/icons-react";
@@ -104,11 +104,14 @@ export default function Conges() {
         </Text>
       </td>
       <td>
-        <Badge
-          color={item.attributes.type_conge === "Payé" ? "blue" : "white"}
-          variant={theme.colorScheme === "dark" ? "light" : "dot"}
-        >{item.attributes.type_conge}
-        </Badge>
+        {item.attributes.type_conge === "Payé" && (
+          <Badge
+            color="blue"
+            variant={theme.colorScheme === "dark" ? "light" : "dot"}
+          >
+            {item.attributes.type_conge}
+          </Badge>
+        )}
       </td>
     </tr>
   ));

@@ -11,7 +11,7 @@ import {
   Textarea,
   Select,
   SimpleGrid,
-  Switch
+  Switch,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { InsertConge } from "./handle_conge";
@@ -28,7 +28,7 @@ export default function AjoutCongeModal({ datas }) {
   const [valeurSelectionnee, setValeurSelectionnee] = useState("");
   const [GetPersonnel, setGetPersonnel] = useState({
     attributes: {
-      conge: '',
+      conge: "",
     },
   });
 
@@ -45,18 +45,18 @@ export default function AjoutCongeModal({ datas }) {
   const [selection, setSelection] = useState(false);
   const [motifValidation, setMotifValidation] = useState(false);
   const [congePaye, setcongePaye] = useState(false);
-  const [motif, setMotif] = useState('');
-  const [datedebut, setDatedebut] = useState('');
-  const [dateFin, setDateFin] = useState('');
+  const [motif, setMotif] = useState("");
+  const [datedebut, setDatedebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
   const [TypeConge, setTypeConge] = useState(false);
-  
+
   useEffect(() => {
     setDateRange("");
     setGetPersonnel({
       attributes: {
-        conge: '',
+        conge: "",
       },
-    })
+    });
   }, [opened]);
 
   const formatDate = (date) => {
@@ -92,24 +92,34 @@ export default function AjoutCongeModal({ datas }) {
   const [shouldShake, setShouldShake] = useState(false);
 
   const HandleConge = (switchP) => {
-    switchP ? setMotif('.') : setMotif('')
+    switchP ? setMotif(".") : setMotif("");
     setTypeConge(switchP);
-  } 
+  };
 
   const handleSubmit = () => {
-
     let typeConge;
 
-    valeurSelectionnee === '' ? setSelection(true) : setSelection(false);
-    setShouldShake((GetPersonnel.attributes.conge-dateRange) < 0);
-    dateRange === '' ? setDateRange1(true) : setDateRange1(false);
-    motif === '' ? setMotifValidation(true) : setMotifValidation(false);
-    TypeConge ? typeConge = 'Payé' : typeConge = '';
+    valeurSelectionnee === "" ? setSelection(true) : setSelection(false);
+    setShouldShake(GetPersonnel.attributes.conge - dateRange < 0);
+    dateRange === "" ? setDateRange1(true) : setDateRange1(false);
+    motif === "" ? setMotifValidation(true) : setMotifValidation(false);
+    TypeConge ? (typeConge = "Payé") : (typeConge = "");
 
-    if(valeurSelectionnee !== '' && (GetPersonnel.attributes.conge-dateRange) >= 0 && dateRange1 == false && motifValidation == false){
-      
-      InsertConge(GetPersonnel,motif,dateRange,datedebut,dateFin,typeConge,close);
-          
+    if (
+      valeurSelectionnee !== "" &&
+      GetPersonnel.attributes.conge - dateRange >= 0 &&
+      dateRange1 == false &&
+      motifValidation == false
+    ) {
+      InsertConge(
+        GetPersonnel,
+        motif,
+        dateRange,
+        datedebut,
+        dateFin,
+        typeConge,
+        close
+      );
     }
   };
 
@@ -176,7 +186,7 @@ export default function AjoutCongeModal({ datas }) {
             placeholder="Motif du congé"
             mt="md"
             required
-            value={TypeConge ? 'Congé payé' : motif}
+            value={TypeConge ? "Congé payé" : motif}
             onChange={(e) => handleMotifChange(e.target.value)}
             error={motifValidation === true}
           />
@@ -192,22 +202,23 @@ export default function AjoutCongeModal({ datas }) {
 
             <NumberInput
               label="Jour(s) restant(s)"
+              precision={1}
               placeholder="Jour(s) restant(s)"
               mt="md"
               readOnly
               className={shouldShake ? "shake negative-difference" : ""}
               value={GetPersonnel.attributes.conge}
-              error={GetPersonnel.attributes.conge - dateRange < 0} 
+              error={GetPersonnel.attributes.conge - dateRange < 0}
             />
 
-              <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-                <Switch
-                  mt="md"
-                  label="Congé payé"
-                  onChange={(event) =>HandleConge(event.target.checked)}
-                /><br/>
-              </SimpleGrid>
-
+            <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+              <Switch
+                mt="md"
+                label="Congé payé"
+                onChange={(event) => HandleConge(event.target.checked)}
+              />
+              <br />
+            </SimpleGrid>
           </SimpleGrid>
 
           <Group justify="flex-end" mt="md">
