@@ -84,21 +84,34 @@ export default function General() {
       }
   
       // Add montantTotal to corresponding month for nomclient
-      monthlyTotalForClients[nomclient][month] += payment.montantTotal;
+      monthlyTotalForClients[nomclient][month] += payment.montantTotal; // Adjusted this line
     });
   
     return monthlyTotalForClients;
   };
   
+  
 
   //////////////////////////
 
   // Data for the line chart
-  const chartData = Array.from({ length: 12 }).map((_, index) => ({
-    month: new Date(0, index).toLocaleString("default", { month: "long" }), // Convert month index to month name
-    montantTotal: calculateMonthlyTotal()[index], // Get sum of 'montantTotal' for corresponding month
-    client: calculateMonthlyTotalForClients(),
-  }));
+  const chartData = Array.from({ length: 12 }).map((_, index) => {
+    const monthName = new Date(0, index).toLocaleString("default", { month: "long" }); // Convert month index to month name
+    const monthlyTotal = calculateMonthlyTotal()[index]; // Get sum of 'montantTotal' for corresponding month
+    const clientMonthlyTotal = calculateMonthlyTotalForClients();
+  
+    // Construct data for each client
+    const clientData = Object.keys(clientMonthlyTotal).map(client => ({
+      nomclient: client,
+      montantTotal: clientMonthlyTotal[client][index]
+    }));
+  
+    return {
+      month: monthName,
+      montantTotal: monthlyTotal,
+      client: clientData
+    };
+  });
 
   return (
     <Container my="md">
@@ -171,22 +184,25 @@ export default function General() {
             </Title>
             {/* Render the LineChart component with chartData */}
             <LineChart width={800} height={400} data={chartData} style={{ margin: "2em auto" }}>
-              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
-              {/* Map through each client and render a Line for it */}
-              {Object.keys(chartData[0].client).map((clientName, index) => (
-                <Line
-                  key={clientName}
-                  type="monotone"
-                  dataKey={`client.${clientName}[${index}]`}
-                  name={clientName}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
-                />
-              ))}
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Legend />
+
+              {/* Render the total montantTotal line */}
+              <Line type="monotone" dataKey="montantTotal" stroke="#8884d8" />
+
+              {/* Map through each client and render a Line for it */}
+              {chartData[0].client.map((client, index) => (
+                <Line
+                  key={client.nomclient}
+                  type="monotone"
+                  dataKey={`client[${index}].montantTotal`}
+                  name={client.nomclient}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                />
+              ))}
             </LineChart>
           </Paper>
         </Grid.Col>
