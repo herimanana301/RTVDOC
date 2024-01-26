@@ -18,10 +18,23 @@ const FetchAllCommande = (setDatasCommande, setPageInfo) => {
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-        Commande.attributes.tofacture || (!Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
-      );
-
-      setDatasCommande(filteredCommandes);
+      Commande.attributes.tofacture || (!Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
+    );
+    
+    const filteredCommandes1 = response.data.data.filter((Commande) =>
+      Commande.attributes.tofacture
+    );
+    
+    const mergedCommandes = filteredCommandes.concat(filteredCommandes1);
+    
+    const uniqueMergedCommandes = Array.from(new Set(mergedCommandes));
+    
+    const filteredUniqueMergedCommandes = uniqueMergedCommandes.filter((Commande) =>
+      !Commande.attributes.archive
+    );
+  
+    
+      setDatasCommande(filteredUniqueMergedCommandes);
 
       setPageInfo((prevdata) => ({
         ...prevdata,
@@ -37,7 +50,7 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-        Commande.attributes.tofacture || (Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
+        Commande.attributes.archive
       );
       setDatasCommandeArchived(filteredCommandes);
 
@@ -77,6 +90,7 @@ export const ArchiverCommande = (id) => {
   }).then((response) => {
     if (response.status == 200) {
       Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
+      window.location.reload();
     }
   })
 
@@ -90,6 +104,7 @@ export const DesarchiverCommande = (id) => {
   }).then((response) => {
     if (response.status == 200) {
       Swal.fire("Desarchivée!", "Voir la commande dans Facture.", "success");
+      window.location.reload();
     }
   })
 
@@ -112,6 +127,7 @@ export const InsertFacture = (id, FormData, refPayement, close) => {
       if (response.status == 200) {
         Swal.fire("Succès!", "Payement sauvegarder avec succès.", "success");
         close();
+        window.location.reload();
       }
     })
   }
@@ -139,6 +155,7 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
     if (response.status === 200) {
       Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
       close();
+      window.location.reload();
     }
   } catch (error) {
     console.error("An error occurred:", error);
@@ -188,11 +205,40 @@ export const InsertFacturePrint = (id,refFacture) => {
           },
         })
 
-        axios.post(`${urls.StrapiUrl}api/numero-factures`, {
+      const response =  axios.post(`${urls.StrapiUrl}api/numero-factures`, {
+          data: {
+            numeroFacture: refFacture,
+          },
+        })
+        
+        if (response.status === 200) {
+          window.location.reload();
+        }   
+        
+      }
+      catch (error) {
+        console.error("An error occurred:", error);
+      }
+
+    }
+
+    export const LastRefFacture = (id,refFacture) => {
+      
+      try {
+        axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
+          data: {
+            refFacture: refFacture.toString(),
+          },
+        })
+
+        const response = axios.post(`${urls.StrapiUrl}api/numero-factures`, {
           data: {
             numeroFacture: refFacture,
           },
         })   
+        if (response.status === 200) {
+          window.location.reload();
+        } 
         
       }
       catch (error) {
