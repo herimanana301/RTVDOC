@@ -23,6 +23,7 @@ import { IconSearch } from "@tabler/icons-react";
 export default function ArchiveModal() {
   const [opened, { open, close }] = useDisclosure(false);
 
+  const [IsrefreshArchive, setIsrefreshArchive] = useState(false);
   const [search, setSearch] = useState("");
   const [datasCommandeArchived, setDatasCommandeArchived] = useState([]);
   const [pageInfoArchive, setPageInfoArchive] = useState({
@@ -32,8 +33,13 @@ export default function ArchiveModal() {
   const theme = useMantineTheme();
 
   useEffect(() => {
-    FetchAllCommandeArchived(setDatasCommandeArchived, setPageInfoArchive);
+    FetchAllCommandeArchived(setDatasCommandeArchived, setPageInfoArchive,setIsrefreshArchive);
   }, [opened]);
+  
+  useEffect(() => {
+    FetchAllCommandeArchived(setDatasCommandeArchived, setPageInfoArchive,setIsrefreshArchive);
+    setIsrefreshArchive(false);
+  }, [IsrefreshArchive]);
 
   const formatDate = (date) => {
 

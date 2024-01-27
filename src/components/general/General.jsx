@@ -101,18 +101,9 @@ export default function General() {
   }, [selectedYear]);
 
   const fetchData = (year) => {  
-    // Filter commande data based on the selected year
-    const filteredCommandeData = commandeData.filter(commande => {
-      new Date(commande.attributes.datePayment).getFullYear()===year
-    });
-    console.log(commandeData.map((data)=>{
-      data
-    }))
-    setCommandeData(filteredCommandeData);
-  };
-
-  const handleYearChange = (value) => {
-    setSelectedYear(value);
+   
+   const filtered = filteredData.filter(client => client.datePayement === year);
+   console.log(filteredData);
   };
 
 
@@ -211,11 +202,7 @@ export default function General() {
               alignItems: "center",
             }}>
             <Text style={{ margin: "1em auto" }}>Sélectionner une année pour filtrer les données</Text>
-            <Select
-              data={years}
-              value={selectedYear}
-              onChange={(event) => handleYearChange(event)}
-            />
+           
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
             </Title>
