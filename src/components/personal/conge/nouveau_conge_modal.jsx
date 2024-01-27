@@ -209,6 +209,7 @@ export default function AjoutCongeModal({ datas }) {
               className={shouldShake ? "shake negative-difference" : ""}
               value={GetPersonnel.attributes.conge}
               error={GetPersonnel.attributes.conge - dateRange < 0}
+              stroke={2}
             />
 
             <SimpleGrid cols={1} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>

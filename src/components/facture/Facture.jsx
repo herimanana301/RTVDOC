@@ -16,18 +16,9 @@ import { IconBolt } from "@tabler/icons-react";
 import FactureModal from "./FactureModal";
 import FetchAllCommande from "./hanldeFacture";
 import ArchiveModal from "./archiveModal";
-import {
-  IconPencil,
-  IconMessages,
-  IconNote,
-  IconReportAnalytics,
-  IconTrash,
-  IconDots,
-} from "@tabler/icons-react";
 
 export default function Facture() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [Isrefresh, setIsrefresh] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // New state for search query
   const [paymentStatus, setPaymentStatus] = useState("");
   const theme = useMantineTheme();
@@ -44,8 +35,14 @@ export default function Facture() {
   });
 
   useEffect(() => {
-    FetchAllCommande(setDatasCommande, setPageInfo);
+    FetchAllCommande(setDatasCommande, setPageInfo,setIsrefresh);
   }, []);
+
+  useEffect(() => {
+    FetchAllCommande(setDatasCommande, setPageInfo,setIsrefresh);
+    setIsrefresh(false);
+  }, [Isrefresh]);
+
 
   const formatDate = (date) => {
     const date1 = new Date(date);

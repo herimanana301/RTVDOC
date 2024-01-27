@@ -2,6 +2,9 @@ import axios from "axios";
 import urls from '../../services/urls';
 import Swal from 'sweetalert2';
 
+let Isrefresh;
+let IsrefreshArchive;
+
 const formatDate = (date) => {
 
   const date1 = new Date(date);
@@ -13,7 +16,10 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const FetchAllCommande = (setDatasCommande, setPageInfo) => {
+const FetchAllCommande = (setDatasCommande, setPageInfo ,setIsrefresh) => {
+
+  Isrefresh = setIsrefresh;
+
   axios
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
@@ -45,7 +51,9 @@ const FetchAllCommande = (setDatasCommande, setPageInfo) => {
       console.error(error);
     });
 };
-export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive) => {
+export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive,setIsrefreshArchive) => {
+
+  IsrefreshArchive = setIsrefreshArchive ;
   axios
     .get(`${urls.StrapiUrl}api/commandes?populate=*`)
     .then((response) => {
@@ -90,7 +98,7 @@ export const ArchiverCommande = (id) => {
   }).then((response) => {
     if (response.status == 200) {
       Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
-      window.location.reload();
+      Isrefresh(true);
     }
   })
 
@@ -104,7 +112,8 @@ export const DesarchiverCommande = (id) => {
   }).then((response) => {
     if (response.status == 200) {
       Swal.fire("Desarchivée!", "Voir la commande dans Facture.", "success");
-      window.location.reload();
+      IsrefreshArchive(true);
+      Isrefresh(true);
     }
   })
 
@@ -127,7 +136,7 @@ export const InsertFacture = (id, FormData, refPayement, close) => {
       if (response.status == 200) {
         Swal.fire("Succès!", "Payement sauvegarder avec succès.", "success");
         close();
-        window.location.reload();
+        Isrefresh(true);
       }
     })
   }
@@ -155,7 +164,7 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
     if (response.status === 200) {
       Swal.fire("Succès!", "Paiement sauvegardé avec succès.", "success");
       close();
-      window.location.reload();
+      Isrefresh(true);
     }
   } catch (error) {
     console.error("An error occurred:", error);

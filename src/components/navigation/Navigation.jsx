@@ -202,23 +202,23 @@ export default function Navigation() {
     location.reload();
   };
 
-  // useEffect(() => {
-  //   axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
-  //     console.log(response);
-  //     if (
-  //       localStorage.getItem("authentication") ===
-  //       response.data.data[0].attributes.password
-  //     ) {
-  //       setAuthentication(true);
-  //     } else {
-  //       firstAuthentication();
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    axios.get(`${urls.StrapiUrl}api/authentications`).then((response) => {
+      console.log(response);
+      if (
+        localStorage.getItem("authentication") ===
+        response.data.data[0].attributes.password
+      ) {
+        setAuthentication(true);
+      } else {
+        firstAuthentication();
+      }
+    });
+  }, []);
 
   return (
     <>
-      {(
+      {authentication && (
         <AppShell
           styles={{
             main: {
@@ -258,14 +258,14 @@ export default function Navigation() {
                     mr="xl"
                   />
                 </MediaQuery>
-                <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
+                <Text style={{ fontWeight: "bold" }}>RTV Soafia</Text>
               </div>
             </Header>
           }
         >
           <Selection />
         </AppShell>
-      )}{" "}
+      )}
     </>
   );
 }

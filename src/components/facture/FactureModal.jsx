@@ -153,11 +153,13 @@ export default function FactureModal(props) {
   };
 
   const submitButton = async () => {
-    InsertFacture(id, FormData, refPayement, close);
+    if(refPayement !== '' ){
+      InsertFacture(id, FormData, refPayement, close);
+    }
   };
 
   const submitButtonUpdate = async () => {
-    UpdateFacture(datasPayement.id, FormData, refPayement, close);
+      UpdateFacture(datasPayement.id, FormData, refPayement, close);
   };
 
   return (

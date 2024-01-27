@@ -6,6 +6,7 @@ import {
   Menu,
   Paper,
   Select,
+  Table,
   Title,
   Text,
   Flex,
@@ -25,7 +26,6 @@ import {
 } from "recharts";
 import { IconFilter } from "@tabler/icons-react";
 import { YearPicker } from "@mantine/dates";
-import { Table } from "@mantine/core";
 
 export default function General() {
   const [dataNumber, setDataNumber] = useState({
@@ -152,14 +152,6 @@ export default function General() {
       client: clientData,
     };
   });
-  const rows = elements.map((element) => (
-    <tr key={element.name}>
-      <td>{element.position}</td>
-      <td>{element.name}</td>
-      <td>{element.symbol}</td>
-      <td>{element.mass}</td>
-    </tr>
-  ));
   return (
     <Container my="md">
       <Grid>
@@ -265,10 +257,19 @@ export default function General() {
                 />
               ))}
             </LineChart>
-            <Table>
+            {/*TABLEAU RECAP*/}
+            <Title style={{ marginTop: "1em" }}>Tableau récapitulatif</Title>
+            <Table
+              sx={{ minWidth: 800 }}
+              verticalSpacing="sm"
+              style={{ margin: "1em auto" }}
+              striped
+              withTableBorder
+              withColumnBorders
+            >
               <thead>
                 <tr>
-                  <th>Client</th>
+                  <th>Nom Client</th>
                   <th>Janvier</th>
                   <th>Février</th>
                   <th>Mars</th>
@@ -283,7 +284,20 @@ export default function General() {
                   <th>Décembre</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody>
+                {/* Iterate through each client */}
+                {Object.keys(chartData[0].client).map((clientIndex) => (
+                  <tr key={clientIndex}>
+                    <td>{chartData[0].client[clientIndex].nomclient}</td>
+                    {/* Iterate through each month and populate the corresponding montantTotal */}
+                    {chartData.map((data, monthIndex) => (
+                      <td key={monthIndex}>
+                        {data.client[clientIndex].montantTotal}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
             </Table>
           </Paper>
         </Grid.Col>

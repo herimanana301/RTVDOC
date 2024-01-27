@@ -104,9 +104,9 @@ export default function Conges() {
         </Text>
       </td>
       <td>
-        {item.attributes.type_conge === "Payé" && (
+        {item.attributes.type_conge && (
           <Badge
-            color="blue"
+            color={item.attributes.type_conge === "Payé" ? "blue" : "white"}
             variant={theme.colorScheme === "dark" ? "light" : "dot"}
           >
             {item.attributes.type_conge}
