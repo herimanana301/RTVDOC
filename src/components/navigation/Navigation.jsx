@@ -258,7 +258,7 @@ export default function Navigation() {
                     mr="xl"
                   />
                 </MediaQuery>
-                <Text style={{ fontWeight: "bold" }}>RTVDOC</Text>
+                <Text style={{ fontWeight: "bold" }}>RTV Soafia</Text>
               </div>
             </Header>
           }

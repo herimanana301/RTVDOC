@@ -6,7 +6,7 @@ import {
     Text,
 }
     from '@mantine/core';
-import logo from "../../assets/icons/rtvLogo.png";
+import logo from "../../assets/icons/logo.png";
 import { useParams, useLocation } from "react-router-dom";
 import { FindOneCommande, GetnumFacture, InsertFacturePrint,LastRefFacture } from "./hanldeFacture";
 import LoadingModal from "./LoadingModal";
