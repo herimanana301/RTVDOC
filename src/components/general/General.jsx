@@ -1,4 +1,4 @@
-import { Button, Grid, Skeleton, Container, Menu, Paper, Select, Title, Text, Flex, NativeSelect } from "@mantine/core";
+import { Button, Grid, Skeleton, Container, Menu, Paper, Select, Table, Title, Text, Flex, NativeSelect } from "@mantine/core";
 import { useEffect, useState } from "react";
 import urls from "../../services/urls";
 import axios from "axios";
@@ -95,12 +95,12 @@ export default function General() {
     return monthlyTotalForClients;
   };
 
-  
 
 
-const fetchData = (year) => {  
+
+  const fetchData = (year) => {
     const filteredCommandeData = commandeData.filter(commande => {
-      return new Date(commande.attributes.datePayement).getFullYear()===new Date(year).getFullYear()
+      return new Date(commande.attributes.datePayement).getFullYear() === new Date(year).getFullYear()
     });
     setExploitedData(filteredCommandeData)
   };
@@ -225,6 +225,39 @@ const fetchData = (year) => {
                 />
               ))}
             </LineChart>
+            {/*TABLEAU RECAP*/}
+            <Title style={{ marginTop: "1em" }}>Tableau récapitulatif</Title>
+            <Table sx={{ minWidth: 800 }} verticalSpacing="sm" style={{ margin: "1em auto" }} striped withTableBorder withColumnBorders>
+              <thead>
+                <tr>
+                  <th>Nom Client</th>
+                  <th>Janvier</th>
+                  <th>Février</th>
+                  <th>Mars</th>
+                  <th>Avril</th>
+                  <th>Mai</th>
+                  <th>Juin</th>
+                  <th>Juillet</th>
+                  <th>Août</th>
+                  <th>Septembre</th>
+                  <th>Octobre</th>
+                  <th>Novembre</th>
+                  <th>Décembre</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Iterate through each client */}
+                {Object.keys(chartData[0].client).map((clientIndex) => (
+                  <tr key={clientIndex}>
+                    <td>{chartData[0].client[clientIndex].nomclient}</td>
+                    {/* Iterate through each month and populate the corresponding montantTotal */}
+                    {chartData.map((data, monthIndex) => (
+                      <td key={monthIndex}>{data.client[clientIndex].montantTotal}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </Paper>
         </Grid.Col>
       </Grid>
