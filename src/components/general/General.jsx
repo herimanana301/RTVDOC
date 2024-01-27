@@ -4,7 +4,7 @@ import urls from "../../services/urls";
 import axios from "axios";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { IconFilter } from "@tabler/icons-react";
-
+import { YearPicker } from '@mantine/dates';
 
 
 export default function General() {
@@ -16,7 +16,8 @@ export default function General() {
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
   const [commandeData, setCommandeData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
+  const [exploitedData, setExploitedData] = useState([])
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   //Menu
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
@@ -59,7 +60,7 @@ export default function General() {
     const monthlyTotal = Array.from({ length: 12 }).fill(0); // Initialize array to hold monthly totals
 
     // Iterate through payment data and sum 'montantTotal' for each month
-    paymentData.forEach((payment) => {
+    exploitedData.forEach((payment) => {
       const month = new Date(payment.attributes.datePayement).getMonth(); // Get month index (0 - 11)
       monthlyTotal[month] += payment.attributes.montantTotal; // Add 'montantTotal' to corresponding month
     });
@@ -67,7 +68,7 @@ export default function General() {
     return monthlyTotal;
   };
   //////////////////////////////////////////////////////////
-  const filteredData = commandeData.map((payment) => ({
+  const filteredData = exploitedData.map((payment) => ({
     nomclient: payment.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
     montantTotal: payment.attributes.montantTotal,
     datePayement: payment.attributes.datePayement,
@@ -95,24 +96,18 @@ export default function General() {
   };
 
   
+
+
+const fetchData = (year) => {  
+    const filteredCommandeData = commandeData.filter(commande => {
+      return new Date(commande.attributes.datePayement).getFullYear()===new Date(year).getFullYear()
+    });
+    setExploitedData(filteredCommandeData)
+  };
   useEffect(() => {
-    fetchData(selectedYear);
-    console.log(selectedYear);
+    fetchData(selectedYear)
   }, [selectedYear]);
 
-  const fetchData = (year) => {  
-   
-   const filtered = filteredData.filter(client => client.datePayement === year);
-   console.log(filteredData);
-  };
-
-
-  //Générer une liste d'année 
-  const years = [];
-  const currentYear = new Date().getFullYear();
-  for (let i = 2023; i <= currentYear; i++) {
-    years.push({ value: String(i), label: String(i) });
-  }
 
   //////////////////////////
 
@@ -202,7 +197,10 @@ export default function General() {
               alignItems: "center",
             }}>
             <Text style={{ margin: "1em auto" }}>Sélectionner une année pour filtrer les données</Text>
-           
+            <YearPicker
+              value={selectedYear}
+              onChange={(event) => setSelectedYear(event)}
+            />
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
             </Title>
