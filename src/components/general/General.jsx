@@ -24,6 +24,8 @@ import {
   Legend,
 } from "recharts";
 import { IconFilter } from "@tabler/icons-react";
+import { YearPicker } from "@mantine/dates";
+import { Table } from "@mantine/core";
 
 export default function General() {
   const [dataNumber, setDataNumber] = useState({
@@ -34,9 +36,8 @@ export default function General() {
   // Données de paiement
   const [paymentData, setPaymentData] = useState([]);
   const [commandeData, setCommandeData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(
-    String(new Date().getFullYear())
-  );
+  const [exploitedData, setExploitedData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   //Menu
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
@@ -59,91 +60,27 @@ export default function General() {
         return { ...prevData, personelNumber: response.data.data.length };
       });
     });
+    axios.get(`${urls.StrapiUrl}api/commandes?_limit=-1`).then((response) => {
+      setDataNumber((prevData) => {
+        return { ...prevData, orderNumber: response.data.data.length };
+      });
+    });
+    // Fetch commande data
     axios
       .get(`${urls.StrapiUrl}api/payements?populate=commande.client`)
       .then((response) => {
-        setPaymentData(response.data.data);
+        setCommandeData(response.data.data);
       });
   }, []);
 
-  const filteredData = paymentData.map((payment) => ({
-    nomclient:
-      payment.attributes.commande.data.attributes.client.data.attributes
-        .raisonsocial,
-    montantTotal: payment.attributes.montantTotal,
-    datePayement: payment.attributes.datePayement,
-  }));
-  const clientDataperMonth = () => {
-    if (filteredData) {
-      let clientList = [];
-      filteredData.forEach((data) => {
-        if (!clientList.includes(data.nomclient)) {
-          clientList.push(data.nomclient);
-        }
-      }); // clientList est la liste des noms de clients
-
-      let monthlyTotal = Array.from({ length: 12 }).fill(0);
-      clientList.forEach((client) => {
-        const totalInvoice = (month) => {
-          if (
-            filteredData.filter(
-              (data) =>
-                data.nomclient === client &&
-                new Date(data.datePayement).getMonth() === month
-            ).length > 1
-          ) {
-            return filteredData
-              .filter(
-                (data) =>
-                  data.nomclient === client &&
-                  new Date(data.datePayement).getMonth() === month
-              )
-              .reduce(
-                (sum, current) => sum.montantTotal + current.montantTotal
-              );
-          } else {
-            return filteredData.filter(
-              (data) =>
-                data.nomclient === client &&
-                new Date(data.datePayement).getMonth() === month
-            )[0].montantTotal;
-          }
-        }; // cette partie calcul tout en totalité sans considérer le mois
-
-        const invoiceMonths = filteredData
-          .filter((data) => data.nomclient === client)
-          .map((months) => new Date(months.datePayement).getMonth())
-          .sort((a, b) => a - b);
-
-        invoiceMonths.forEach((month) => {
-          if (monthlyTotal[month] === 0) {
-            monthlyTotal[month] = [
-              {
-                client: client,
-                monthtotal: totalInvoice(month),
-              },
-            ];
-          } else {
-            monthlyTotal[month] = [
-              ...monthlyTotal[month],
-              {
-                client: client,
-                monthtotal: totalInvoice(month),
-              },
-            ];
-          }
-        });
-      });
-      return monthlyTotal;
-    }
-  };
+  const child = <Skeleton height={140} radius="md" animate={false} />;
 
   // Function to calculate sum of 'montantTotal' for each month
   const calculateMonthlyTotal = () => {
     const monthlyTotal = Array.from({ length: 12 }).fill(0); // Initialize array to hold monthly totals
 
     // Iterate through payment data and sum 'montantTotal' for each month
-    paymentData.forEach((payment) => {
+    exploitedData.forEach((payment) => {
       const month = new Date(payment.attributes.datePayement).getMonth(); // Get month index (0 - 11)
       monthlyTotal[month] += payment.attributes.montantTotal; // Add 'montantTotal' to corresponding month
     });
@@ -151,67 +88,47 @@ export default function General() {
     return monthlyTotal;
   };
   //////////////////////////////////////////////////////////
+  const filteredData = exploitedData.map((payment) => ({
+    nomclient:
+      payment.attributes.commande.data.attributes.client.data.attributes
+        .raisonsocial,
+    montantTotal: payment.attributes.montantTotal,
+    datePayement: payment.attributes.datePayement,
+  }));
 
   // Function to calculate montantTotal for each nomclient depending on every month
   const calculateMonthlyTotalForClients = () => {
     const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
-
-    // Initialize monthly totals for all clients for each month
-    for (const payment of filteredData) {
-      const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
-      const nomclient = payment.nomclient;
-
-      if (!monthlyTotalForClients[nomclient]) {
-        monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
-      }
-    }
 
     // Iterate through filteredData to compute montantTotal for each nomclient
     filteredData.forEach((payment) => {
       const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
       const nomclient = payment.nomclient;
 
+      // Initialize montantTotal for nomclient if not already initialized
+      if (!monthlyTotalForClients[nomclient]) {
+        monthlyTotalForClients[nomclient] = Array.from({ length: 12 }).fill(0);
+      }
+
       // Add montantTotal to corresponding month for nomclient
-      monthlyTotalForClients[nomclient][month] += payment.montantTotal;
+      monthlyTotalForClients[nomclient][month] += payment.montantTotal; // Adjusted this line
     });
 
     return monthlyTotalForClients;
   };
 
-  // Function to fetch data based on the selected year and update chart data
   const fetchData = (year) => {
-    // Fetch payment data based on the selected year
-    axios
-      .get(`${urls.StrapiUrl}api/payements?_limit=-1&datePayment_like=${year}`)
-      .then((response) => {
-        setPaymentData(response.data.data);
-      });
-
-    // Fetch commande data based on the selected year
-    axios
-      .get(
-        `${urls.StrapiUrl}api/payements?populate=commande.client&datePayment_like=${year}`
-      )
-      .then((response) => {
-        setCommandeData(response.data.data);
-      });
+    const filteredCommandeData = commandeData.filter((commande) => {
+      return (
+        new Date(commande.attributes.datePayement).getFullYear() ===
+        new Date(year).getFullYear()
+      );
+    });
+    setExploitedData(filteredCommandeData);
   };
-  const handleYearChange = (value) => {
-    setSelectedYear(value);
-  };
-
   useEffect(() => {
     fetchData(selectedYear);
-    console.log(selectedYear);
-    console.log(calculateMonthlyTotal());
   }, [selectedYear]);
-
-  //Générer une liste d'année
-  const years = [];
-  const currentYear = new Date().getFullYear();
-  for (let i = 2023; i <= currentYear; i++) {
-    years.push({ value: String(i), label: String(i) });
-  }
 
   //////////////////////////
 
@@ -235,7 +152,14 @@ export default function General() {
       client: clientData,
     };
   });
-
+  const rows = elements.map((element) => (
+    <tr key={element.name}>
+      <td>{element.position}</td>
+      <td>{element.name}</td>
+      <td>{element.symbol}</td>
+      <td>{element.mass}</td>
+    </tr>
+  ));
   return (
     <Container my="md">
       <Grid>
@@ -272,7 +196,7 @@ export default function General() {
             <Text>Nombre de commande</Text>
           </Paper>
         </Grid.Col>
-        <Grid.Col xs={5}>
+        <Grid.Col xs={12}>
           <Paper
             shadow="xs"
             radius="xl"
@@ -291,7 +215,7 @@ export default function General() {
           </Paper>
         </Grid.Col>
 
-        <Grid.Col xs={14}>
+        <Grid.Col xs={12}>
           <Paper
             shadow="xs"
             radius="xl"
@@ -306,10 +230,9 @@ export default function General() {
             <Text style={{ margin: "1em auto" }}>
               Sélectionner une année pour filtrer les données
             </Text>
-            <Select
-              data={years}
+            <YearPicker
               value={selectedYear}
-              onChange={(event) => handleYearChange(event)}
+              onChange={(event) => setSelectedYear(event)}
             />
             <Title order={1} style={{ marginTop: "2em" }} id="TitreChart">
               Vue d'ensemble des chiffres d'affaires
@@ -342,6 +265,26 @@ export default function General() {
                 />
               ))}
             </LineChart>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Janvier</th>
+                  <th>Février</th>
+                  <th>Mars</th>
+                  <th>Avril</th>
+                  <th>Mai</th>
+                  <th>Juin</th>
+                  <th>Juillet</th>
+                  <th>Août</th>
+                  <th>Septembre</th>
+                  <th>Octobre</th>
+                  <th>Novembre</th>
+                  <th>Décembre</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </Table>
           </Paper>
         </Grid.Col>
       </Grid>
