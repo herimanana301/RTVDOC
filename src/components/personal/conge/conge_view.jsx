@@ -103,12 +103,14 @@ export default function Conges() {
           {item.attributes.motif}
         </Text>
       </td>
-      <td>
+      <td>{item.attributes.type_conge &&
         <Badge
           color={item.attributes.type_conge === "Payé" ? "blue" : "white"}
           variant={theme.colorScheme === "dark" ? "light" : "dot"}
         >{item.attributes.type_conge}
         </Badge>
+      }
+        
       </td>
     </tr>
   ));
