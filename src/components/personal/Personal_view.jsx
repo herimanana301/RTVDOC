@@ -12,8 +12,7 @@ import {
   ActionIcon,
   Avatar,
   Badge,
-  useMantineTheme
-  
+  useMantineTheme,
 } from "@mantine/core";
 
 import { IconPencil, IconTrash } from "@tabler/icons-react";
@@ -27,9 +26,9 @@ import urls from "../../services/urls";
 
 export default function Personals() {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [pageInfo, setPageInfo] = useState({
+  const [pagination, setPagination] = useState({
     page: 1,
-    total: 1,
+    pageSize: 1,
   });
 
   const theme = useMantineTheme();
@@ -41,23 +40,37 @@ export default function Personals() {
   const handleMenuToggle = () => {
     setMenuVisible(!menuVisible);
   };
-
+  const handlePagination = (type) => {
+    if (type === "next" && pagination.page <= pagination.pageSize) {
+      setPagination((prevdata) => {
+        return {
+          ...prevdata,
+          page: pagination.page + 1,
+        };
+      });
+    } else if (type === "prev" && pagination.page > 0) {
+      setPagination((prevdata) => {
+        return { ...prevdata, page: pagination.page - 1 };
+      });
+    }
+  };
   useEffect(() => {
     axios
-      .get(urls.StrapiUrl + "api/personnels")
+      .get(
+        `${urls.StrapiUrl}api/personnels?pagination[page]=${pagination.page}&pagination[pageSize]=20`
+      )
       .then((response) => {
-        console.log(response.data.data[0].attributes);
         setDatas(response.data.data);
 
-        setPageInfo((prevdata) => ({
+        setPagination((prevdata) => ({
           ...prevdata,
-          total: response.data.meta.pagination.total,
+          pageSize: response.data.meta.pagination.pageCount,
         }));
       })
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [pagination.page]);
 
   const deletedUser = async (id) => {
     try {
@@ -142,12 +155,12 @@ export default function Personals() {
         </td>
         <td>
           <Badge
-              color={item.attributes.status === "Actif" ? "green" : "gray" }
-              variant={theme.colorScheme === "dark" ? "light" : "dot"}
-            >{item.attributes.status}
-            </Badge>
+            color={item.attributes.status === "Actif" ? "green" : "gray"}
+            variant={theme.colorScheme === "dark" ? "light" : "dot"}
+          >
+            {item.attributes.status}
+          </Badge>
         </td>
-
 
         <td>
           <Group gap={0} justify="flex-end">
@@ -181,7 +194,6 @@ export default function Personals() {
       </tr>
     ));
 
-
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -195,6 +207,27 @@ export default function Personals() {
           value={searchQuery}
           onChange={(value) => setSearchQuery(value)}
         />
+        <div>
+          <Button
+            onClick={() => {
+              handlePagination("prev");
+            }}
+            disabled={pagination.page === 1 ? true : false}
+          >
+            {"<"}
+          </Button>
+          <Button
+            onClick={() => {
+              handlePagination("next");
+            }}
+            disabled={pagination.page === pagination.pageSize ? true : false}
+          >
+            {">"}
+          </Button>
+        </div>
+        <Text>
+          Page {pagination.page}/{pagination.pageSize}
+        </Text>
         <Menu
           shadow="md"
           width={"auto"}

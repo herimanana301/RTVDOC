@@ -4,7 +4,6 @@ import Neworder from "./components/input/orderInput/Neworder";
 import NewPersonal from "./components/personal/handle";
 import "./App.css";
 import Navigation from "./components/navigation/Navigation";
-import { useEffect } from "react";
 import MajConge from "./services/majConge";
 import MajFacture from "./services/majFature";
 import FactureContent from "./components/facture/FactureContent";
@@ -37,7 +36,7 @@ function App() {
       element: <NewPersonal />,
     },
     {
-      path:"/facture/:id",
+      path: "/facture/:id",
       element: <FactureContent />,
     },
     {
@@ -53,8 +52,8 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <MajConge/>
-      <MajFacture/>
+      <MajConge />
+      <MajFacture />
     </>
   );
 }

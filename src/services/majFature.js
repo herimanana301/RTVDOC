@@ -22,14 +22,14 @@ const MajFacture = () => {
 
         try {
             axios
-                .get(`${urls.StrapiUrl}api/commandes`)
+                .get(`${urls.StrapiUrl}api/commandes?pagination[pageSize]=9999999`)
                 .then((response) => {
                     if (response.status == 200) {
 
                         setDatas(response.data.data);
 
                         axios
-                            .get(`${urls.StrapiUrl}api/clients`)
+                            .get(`${urls.StrapiUrl}api/clients?pagination[pageSize]=1000`)
                             .then((response) => {
                                 setClients(response.data.data);
                             })

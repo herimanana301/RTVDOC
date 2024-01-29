@@ -27,7 +27,12 @@ import urls from "../../services/urls";
 import axios from "axios";
 import "./order.css";
 import { confirmationPutModal } from "../../services/alertConfirmation";
-export default function Orders({ searchQuery, filterStatus }) {
+export default function Orders({
+  searchQuery,
+  filterStatus,
+  paginationPage,
+  setPagination,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [update, setUpdate] = useState(false);
   const [commandeData, setCommandeData] = useState([]);
@@ -50,10 +55,12 @@ export default function Orders({ searchQuery, filterStatus }) {
   const fetchCommandeData = async () => {
     try {
       const response = await axios.get(
-        `${urls.StrapiUrl}api/commandes?populate=*&_limit=-1`
+        `${urls.StrapiUrl}api/commandes?pagination[page]=${paginationPage}&pagination[pageSize]=25&populate=*`
       );
-      console.log(response);
-      return response.data.data;
+      return {
+        data: response.data.data,
+        paginationSize: response.data.meta.pagination.pageCount,
+      };
     } catch (error) {
       console.error("Error fetching data from Strapi:", error);
       return [];
@@ -106,9 +113,17 @@ export default function Orders({ searchQuery, filterStatus }) {
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchCommandeData();
-      setCommandeData(data);
+      setCommandeData(data.data);
+      setPagination((prevData) => {
+        return {
+          ...prevData,
+          pageSize: data.paginationSize,
+        };
+      });
     };
     fetchData();
+  }, [paginationPage]);
+  useEffect(() => {
     axios.get(`${urls.StrapiUrl}api/users`).then((response) => {
       setAuthenticationcredential({
         username: response.data[0].username,

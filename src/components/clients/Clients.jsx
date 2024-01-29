@@ -30,6 +30,20 @@ export default function Clients() {
     total: 1,
   });
   const [datas, setDatas] = useState([]);
+  const handlePagination = (type) => {
+    if (type === "next" && pageInfo.page <= pageInfo.total) {
+      setPageInfo((prevdata) => {
+        return {
+          ...prevdata,
+          page: pageInfo.page + 1,
+        };
+      });
+    } else if (type === "prev" && pageInfo.page > 0) {
+      setPageInfo((prevdata) => {
+        return { ...prevdata, page: pageInfo.page - 1 };
+      });
+    }
+  };
   const filterData =
     search.length > 0 && search != "Blacklisté"
       ? datas.filter(
@@ -61,8 +75,8 @@ export default function Clients() {
     setMenuVisible(!menuVisible);
   };
   useEffect(() => {
-    getClients(setPageInfo, setDatas);
-  }, []);
+    getClients(setPageInfo, setDatas, pageInfo.page);
+  }, [pageInfo.page]);
   const deletedUser = async (id) => {
     await axios
       .delete(`${urls.StrapiUrl}api/clients/${id}`)
@@ -83,7 +97,7 @@ export default function Clients() {
       });
   };
 
-  const rows = datas.map((item) => (
+  const rows = filterData.map((item) => (
     <tr key={item.attributes.NIF}>
       <td>
         <Group gap="sm">
@@ -146,8 +160,30 @@ export default function Clients() {
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}
-          data={[]}
+          data={["Blacklisté"]}
+          onChange={setSearch}
         />
+        <div>
+          <Button
+            onClick={() => {
+              handlePagination("prev");
+            }}
+            disabled={pageInfo.page === 1 ? true : false}
+          >
+            {"<"}
+          </Button>
+          <Button
+            onClick={() => {
+              handlePagination("next");
+            }}
+            disabled={pageInfo.page === pageInfo.total ? true : false}
+          >
+            {">"}
+          </Button>
+        </div>
+        <Text>
+          Page {pageInfo.page}/{pageInfo.total}
+        </Text>
         <Menu
           shadow="md"
           width={"auto"}

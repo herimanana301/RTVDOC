@@ -20,7 +20,7 @@ const MajConge = () => {
   useEffect(() => {
 
     axios
-      .get(`${urls.StrapiUrl}api/personnels`)
+      .get(`${urls.StrapiUrl}api/personnels?pagination[pageSize]=100`)
       .then((response) => {
         setDatas(response.data.data);
       })

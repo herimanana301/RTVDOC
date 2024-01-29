@@ -22,7 +22,9 @@ const Bookingdisplay = () => {
 
   const programmationData = () => {
     axios
-      .get(`${urls.StrapiUrl}api/programmations?_limit=-1`)
+      .get(
+        `${urls.StrapiUrl}api/programmations?sort=datediffusion:desc&pagination[pageSize]=3000`
+      )
       .then((response) => {
         const programmationList = response.data.data;
         setProgrammedList(programmationList);

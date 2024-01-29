@@ -35,10 +35,6 @@ import { inputConfirmation } from "../../../services/alertConfirmation.js";
 export default function Neworder() {
   const { classes } = useStyles();
   const [clients, setClients] = useState([]);
-  const [pageInfo, setPageInfo] = useState({
-    page: 1,
-    total: 1,
-  });
   const [datas, setDatas] = useState([
     { title: "Client", description: "", icon: IconUser },
     { title: "Numéro de commande", description: "", icon: IconHash },
@@ -197,7 +193,12 @@ export default function Neworder() {
   };
 
   useEffect(() => {
-    getClients(setPageInfo, setClients);
+    axios
+      .get(`${urls.StrapiUrl}api/clients?pagination[pageSize]=10000`)
+      .then((response) => {
+        const clientsData = response.data.data;
+        setClients(clientsData);
+      });
   }, []);
   useEffect(() => {
     setService((prevData) => {

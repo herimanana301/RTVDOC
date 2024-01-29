@@ -16,12 +16,12 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const FetchAllCommande = (setDatasCommande, setPageInfo ,setIsrefresh) => {
+const FetchAllCommande = (setDatasCommande, setPageInfo ,page,setIsrefresh) => {
 
   Isrefresh = setIsrefresh;
 
   axios
-    .get(`${urls.StrapiUrl}api/commandes?populate=*`)
+    .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=25&populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
       Commande.attributes.tofacture || (!Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
@@ -44,18 +44,18 @@ const FetchAllCommande = (setDatasCommande, setPageInfo ,setIsrefresh) => {
 
       setPageInfo((prevdata) => ({
         ...prevdata,
-        total: response.data.meta.pagination.total,
+        pageSize: response.data.meta.pagination.pageCount,
       }));
     })
     .catch((error) => {
       console.error(error);
     });
 };
-export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive,setIsrefreshArchive) => {
+export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive,page,setIsrefreshArchive) => {
 
   IsrefreshArchive = setIsrefreshArchive ;
   axios
-    .get(`${urls.StrapiUrl}api/commandes?populate=*`)
+    .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=50&populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
         Commande.attributes.archive
@@ -64,7 +64,7 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
 
       setPageInfoArchive((prevdata) => ({
         ...prevdata,
-        total: response.data.meta.pagination.total,
+        pageSize: response.data.meta.pagination.pageCount,
       }));
     })
     .catch((error) => {
@@ -175,10 +175,9 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
 
 export const GetnumFacture = async (setnumFacture) => {
   try {
-    const response = await axios.get(`${urls.StrapiUrl}api/numero-factures`);
+    const response = await axios.get(`${urls.StrapiUrl}api/numero-factures?sort=id:desc`);
     
-    const sortedPayments = response.data.data.sort((a, b) => b.id - a.id); // Sort payments by id in descending order
-
+    const sortedPayments = response.data.data
     const latestPayment = sortedPayments[0]; // Assuming the response is an array
     
     if (latestPayment) {

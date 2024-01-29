@@ -3,6 +3,7 @@ import {
   Button,
   Menu,
   NativeSelect,
+  Text,
   Accordion,
   Group,
 } from "@mantine/core";
@@ -19,7 +20,24 @@ export default function Commande() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 1,
+  });
+  const handlePagination = (type) => {
+    if (type === "next" && pagination.page <= pagination.pageSize) {
+      setPagination((prevdata) => {
+        return {
+          ...prevdata,
+          page: pagination.page + 1,
+        };
+      });
+    } else if (type === "prev" && pagination.page > 0) {
+      setPagination((prevdata) => {
+        return { ...prevdata, page: pagination.page - 1 };
+      });
+    }
+  };
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -34,7 +52,27 @@ export default function Commande() {
           value={searchQuery}
           onChange={(value) => setSearchQuery(value)}
         />
-
+        <div>
+          <Button
+            onClick={() => {
+              handlePagination("prev");
+            }}
+            disabled={pagination.page === 1 ? true : false}
+          >
+            {"<"}
+          </Button>
+          <Button
+            onClick={() => {
+              handlePagination("next");
+            }}
+            disabled={pagination.page === pagination.pageSize ? true : false}
+          >
+            {">"}
+          </Button>
+        </div>
+        <Text>
+          Page {pagination.page}/{pagination.pageSize}
+        </Text>
         <Menu
           shadow="md"
           width={"auto"}
@@ -66,7 +104,12 @@ export default function Commande() {
           </Menu.Dropdown>
         </Menu>
       </div>
-      <Orders searchQuery={searchQuery} filterStatus={filterStatus} />
+      <Orders
+        searchQuery={searchQuery}
+        filterStatus={filterStatus}
+        paginationPage={pagination.page}
+        setPagination={setPagination}
+      />
     </>
   );
 }

@@ -38,6 +38,7 @@ export default function General() {
   const [commandeData, setCommandeData] = useState([]);
   const [exploitedData, setExploitedData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [pageCount, setPageCount] = useState(0);
   //Menu
   const [menuVisible, setMenuVisible] = useState(false);
   const handleMenuToggle = () => {
@@ -45,32 +46,54 @@ export default function General() {
   };
 
   useEffect(() => {
-    axios.get(`${urls.StrapiUrl}api/clients?_limit=-1`).then((response) => {
+    axios.get(`${urls.StrapiUrl}api/clients`).then((response) => {
       setDataNumber((prevData) => {
-        return { ...prevData, clientNumber: response.data.data.length };
+        return {
+          ...prevData,
+          clientNumber: response.data.meta.pagination.total,
+        };
       });
     });
-    axios.get(`${urls.StrapiUrl}api/commandes?_limit=-1`).then((response) => {
+    axios.get(`${urls.StrapiUrl}api/commandes`).then((response) => {
       setDataNumber((prevData) => {
-        return { ...prevData, orderNumber: response.data.data.length };
+        return {
+          ...prevData,
+          orderNumber: response.data.meta.pagination.total,
+        };
       });
     });
-    axios.get(`${urls.StrapiUrl}api/personnels?_limit=-1`).then((response) => {
+    axios.get(`${urls.StrapiUrl}api/personnels`).then((response) => {
       setDataNumber((prevData) => {
-        return { ...prevData, personelNumber: response.data.data.length };
-      });
-    });
-    axios.get(`${urls.StrapiUrl}api/commandes?_limit=-1`).then((response) => {
-      setDataNumber((prevData) => {
-        return { ...prevData, orderNumber: response.data.data.length };
+        return {
+          ...prevData,
+          personelNumber: response.data.meta.pagination.total,
+        };
       });
     });
     // Fetch commande data
-    axios
-      .get(`${urls.StrapiUrl}api/payements?populate=commande.client`)
-      .then((response) => {
-        setCommandeData(response.data.data);
-      });
+    axios.get(`${urls.StrapiUrl}api/payements`).then((response) => {
+      setPageCount(response.data.meta.pagination.pageCount);
+    });
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async (page, pageCount, accumulatedData = []) => {
+      const response = await axios.get(
+        `${urls.StrapiUrl}api/payements?pagination[pageSize]=100&pagination[page]=${page}&populate=commande.client`
+      );
+
+      const newData = [...accumulatedData, ...response.data.data];
+
+      if (page < pageCount) {
+        // Continue fetching next page
+        await fetchData(page + 1, pageCount, newData);
+      } else {
+        // Set the final data once the loop is finished
+        setCommandeData(newData);
+      }
+    };
+
+    fetchData(1, pageCount);
   }, []);
 
   const child = <Skeleton height={140} radius="md" animate={false} />;
@@ -116,7 +139,7 @@ export default function General() {
 
     return monthlyTotalForClients;
   };
-
+  /* Au lieu de faire cette fonction, on aurait pu enfaite faire un query dans l'url directement, mais bon c'est pas grave*/
   const fetchData = (year) => {
     const filteredCommandeData = commandeData.filter((commande) => {
       return (
@@ -264,7 +287,6 @@ export default function General() {
               verticalSpacing="sm"
               style={{ margin: "1em auto" }}
               striped
-              withTableBorder
               withColumnBorders
             >
               <thead>

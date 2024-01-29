@@ -2,16 +2,15 @@ import axios from "axios";
 import urls from '../../../services/urls';
 import Swal from 'sweetalert2';
 
-const FetchAllConge = (setDatas, setPageInfo) => {
+const FetchAllConge = (setDatas, setPagination, page) => {
   axios
-    .get(`${urls.StrapiUrl}api/conges`)
+    .get(`${urls.StrapiUrl}api/conges?pagination[page]=${page}&pagination[pageSize]=30`)
     .then((response) => {
-      console.log(response.data.data[0].attributes);
       setDatas(response.data.data);
 
-      setPageInfo((prevdata) => ({
+      setPagination((prevdata) => ({
         ...prevdata,
-        total: response.data.meta.pagination.total,
+        pageSize: response.data.meta.pagination.pageCount,
       }));
     })
     .catch((error) => {
@@ -20,16 +19,11 @@ const FetchAllConge = (setDatas, setPageInfo) => {
 
 };
 
-export const FetchAllPersonnel = (setDatas1, setPageInfo1) => {
+export const FetchAllPersonnel = (setDatas1) => {
   axios
-    .get(`${urls.StrapiUrl}api/personnels`)
+    .get(`${urls.StrapiUrl}api/personnels?pagination[pageSize]=100`)
     .then((response) => {
       setDatas1(response.data.data);
-
-      setPageInfo1((prevdata) => ({
-        ...prevdata,
-        total: response.data.meta.pagination.total,
-      }));
     })
     .catch((error) => {
       console.error(error);

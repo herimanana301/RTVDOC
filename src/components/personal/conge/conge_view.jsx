@@ -30,16 +30,33 @@ export default function Conges() {
   const [datas, setDatas] = useState([]);
   const [search, setSearch] = useState("");
   const [setupFilter, setSetupFilter] = useState("");
-  const [pageInfo, setPageInfo] = useState({ page: 1, total: 1 });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 1,
+  });
   const [datas1, setDatas1] = useState([]);
-  const [pageInfo1, setPageInfo1] = useState({ page: 1, total: 1 });
   const theme = useMantineTheme();
 
   useEffect(() => {
-    FetchAllConge(setDatas, setPageInfo);
-    FetchAllPersonnel(setDatas1, setPageInfo1);
+    FetchAllConge(setDatas, setPagination, pagination.page);
+  }, [pagination.page]);
+  useEffect(() => {
+    FetchAllPersonnel(setDatas1);
   }, []);
-
+  const handlePagination = (type) => {
+    if (type === "next" && pagination.page <= pagination.pageSize) {
+      setPagination((prevdata) => {
+        return {
+          ...prevdata,
+          page: pagination.page + 1,
+        };
+      });
+    } else if (type === "prev" && pagination.page > 0) {
+      setPagination((prevdata) => {
+        return { ...prevdata, page: pagination.page - 1 };
+      });
+    }
+  };
   const filterData = datas
     .filter((data) =>
       search.length > 0
@@ -128,6 +145,27 @@ export default function Conges() {
           value={search}
           onChange={(e) => setSearch(e)}
         />
+        <div>
+          <Button
+            onClick={() => {
+              handlePagination("prev");
+            }}
+            disabled={pagination.page === 1 ? true : false}
+          >
+            {"<"}
+          </Button>
+          <Button
+            onClick={() => {
+              handlePagination("next");
+            }}
+            disabled={pagination.page === pagination.pageSize ? true : false}
+          >
+            {">"}
+          </Button>
+        </div>
+        <Text>
+          Page {pagination.page}/{pagination.pageSize}
+        </Text>
         <Menu
           shadow="md"
           width={"auto"}

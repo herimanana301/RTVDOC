@@ -9,7 +9,8 @@ import {
   ScrollArea,
   Table,
   Badge,
-  useMantineTheme
+  useMantineTheme,
+  Text,
 } from "@mantine/core";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
 import { IconBolt } from "@tabler/icons-react";
@@ -29,21 +30,44 @@ export default function Facture() {
   };
 
   const [datasCommande, setDatasCommande] = useState([]);
-  const [pageInfo, setPageInfo] = useState({
+  const [pagination, setPagination] = useState({
     page: 1,
-    total: 1,
+    pageSize: 1,
   });
 
   useEffect(() => {
-    FetchAllCommande(setDatasCommande, setPageInfo,setIsrefresh);
-  }, []);
+    FetchAllCommande(
+      setDatasCommande,
+      setPagination,
+      pagination.page,
+      setIsrefresh
+    );
+  }, [pagination.page]);
 
   useEffect(() => {
-    FetchAllCommande(setDatasCommande, setPageInfo,setIsrefresh);
+    FetchAllCommande(
+      setDatasCommande,
+      setPagination,
+      pagination.page,
+      setIsrefresh
+    );
     setIsrefresh(false);
   }, [Isrefresh]);
 
-
+  const handlePagination = (type) => {
+    if (type === "next" && pagination.page <= pagination.pageSize) {
+      setPagination((prevdata) => {
+        return {
+          ...prevdata,
+          page: pagination.page + 1,
+        };
+      });
+    } else if (type === "prev" && pagination.page > 0) {
+      setPagination((prevdata) => {
+        return { ...prevdata, page: pagination.page - 1 };
+      });
+    }
+  };
   const formatDate = (date) => {
     const date1 = new Date(date);
     const year = date1.getFullYear();
@@ -70,7 +94,7 @@ export default function Facture() {
         paymentStatus === "" ||
         (Commande.attributes.payement.data &&
           Commande.attributes.payement.data.attributes.typePayement ===
-          paymentStatus)
+            paymentStatus)
     )
     .map((Commande) => (
       <tr key={Commande.id}>
@@ -85,11 +109,13 @@ export default function Facture() {
           <Badge
             color={
               Commande.attributes.payement.data
-                ? Commande.attributes.payement.data.attributes.typePayement === "Totalement-payé"
+                ? Commande.attributes.payement.data.attributes.typePayement ===
+                  "Totalement-payé"
                   ? "green"
-                  : Commande.attributes.payement.data.attributes.typePayement === "Partiellement-payé"
-                    ? "yellow"
-                    : "gray"
+                  : Commande.attributes.payement.data.attributes
+                      .typePayement === "Partiellement-payé"
+                  ? "yellow"
+                  : "gray"
                 : "gray"
             }
             variant={theme.colorScheme === "dark" ? "light" : "filled"}
@@ -98,8 +124,6 @@ export default function Facture() {
               ? Commande.attributes.payement.data.attributes.typePayement
               : "Non-payé"}
           </Badge>
-
-
         </td>
         <td>
           <Group spacing={0} position="right">
@@ -123,6 +147,27 @@ export default function Facture() {
           value={searchQuery}
           onChange={(value) => setSearchQuery(value)}
         />
+        <div>
+          <Button
+            onClick={() => {
+              handlePagination("prev");
+            }}
+            disabled={pagination.page === 1 ? true : false}
+          >
+            {"<"}
+          </Button>
+          <Button
+            onClick={() => {
+              handlePagination("next");
+            }}
+            disabled={pagination.page === pagination.pageSize ? true : false}
+          >
+            {">"}
+          </Button>
+        </div>
+        <Text>
+          Page {pagination.page}/{pagination.pageSize}
+        </Text>
 
         <Menu
           shadow="md"
