@@ -74,8 +74,21 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
 
 
 
-export const FindOneCommande = (id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement) => {
-  axios
+export const FindOneCommande = async (id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement) => {
+ await axios
+    .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
+    .then((response) => {
+      // console.log(response.data.data.attributes);
+      setDatasCommande(response.data.data.attributes);
+      setDatasClient(response.data.data.attributes.client.data.attributes);
+      setDatasPrestation(response.data.data.attributes.prestations.data);
+      response.data.data.attributes.payement.data ? setDatasPayement(response.data.data.attributes.payement.data) : null;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+    await axios
     .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
     .then((response) => {
       // console.log(response.data.data.attributes);
@@ -195,6 +208,8 @@ export const GetnumFacture = async (setnumFacture) => {
     console.error("An error occurred:", error);
     // Handle error, show user-friendly message, etc.
   }
+  
+  
 };
 
 export const InsertFacturePrint = (id,refFacture) => {

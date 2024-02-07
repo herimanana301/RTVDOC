@@ -94,7 +94,7 @@ export default function Facture() {
         paymentStatus === "" ||
         (Commande.attributes.payement.data &&
           Commande.attributes.payement.data.attributes.typePayement ===
-            paymentStatus)
+          paymentStatus)
     )
     .map((Commande) => (
       <tr key={Commande.id}>
@@ -105,6 +105,8 @@ export default function Facture() {
           {formatDate(Commande.attributes.endDate)}
         </td>
         <td>{Commande.attributes.responsableCommande}</td>
+        <td>{Commande.attributes.payement.data &&
+          Commande.attributes.payement.data.attributes.refFacture}</td>
         <td>
           <Badge
             color={
@@ -113,9 +115,9 @@ export default function Facture() {
                   "Totalement-payé"
                   ? "green"
                   : Commande.attributes.payement.data.attributes
-                      .typePayement === "Partiellement-payé"
-                  ? "yellow"
-                  : "gray"
+                    .typePayement === "Partiellement-payé"
+                    ? "yellow"
+                    : "gray"
                 : "gray"
             }
             variant={theme.colorScheme === "dark" ? "light" : "filled"}
@@ -206,6 +208,7 @@ export default function Facture() {
               <th>Client</th>
               <th>Période de diffusion</th>
               <th>Responsable commande</th>
+              <th>Facture n°</th>
               <th>Status</th>
               <th />
             </tr>

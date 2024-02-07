@@ -53,12 +53,12 @@ const FactureContent = () => {
 
   const rows = prestation.map((prestation) => (
     <tr key={prestation.id}>
-      <td>{prestation.attributes.plateform}</td>
+      <td>{prestation.attributes.plateform}<br/>{(formatDate(datasCommande.startDate))} au {(formatDate(datasCommande.endDate))}</td>
       <td>{prestation.attributes.servicename}</td>
-      <td>{prestation.attributes.quantity}</td>
-      <td>{prestation.attributes.unityprice}</td>
+      <td>{(parseInt(prestation.attributes.quantity)).toLocaleString('fr-FR', { maximumFractionDigits: 3 })}</td>
+      <td>{(parseInt(prestation.attributes.unityprice)).toLocaleString('fr-FR', { maximumFractionDigits: 3 })}</td>
       <td>
-        {prestation.attributes.quantity * prestation.attributes.unityprice}
+        {(prestation.attributes.quantity * prestation.attributes.unityprice).toLocaleString('fr-FR', { maximumFractionDigits: 3 })}
       </td>
     </tr>
   ));
@@ -109,8 +109,6 @@ const FactureContent = () => {
     if (DatasPayement) {
       if (DatasPayement.attributes.refFacture) {
         setnumFacture(DatasPayement.attributes.refFacture);
-      } else {
-        GetnumFacture(setnumFacture);
       }
     } else {
       GetnumFacture(setnumFacture);
@@ -141,10 +139,12 @@ const FactureContent = () => {
   return (
     <>
       <Button
-        onClick={handlePrint}
+        onClick={()=>{
+          handlePrint()
+          InsertFactureBtn()
+        }}
         style={{ margin: "2em auto", display: "block", width: "15rem" }}
-      >
-        <a onClick={InsertFactureBtn}>Imprimer</a>
+      >Imprimer
       </Button>
       <div
         id="contenu"
@@ -171,7 +171,6 @@ const FactureContent = () => {
                   NIF: 4004125945 <br />
                   STAT: 10717 21 2020 0 00975 du 21/09/20 <br />
                   RCS: 2020 B 00022 du 25/09/20 <br />
-                  CIF: 0040969/DGI-J du 21/06/2022 <br />
                 </p>
               </div>
             </span>
@@ -189,6 +188,7 @@ const FactureContent = () => {
               </p>
             </span>
           </div>
+          <div style={{height:'20px'}}></div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
@@ -197,22 +197,24 @@ const FactureContent = () => {
                 textAlign: "center",
               }}
             >
-              Facture N° {numFacture}/{jourDuMois}
+             <span style={{fontSize:"1rem",fontWeight:"bold"}}>Facture N° {numFacture}/{jourDuMois}</span>
             </div>
+            <div style={{height:'20px'}}></div>
             <div style={{ fontWeight: "bold", marginLeft: "30px" }}>
               <span style={{ marginLeft: "-27px" }}>
                 <u>Doit</u>
               </span>{" "}
               {client.raisonsocial}
               <br />
-              {client.NIF ? `NIF: ${client.NIF}` : null}
-              <br />
-              {client.STAT ? `STAT: ${client.STAT}` : null}
-              <br />
+              {client.NIF && 
+              <div>NIF: {client.NIF} <br /></div>
+               }
+             {client.STAT && 
+              <div>STAT: {client.STAT} <br /></div>
+               }
               {client.adresse}
               <br />
-              Suivant BC n° {datasCommande.reference} du{" "}
-              {datasCommande.datecommande}
+              Suivant BC n° {datasCommande.reference}
               <br />
             </div>
             <br />
@@ -230,6 +232,7 @@ const FactureContent = () => {
               <tbody>{rows}</tbody>
             </Table>
           </div>
+          <div style={{height:"15px"}}></div>
         </Text>
         <Text fz={"sm"}>
           <div
@@ -240,30 +243,30 @@ const FactureContent = () => {
             }}
           >
             <span style={{ display: "flex", alignItems: "center" }}>
-              <p>TOTAL HT: </p> {MontantTotal} Ar
+              <p>TOTAL HT: </p> {(MontantTotal).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
             </span>
             {remise && (
               <>
                 <span style={{ display: "flex", alignItems: "center" }}>
                   <p style={{ margin: "0px" }}>Remise 10%:</p>
-                  {RemiseValue} Ar
+                  {(RemiseValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
                 </span>
                 <span style={{ display: "flex", alignItems: "center" }}>
-                  <p>Sous-Total HT: </p> {MontantTotal + RemiseValue} Ar
+                  <p>Sous-Total HT: </p> {(MontantTotal + RemiseValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
                 </span>
               </>
             )}
             <span style={{ display: "flex", alignItems: "center" }}>
-              <p>TVA 20%: </p> {TVAValue} Ar
+              <p>TVA 20%: </p> {(TVAValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
             </span>
             <span style={{ display: "flex", alignItems: "center" }}>
-              <p>TOTAL TTC: </p> {totalTTC} Ar
+              <p>TOTAL TTC: </p> {(totalTTC).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
             </span>
           </div>
           <div style={{ textAlign: "center" }}>
             <p>
               Arrêté la présente facture à la somme de:{" "}
-              <span style={{ textTransform: "uppercase" }}>
+              <span style={{ textTransform: "uppercase" ,fontWeight:'bold'}}>
                 {ValeurEnLettres} Ariary
               </span>
             </p>
