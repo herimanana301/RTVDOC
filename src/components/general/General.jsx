@@ -37,7 +37,7 @@ export default function General() {
   const [paymentData, setPaymentData] = useState([]);
   const [commandeData, setCommandeData] = useState([]);
   const [exploitedData, setExploitedData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(new Date());
   const [pageCount, setPageCount] = useState(0);
   //Menu
   const [menuVisible, setMenuVisible] = useState(false);
@@ -96,8 +96,25 @@ export default function General() {
     fetchData(1, pageCount);
   }, []);
 
-  const child = <Skeleton height={140} radius="md" animate={false} />;
+  /* Au lieu de faire cette fonction, on aurait pu enfaite faire un query dans l'url directement, mais bon c'est pas grave*/
+  const fetchData = (year) => {
+    const filteredCommandeData = commandeData.filter((commande) => {
+      return (
+        new Date(commande.attributes.datePayement).getFullYear() ===
+        new Date(year).getFullYear()
+      );
+    });
 
+    setExploitedData(filteredCommandeData);
+  };
+  //////////////////////////////////////////////////////////
+  const filteredData = exploitedData.map((payment) => ({
+    nomclient:
+      payment.attributes.commande.data?.attributes.client.data.attributes
+        .raisonsocial || "Chargement...",
+    montantTotal: payment.attributes.montantTotal,
+    datePayement: payment.attributes.datePayement,
+  }));
   // Function to calculate sum of 'montantTotal' for each month
   const calculateMonthlyTotal = () => {
     const monthlyTotal = Array.from({ length: 12 }).fill(0); // Initialize array to hold monthly totals
@@ -110,20 +127,17 @@ export default function General() {
 
     return monthlyTotal;
   };
-  //////////////////////////////////////////////////////////
-  const filteredData = exploitedData.map((payment) => ({
-    nomclient:
-      payment.attributes.commande.data.attributes.client.data.attributes
-        .raisonsocial,
-    montantTotal: payment.attributes.montantTotal,
-    datePayement: payment.attributes.datePayement,
-  }));
 
+  useEffect(() => {
+    fetchData(selectedYear);
+  }, [selectedYear]);
+
+  //////////////////////////
   // Function to calculate montantTotal for each nomclient depending on every month
   const calculateMonthlyTotalForClients = () => {
     const monthlyTotalForClients = {}; // Initialize an object to hold monthly totals for each nomclient
 
-    // Iterate through filteredData to compute montantTotal for each nomclient
+    // Iterate through the filtered data to compute montantTotal for each nomclient
     filteredData.forEach((payment) => {
       const month = new Date(payment.datePayement).getMonth(); // Get month index (0 - 11)
       const nomclient = payment.nomclient;
@@ -139,21 +153,6 @@ export default function General() {
 
     return monthlyTotalForClients;
   };
-  /* Au lieu de faire cette fonction, on aurait pu enfaite faire un query dans l'url directement, mais bon c'est pas grave*/
-  const fetchData = (year) => {
-    const filteredCommandeData = commandeData.filter((commande) => {
-      return (
-        new Date(commande.attributes.datePayement).getFullYear() ===
-        new Date(year).getFullYear()
-      );
-    });
-    setExploitedData(filteredCommandeData);
-  };
-  useEffect(() => {
-    fetchData(selectedYear);
-  }, [selectedYear]);
-
-  //////////////////////////
 
   // Data for the line chart
   const chartData = Array.from({ length: 12 }).map((_, index) => {
