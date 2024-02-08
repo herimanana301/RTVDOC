@@ -52,13 +52,14 @@ export default function Bookinginput() {
         const pageSize = response.data.meta.pagination;
         const filteredProgrammationList = programmationList.filter(
           (programm) =>
-            new Date(programm.attributes.datediffusion).getDay() >=
-              new Date().getDay() &&
+            new Date(programm.attributes.datediffusion).getUTCDate() >=
+              new Date().getUTCDate() &&
             new Date(programm.attributes.datediffusion).getMonth() >=
               new Date().getMonth() &&
             new Date(programm.attributes.datediffusion).getFullYear() >=
               new Date().getFullYear()
         );
+        console.log(programmationList);
         setProgrammedList(filteredProgrammationList);
         setPagination((prevData) => {
           return { ...prevData, pageSize: pageSize.pageCount };
