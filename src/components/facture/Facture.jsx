@@ -98,6 +98,8 @@ export default function Facture() {
     )
     .map((Commande) => (
       <tr key={Commande.id}>
+         <td>{Commande.attributes.payement.data &&
+          Commande.attributes.payement.data.id}</td>
         <td>{Commande.attributes.reference}</td>
         <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
         <td>
@@ -204,6 +206,7 @@ export default function Facture() {
         <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Référence BC</th>
               <th>Client</th>
               <th>Période de diffusion</th>
