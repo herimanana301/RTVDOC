@@ -77,6 +77,12 @@ export default function Facture() {
   };
 
   const filteredRows = datasCommande
+  .sort((a, b) => {
+    // Sort by payment id in ascending order
+    const paymentIdA = a.attributes.payement.data ? a.attributes.payement.data.id : 0;
+    const paymentIdB = b.attributes.payement.data ? b.attributes.payement.data.id : 0;
+    return paymentIdA - paymentIdB;
+  })
     .filter(
       (Commande) =>
         Commande.attributes.reference
