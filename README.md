@@ -1,19 +1,14 @@
-# Gestion des besoins publicitaire et comptabilité de RTV SOAFIA
+# Advertising Needs Management and Accounting for television and radio
 
-#Aperçu du Projet
-Le projet de Gestion des besoins publicitaires et comptabilité de la chaîne de télévision et radio RTV SOAFIA vise à fournir une solution robuste et efficace pour automatiser et rationaliser les processus liés à la publicité et à la comptabilité au sein de la RTV SOAFIA. Cette plateforme offre une gestion complète des besoins publicitaires, des facturations, des paiements et des rapports financiers, permettant ainsi à l'équipe de gestion de se concentrer sur la création de contenu de qualité.
+## Project Overview
+This solution aims to provide a robust and efficient solution to automate and streamline processes related to advertising and accounting for television and radio. It offers comprehensive management of advertising needs, invoicing, payments, and financial reporting, allowing the management team to focus on creating quality content.
 
-#Fonctionnalités Principales
-1. Gestion des Besoins Publicitaires
-La plateforme permet la gestion complète du cycle de vie des publicités, depuis la création de campagnes publicitaires jusqu'à la planification de diffusion. Elle offre une interface conviviale faciliter l'enregistrement des annonces, facilitant la soumission et la gestion de leurs publicités.
+## Key Features
+1. **Advertising Needs Management**
+   The platform allows complete management of the advertising lifecycle, from creating advertising campaigns to broadcast planning. It offers a user-friendly interface to record advertisements, making it easy to submit and manage ad content.
 
-2. Système de Facturation Intégré
-Le module de comptabilité assure une facturation précise en fonction des contrats publicitaires. Il génère automatiquement les factures et offre une visibilité en temps réel sur les paiements en attente, les paiements effectués et les soldes restants.
+2. **Integrated Billing System**
+   The accounting module ensures accurate billing based on advertising contracts. It automatically generates invoices and provides real-time visibility into pending payments, completed payments, and remaining balances.
 
-3. Rapports Financiers et Analyse
-La génération automatisée de rapports financiers offre une vue détaillée de la performance publicitaire et de la santé financière de la chaîne. Des outils d'analyse avancés sont intégrés pour permettre une prise de décision informée.
-
-#Technologies Utilisées
-Le projet repose sur une stack technologique moderne, incluant mais sans s'y limiter à :
-
-Strapi, ReactJs, ManTine
+3. **Financial Reports and Analysis**
+   Automated financial reporting provides a detailed view of advertising performance and the financial health of the channel. Advanced analytical tools are integrated to enable informed decision-making.
