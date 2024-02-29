@@ -1,51 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { useDisclosure } from "@mantine/hooks";
-import { Modal, Button, ScrollArea, Table } from "@mantine/core";
-import { useForm, isNotEmpty, hasLength, matches } from "@mantine/form";
-import { FetchAllCommandeArchived } from "./hanldeFacture";
-import ModalCommande from "./FactureModal";
+import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
+  Button,
   Group,
-  TextInput,
-  NumberInput,
-  Box,
-  Textarea,
-  Select,
-  SimpleGrid,
-  Switch,
-  Text,
+  Menu,
+  NativeSelect,
+  ScrollArea,
+  Table,
   Badge,
   useMantineTheme,
-  Autocomplete,
+  Text,
+  Modal
 } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconFilter } from "@tabler/icons-react";
+import FactureModal from "./FactureModal";
+import { useDisclosure } from "@mantine/hooks";
+import { FetchAllFactureArchived } from "./hanldeFacture";
 
 export default function ArchiveModal() {
   const [opened, { open, close }] = useDisclosure(false);
-
   const [IsrefreshArchive, setIsrefreshArchive] = useState(false);
-  const [search, setSearch] = useState("");
-  const [datasCommandeArchived, setDatasCommandeArchived] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search query
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const theme = useMantineTheme();
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const handleMenuToggle = () => {
+    setMenuVisible(!menuVisible);
+  };
+
+  const [datasFactureArchived, setDatasFactureArchived] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 1,
   });
 
-  const theme = useMantineTheme();
-
   useEffect(() => {
-    FetchAllCommandeArchived(
-      setDatasCommandeArchived,
+    FetchAllFactureArchived(
+      setDatasFactureArchived,
       setPagination,
       pagination.page,
       setIsrefreshArchive
     );
-  }, [opened, pagination.page]);
+  }, [pagination.page]);
 
   useEffect(() => {
-    FetchAllCommandeArchived(
-      setDatasCommandeArchived,
+    FetchAllFactureArchived(
+      setDatasFactureArchived,
       setPagination,
       pagination.page,
       setIsrefreshArchive
@@ -69,78 +70,60 @@ export default function ArchiveModal() {
   };
   const formatDate = (date) => {
     const date1 = new Date(date);
-
     const year = date1.getFullYear();
     const month = (date1.getMonth() + 1).toString().padStart(2, "0");
     const day = date1.getDate().toString().padStart(2, "0");
-
     return `${year}-${month}-${day}`;
   };
 
-  const filterData = datasCommandeArchived.filter((data) =>
-    search.length > 0
-      ? data.attributes.reference
+  const filteredRows = datasFactureArchived
+    .filter(
+      (Facture) =>
+        Facture.reference
           .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        data.attributes.client.data.attributes.raisonsocial
+          .includes(searchQuery.toLowerCase()) ||
+        Facture.raisonSocial
           .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        data.attributes.startDate
+          .includes(searchQuery.toLowerCase()) ||
+        Facture.responsableCommande
           .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        data.attributes.endDate.toLowerCase().includes(search.toLowerCase()) ||
-        data.attributes.payement.data.attributes.typePayement
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        data.attributes.responsableCommande
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      : true
-  );
+          .includes(searchQuery.toLowerCase())
+    )
 
-  const rows = filterData.map((Commande) => (
-    <tr key={Commande.id}>
-      <td>{Commande.attributes.reference}</td>
-      <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
-      <td>
-        Du {formatDate(Commande.attributes.startDate)} au{" "}
-        {formatDate(Commande.attributes.endDate)}
-      </td>
-      <td>{Commande.attributes.responsableCommande}</td>
-      <td>
-        {" "}
-        <Badge
-          color={
-            Commande.attributes.payement.data
-              ? Commande.attributes.payement.data.attributes.typePayement ===
-                "Totalement-payé"
-                ? "green"
-                : Commande.attributes.payement.data.attributes.typePayement ===
-                  "Partiellement-payé"
-                ? "yellow"
-                : "gray"
-              : "gray"
-          }
-          variant={theme.colorScheme === "dark" ? "light" : "filled"}
-        >
-          {Commande.attributes.payement.data
-            ? Commande.attributes.payement.data.attributes.typePayement
-            : "Non-payé"}
-        </Badge>
-      </td>
-
-      <td>
-        <Group spacing={0} position="right">
-          <ModalCommande
-            datas={{ id: Commande.id, archive: Commande.attributes.archive }}
-          />
-        </Group>
-      </td>
-    </tr>
-  ));
+    .map((Facture) => (
+      <tr key={Facture.idFacture}>
+        <td>{Facture.idFacture}</td>
+        <td>{Facture.raisonSocial}</td>
+        <td>{Facture.reference}</td>
+        <td>
+          Du {formatDate(Facture.startDate)} au{" "}
+          {formatDate(Facture.endDate)}
+        </td>
+        <td>{Facture.responsableCommande}</td>
+        <td>{Facture.refFacture}</td>
+        <td>
+          <Badge
+            color={
+              Facture.typePayement === "Totalement-payé" ? "green"
+                : Facture.typePayement === "Partiellement-payé" ? "yellow" : "gray"
+            }
+            variant={theme.colorScheme === "dark" ? "light" : "filled"}
+          >
+            {Facture.typePayement}
+          </Badge>
+        </td>
+        <td>
+          <Group spacing={0} position="right">
+            <FactureModal
+              datas={{ id: Facture.id, archive: Facture.archive }}
+            />
+          </Group>
+        </td>
+      </tr>
+    ));
 
   return (
-    <>
+    <div>
       <Button
         onClick={() => {
           open();
@@ -159,52 +142,85 @@ export default function ArchiveModal() {
         size="80%"
         style={{ marginLeft: "-95px" }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Autocomplete
-            placeholder="Rechercher"
-            icon={<IconSearch size="1rem" stroke={1.5} />}
-            data={[]}
-            style={{ width: "400px" }}
-            value={search}
-            onChange={(e) => setSearch(e)}
-          />
-          <div>
-            <Button
-              onClick={() => {
-                handlePagination("prev");
-              }}
-              disabled={pagination.page === 1 ? true : false}
+        <div style={{marginTop:10}}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Autocomplete
+              placeholder="Rechercher"
+              icon={<IconSearch size="1rem" stroke={1.5} />}
+              data={[]}
+              value={searchQuery}
+              onChange={(value) => setSearchQuery(value)}
+            />
+            <div>
+              <Button
+                onClick={() => {
+                  handlePagination("prev");
+                }}
+                disabled={pagination.page === 1 ? true : false}
+              >
+                {"<"}
+              </Button>
+              <Button
+                onClick={() => {
+                  handlePagination("next");
+                }}
+                disabled={pagination.page === pagination.pageSize ? true : false}
+              >
+                {">"}
+              </Button>
+            </div>
+            <Text>
+              Page {pagination.page}/{pagination.pageSize}
+            </Text>
+
+            <Menu
+              shadow="md"
+              width={"auto"}
+              position="left"
+              offset={5}
+              opened={menuVisible}
             >
-              {"<"}
-            </Button>
-            <Button
-              onClick={() => {
-                handlePagination("next");
-              }}
-              disabled={pagination.page === pagination.pageSize ? true : false}
-            >
-              {">"}
-            </Button>
+              <Menu.Target>
+                <Button onClick={handleMenuToggle}>
+                  <IconFilter size="1.1rem" stroke={2} />
+                  Filtre
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item>
+                  <NativeSelect
+                    data={["", "Totalement-payé", "Partiellement-payé", "Non-Payé"]}
+                    value={paymentStatus}
+                    label="État de paiement"
+                    radius="md"
+                    onChange={(e) => setPaymentStatus(e.target.value)}
+                  />
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
-          <Text>
-            Page {pagination.page}/{pagination.pageSize}
-          </Text>
+
+          <br />
+
+          <ScrollArea>
+            <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Client</th>
+                  <th>Référence BC</th>
+                  <th>Période de diffusion</th>
+                  <th>Responsable commande</th>
+                  <th>Facture n°</th>
+                  <th>Status</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>{filteredRows}</tbody>
+            </Table>
+          </ScrollArea>
         </div>
-        <ScrollArea>
-          <Table sx={{ minWidth: 800 }} verticalSpacing="sm">
-            <thead>
-              <tr>
-                <th>Référence BC</th>
-                <th>Client</th>
-                <th>Période de diffusion</th>
-                <th>Responsable commande</th>
-                <th>Status du payement</th>
-              </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-          </Table>
-        </ScrollArea>
       </Modal>
-    </>
+    </div>
   );
 }

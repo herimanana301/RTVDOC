@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  ActionIcon,
   Autocomplete,
   Button,
   Group,
@@ -13,9 +12,8 @@ import {
   Text,
 } from "@mantine/core";
 import { IconSearch, IconFilter } from "@tabler/icons-react";
-import { IconBolt } from "@tabler/icons-react";
 import FactureModal from "./FactureModal";
-import FetchAllCommande from "./hanldeFacture";
+import FetchAllFacture from "./hanldeFacture";
 import ArchiveModal from "./archiveModal";
 
 export default function Facture() {
@@ -29,15 +27,15 @@ export default function Facture() {
     setMenuVisible(!menuVisible);
   };
 
-  const [datasCommande, setDatasCommande] = useState([]);
+  const [datasFacture, setDatasFacture] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 1,
   });
 
   useEffect(() => {
-    FetchAllCommande(
-      setDatasCommande,
+    FetchAllFacture(
+      setDatasFacture,
       setPagination,
       pagination.page,
       setIsrefresh
@@ -45,8 +43,8 @@ export default function Facture() {
   }, [pagination.page]);
 
   useEffect(() => {
-    FetchAllCommande(
-      setDatasCommande,
+    FetchAllFacture(
+      setDatasFacture,
       setPagination,
       pagination.page,
       setIsrefresh
@@ -76,46 +74,45 @@ export default function Facture() {
     return `${year}-${month}-${day}`;
   };
 
-  const filteredRows = datasCommande
+  const filteredRows = datasFacture
     .filter(
-      (Commande) =>
-        Commande.attributes.reference
+      (Facture) =>
+        Facture.reference
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        Commande.attributes.client.data.attributes.raisonsocial
-          .toLowerCase()
+          Facture.raisonSocial.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        Commande.attributes.responsableCommande
+          Facture.responsableCommande
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
     )
     
-    .map((Commande) => (
-      <tr key={Commande.id}>
-         <td>{Commande.attributes.payement.data.id}</td>
-        <td>{Commande.attributes.reference}</td>
-        <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
+    .map((Facture) => (
+      <tr key={Facture.idFacture}>
+        <td>{Facture.idFacture}</td>
+        <td>{Facture.raisonSocial}</td>
+        <td>{Facture.reference}</td>
         <td>
-          Du {formatDate(Commande.attributes.startDate)} au{" "}
-          {formatDate(Commande.attributes.endDate)}
+          Du {formatDate(Facture.startDate)} au{" "}
+          {formatDate(Facture.endDate)}
         </td>
-        <td>{Commande.attributes.responsableCommande}</td>
-        <td>{Commande.attributes.payement.data.attributes.refFacture}</td>
+        <td>{Facture.responsableCommande}</td>
+        <td>{Facture.refFacture}</td>
         <td>
           <Badge
             color={
-              Commande.attributes.payement.data.attributes.typePayement ==="Totalement-payé" ? "green"
-                  : Commande.attributes.payement.data.attributes.typePayement === "Partiellement-payé"? "yellow" : "gray"
+              Facture.typePayement ==="Totalement-payé" ? "green"
+                  : Facture.typePayement === "Partiellement-payé"? "yellow" : "gray"
             }
             variant={theme.colorScheme === "dark" ? "light" : "filled"}
           >
-            {Commande.attributes.payement.data.attributes.typePayement}
+            {Facture.typePayement}
           </Badge>
         </td>
         <td>
           <Group spacing={0} position="right">
           <FactureModal
-              datas={{ id: Commande.id, archive: Commande.attributes.archive }}
+              datas={{ id: Facture.id, archive: Facture.archive }}
             />
           </Group>
         </td>
@@ -189,8 +186,8 @@ export default function Facture() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Référence BC</th>
               <th>Client</th>
+              <th>Référence BC</th>
               <th>Période de diffusion</th>
               <th>Responsable commande</th>
               <th>Facture n°</th>

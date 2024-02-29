@@ -16,18 +16,29 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const FetchAllCommande = (setDatasCommande, setPageInfo, page, setIsrefresh) => {
+const FetchAllFacture = (setDatasFacture, setPageInfo, page, setIsrefresh) => {
 
   Isrefresh = setIsrefresh;
 
   axios
-    .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=25&populate=*`)
+  .get(`${urls.StrapiUrl}api/payements?pagination[page]=${page}&pagination[pageSize]=25&populate[commande][populate]=client&sort=id:ASC`)
     .then((response) => {
-      const filteredCommandes = response.data.data.filter((Commande) =>
-        Commande.attributes.tofacture && !Commande.attributes.archive
-      );
 
-      setDatasCommande(filteredCommandes);
+      const filteredCommandes = response.data.data
+      .map(Facture => ({
+        id: Facture.attributes.commande.data.id,
+        idFacture: Facture.id,
+        refFacture: Facture.attributes.refFacture,
+        reference: Facture.attributes.commande.data.attributes.reference,
+        raisonSocial: Facture.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
+        startDate: Facture.attributes.commande.data.attributes.startDate,
+        endDate: Facture.attributes.commande.data.attributes.endDate,
+        responsableCommande: Facture.attributes.commande.data.attributes.responsableCommande,
+        typePayement: Facture.attributes.typePayement,
+        archive: Facture.attributes.commande.data.attributes.archive
+      })).filter(Facture => !Facture.archive);
+         
+      setDatasFacture(filteredCommandes);
 
       setPageInfo((prevdata) => ({
         ...prevdata,
@@ -38,16 +49,29 @@ const FetchAllCommande = (setDatasCommande, setPageInfo, page, setIsrefresh) => 
       console.error(error);
     });
 };
-export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive, page, setIsrefreshArchive) => {
+
+export const FetchAllFactureArchived = (setDatasFactureArchived, setPageInfoArchive, page, setIsrefreshArchive) => {
 
   IsrefreshArchive = setIsrefreshArchive;
   axios
-    .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=50&populate=*`)
+  .get(`${urls.StrapiUrl}api/payements?pagination[page]=${page}&pagination[pageSize]=25&populate[commande][populate]=client&sort=id:ASC`)
     .then((response) => {
-      const filteredCommandes = response.data.data.filter((Commande) =>
-        Commande.attributes.archive
-      );
-      setDatasCommandeArchived(filteredCommandes);
+     
+      const filteredCommandes = response.data.data
+      .map(Facture => ({
+        id: Facture.attributes.commande.data.id,
+        idFacture: Facture.id,
+        refFacture: Facture.attributes.refFacture,
+        reference: Facture.attributes.commande.data.attributes.reference,
+        raisonSocial: Facture.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
+        startDate: Facture.attributes.commande.data.attributes.startDate,
+        endDate: Facture.attributes.commande.data.attributes.endDate,
+        responsableCommande: Facture.attributes.commande.data.attributes.responsableCommande,
+        typePayement: Facture.attributes.typePayement,
+        archive: Facture.attributes.commande.data.attributes.archive
+      })).filter(Facture => Facture.archive);
+         
+      setDatasFactureArchived(filteredCommandes);
 
       setPageInfoArchive((prevdata) => ({
         ...prevdata,
@@ -114,6 +138,7 @@ export const ArchiverCommande = (id) => {
     if (response.status == 200) {
       Swal.fire("Archivée!", "Voir la commande dans archive.", "success");
       Isrefresh(true);
+       IsrefreshArchive(true);
     }
   })
 
@@ -303,4 +328,4 @@ export const LastRefFacture = (id, refFacture) => {
 }
 
 
-export default FetchAllCommande;
+export default FetchAllFacture;

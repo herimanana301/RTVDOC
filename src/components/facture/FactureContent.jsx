@@ -112,7 +112,7 @@ const FactureContent = () => {
     if (!currentnumFacture) {
       InsertFacturePrint(id, lastnumFacture,handlePrint);
     }else{
-      handlePrint();
+      handlePrint()
     }
   };
 
