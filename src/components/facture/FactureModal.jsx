@@ -152,7 +152,9 @@ export default function FactureModal(props) {
   };
 
   const submitButtonUpdate = async () => {
+    if (refPayement !== '') {
     UpdateFacture(datasPayement.id, FormData, refPayement, close);
+    }
   };
 
   return (
