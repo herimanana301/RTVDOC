@@ -77,12 +77,6 @@ export default function Facture() {
   };
 
   const filteredRows = datasCommande
-  .sort((a, b) => {
-    // Sort by payment id in ascending order
-    const paymentIdA = a.attributes.payement.data ? a.attributes.payement.data.id : 0;
-    const paymentIdB = b.attributes.payement.data ? b.attributes.payement.data.id : 0;
-    return paymentIdA - paymentIdB;
-  })
     .filter(
       (Commande) =>
         Commande.attributes.reference
@@ -95,17 +89,10 @@ export default function Facture() {
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
     )
-    .filter(
-      (Commande) =>
-        paymentStatus === "" ||
-        (Commande.attributes.payement.data &&
-          Commande.attributes.payement.data.attributes.typePayement ===
-          paymentStatus)
-    )
+    
     .map((Commande) => (
       <tr key={Commande.id}>
-         <td>{Commande.attributes.payement.data &&
-          Commande.attributes.payement.data.id}</td>
+         <td>{Commande.attributes.payement.data.id}</td>
         <td>{Commande.attributes.reference}</td>
         <td>{Commande.attributes.client.data.attributes.raisonsocial}</td>
         <td>
@@ -113,31 +100,21 @@ export default function Facture() {
           {formatDate(Commande.attributes.endDate)}
         </td>
         <td>{Commande.attributes.responsableCommande}</td>
-        <td>{Commande.attributes.payement.data &&
-          Commande.attributes.payement.data.attributes.refFacture}</td>
+        <td>{Commande.attributes.payement.data.attributes.refFacture}</td>
         <td>
           <Badge
             color={
-              Commande.attributes.payement.data
-                ? Commande.attributes.payement.data.attributes.typePayement ===
-                  "Totalement-payé"
-                  ? "green"
-                  : Commande.attributes.payement.data.attributes
-                    .typePayement === "Partiellement-payé"
-                    ? "yellow"
-                    : "gray"
-                : "gray"
+              Commande.attributes.payement.data.attributes.typePayement ==="Totalement-payé" ? "green"
+                  : Commande.attributes.payement.data.attributes.typePayement === "Partiellement-payé"? "yellow" : "gray"
             }
             variant={theme.colorScheme === "dark" ? "light" : "filled"}
           >
-            {Commande.attributes.payement.data
-              ? Commande.attributes.payement.data.attributes.typePayement
-              : "Non-payé"}
+            {Commande.attributes.payement.data.attributes.typePayement}
           </Badge>
         </td>
         <td>
           <Group spacing={0} position="right">
-            <FactureModal
+          <FactureModal
               datas={{ id: Commande.id, archive: Commande.attributes.archive }}
             />
           </Group>
@@ -149,7 +126,6 @@ export default function Facture() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <ArchiveModal />
-
         <Autocomplete
           placeholder="Rechercher"
           icon={<IconSearch size="1rem" stroke={1.5} />}

@@ -35,7 +35,7 @@ import axios from "axios";
 const data = [
   { link: "", label: "Général", icon: IconHome2 },
   { link: "", label: "Clients", icon: IconUser },
-  { link: "", label: "Factures", icon: IconReceipt2 },
+  { link: "", label: "Payement et Factures", icon: IconReceipt2 },
   { link: "", label: "Bons de commandes", icon: IconTicket },
   { link: "", label: "Programmation", icon: IconCalendar },
   {
@@ -175,7 +175,7 @@ export default function Navigation() {
           return <General />;
         case "Clients":
           return <Clients />;
-        case "Factures":
+        case "Payement et Factures":
           return <Facture />;
         case "Bons de commandes":
           return <Commande />;

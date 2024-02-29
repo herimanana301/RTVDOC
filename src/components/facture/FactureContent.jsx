@@ -20,10 +20,10 @@ const FactureContent = () => {
     : null;
 
   const [datasCommande, setDatasCommande] = useState([]);
-  const [DatasPayement, setDatasPayement] = useState();
   const [client, setDatasClient] = useState([]);
   const [prestation, setDatasPrestation] = useState([]);
-  const [numFacture, setnumFacture] = useState();
+  const [lastnumFacture, setLastnumFacture] = useState();
+  const [currentnumFacture, setCurrentnumFacture] = useState(null);
 
   let TotalMontant = 0;
   const [pageInfo, setPageInfo] = useState({
@@ -101,34 +101,25 @@ const FactureContent = () => {
       setDatasCommande,
       setDatasClient,
       setDatasPrestation,
-      setDatasPayement
+      setCurrentnumFacture,
     );
+    GetnumFacture(setLastnumFacture);
   }, []);
-
-  useEffect(() => {
-    if (DatasPayement) {
-      if (DatasPayement.attributes.refFacture) {
-        setnumFacture(DatasPayement.attributes.refFacture);
-      }
-    } else {
-      GetnumFacture(setnumFacture);
-    }
-  }, [DatasPayement]);
 
   const componentRef = useRef();
 
   const InsertFactureBtn = () => {
-    if (!DatasPayement) {
-      InsertFacturePrint(id, numFacture);
-    } else {
-      LastRefFacture(DatasPayement.id, numFacture);
+    if (!currentnumFacture) {
+      InsertFacturePrint(id, lastnumFacture,handlePrint);
+    }else{
+      handlePrint();
     }
   };
 
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     documentTitle: "Facture",
-    onAfterPrint: () => console.log("Imprimé avec succès!"),
+    onAfterPrint: () => window.location.href='/',
   });
 
   var dateStr = formatDate(new Date());
@@ -140,7 +131,6 @@ const FactureContent = () => {
     <>
       <Button
         onClick={()=>{
-          handlePrint()
           InsertFactureBtn()
         }}
         style={{ margin: "2em auto", display: "block", width: "15rem" }}
@@ -197,7 +187,7 @@ const FactureContent = () => {
                 textAlign: "center",
               }}
             >
-             <span style={{fontSize:"1rem",fontWeight:"bold"}}>Facture N° {numFacture}/{jourDuMois}</span>
+             <span style={{fontSize:"1rem",fontWeight:"bold"}}>Facture N° {currentnumFacture !== null ? currentnumFacture : lastnumFacture}/{jourDuMois}</span>
             </div>
             <div style={{height:'20px'}}></div>
             <div style={{ fontWeight: "bold", marginLeft: "30px" }}>
@@ -252,7 +242,7 @@ const FactureContent = () => {
                   {(RemiseValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
                 </span>
                 <span style={{ display: "flex", alignItems: "center" }}>
-                  <p>Sous-Total HT: </p> {(MontantTotal + RemiseValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
+                  <p>Sous-Total HT: </p> {(MontantTotal - RemiseValue).toLocaleString('fr-FR', { maximumFractionDigits: 3 })} Ar
                 </span>
               </>
             )}

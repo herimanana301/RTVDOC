@@ -15,6 +15,7 @@ import {
   TextInput,
   rem,
   Notification,
+  Tooltip
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import {
@@ -136,17 +137,7 @@ export default function Orders({
     setIsModalOpen(true);
   };
   const toIncoice = (id) => {
-    axios
-      .put(`${urls.StrapiUrl}api/commandes/${id}`, {
-        data: {
-          tofacture: true,
-        },
-      })
-      .then((response) => {
-        if (response) {
-          location.reload();
-        }
-      });
+    window.location.href=`/facture/${id}`
   };
   const diffusionStatus = (dateDebut, dateFin) => {
     const currentDate = new Date();
@@ -262,11 +253,13 @@ export default function Orders({
             <td>
               <Group spacing={0} position="right">
                 {item.attributes.tofacture === false ? (
+                   <Tooltip label="Passer en facture" position="left" withArrow >
                   <ActionIcon
                     onClick={() => confirmationPutModal(item.id, toIncoice)}
                   >
                     <IconFileInvoice size="2rem" stroke={1.5} />
                   </ActionIcon>
+                  </Tooltip>
                 ) : (
                   <IconCheck size="2rem" stroke={1.5} color="green" />
                 )}

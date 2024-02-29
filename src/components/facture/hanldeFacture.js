@@ -16,7 +16,7 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const FetchAllCommande = (setDatasCommande, setPageInfo ,page,setIsrefresh) => {
+const FetchAllCommande = (setDatasCommande, setPageInfo, page, setIsrefresh) => {
 
   Isrefresh = setIsrefresh;
 
@@ -24,23 +24,10 @@ const FetchAllCommande = (setDatasCommande, setPageInfo ,page,setIsrefresh) => {
     .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=25&populate=*`)
     .then((response) => {
       const filteredCommandes = response.data.data.filter((Commande) =>
-      Commande.attributes.tofacture || (!Commande.attributes.archive && Commande.attributes.status === "Diffusion terminée")
-    );
-    
-    const filteredCommandes1 = response.data.data.filter((Commande) =>
-      Commande.attributes.tofacture
-    );
-    
-    const mergedCommandes = filteredCommandes.concat(filteredCommandes1);
-    
-    const uniqueMergedCommandes = Array.from(new Set(mergedCommandes));
-    
-    const filteredUniqueMergedCommandes = uniqueMergedCommandes.filter((Commande) =>
-      !Commande.attributes.archive
-    );
-  
-    
-      setDatasCommande(filteredUniqueMergedCommandes);
+        Commande.attributes.tofacture && !Commande.attributes.archive
+      );
+
+      setDatasCommande(filteredCommandes);
 
       setPageInfo((prevdata) => ({
         ...prevdata,
@@ -51,9 +38,9 @@ const FetchAllCommande = (setDatasCommande, setPageInfo ,page,setIsrefresh) => {
       console.error(error);
     });
 };
-export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive,page,setIsrefreshArchive) => {
+export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoArchive, page, setIsrefreshArchive) => {
 
-  IsrefreshArchive = setIsrefreshArchive ;
+  IsrefreshArchive = setIsrefreshArchive;
   axios
     .get(`${urls.StrapiUrl}api/commandes?pagination[page]=${page}&pagination[pageSize]=50&populate=*`)
     .then((response) => {
@@ -74,33 +61,48 @@ export const FetchAllCommandeArchived = (setDatasCommandeArchived, setPageInfoAr
 
 
 
-export const FindOneCommande = async (id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement) => {
- await axios
+export const FindOneCommande = async (id, setDatasCommande, setDatasClient, setDatasPrestation, setCurrentnumFacture) => {
+  await axios
     .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
     .then((response) => {
-      // console.log(response.data.data.attributes);
       setDatasCommande(response.data.data.attributes);
       setDatasClient(response.data.data.attributes.client.data.attributes);
       setDatasPrestation(response.data.data.attributes.prestations.data);
-      response.data.data.attributes.payement.data ? setDatasPayement(response.data.data.attributes.payement.data) : null;
+      if(response.data.data.attributes.payement.data){
+        setCurrentnumFacture(response.data.data.attributes.payement.data.attributes.refFacture);
+      }
     })
     .catch((error) => {
-      console.error(error);
+      console.error(error)
     });
+};
 
-    await axios
+export const FindCommandeData = async (id, setDatasCommande, setDatasClient, setDatasPrestation, setDatasPayement) => {
+  await axios
     .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
     .then((response) => {
-      // console.log(response.data.data.attributes);
       setDatasCommande(response.data.data.attributes);
       setDatasClient(response.data.data.attributes.client.data.attributes);
       setDatasPrestation(response.data.data.attributes.prestations.data);
-      response.data.data.attributes.payement.data ? setDatasPayement(response.data.data.attributes.payement.data) : null;
+      setDatasPayement(response.data.data.attributes.payement.data);
     })
     .catch((error) => {
       console.error(error);
-    });
 
+      Swal.fire({
+        title: "Erreur!",
+        text: "Erreur de l'affichage des données facture,réessayer?",
+        icon: "error",
+        showCancelButton: false,
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.reload()
+        }
+      });
+
+    });
 };
 
 export const ArchiverCommande = (id) => {
@@ -181,94 +183,124 @@ export const UpdateFacture = async (id, FormData, refPayement, close) => {
     }
   } catch (error) {
     console.error("An error occurred:", error);
-    // Handle error, show user-friendly message, etc.
     Swal.fire("Erreur!", "Une erreur s'est produite lors de la sauvegarde du paiement.", "error");
   }
 };
 
-export const GetnumFacture = async (setnumFacture) => {
+export const GetnumFacture = async (setLastnumFacture) => {
   try {
-    const response = await axios.get(`${urls.StrapiUrl}api/numero-factures?sort=id:desc`);
-    
-    const sortedPayments = response.data.data
-    const latestPayment = sortedPayments[0]; // Assuming the response is an array
-    
-    if (latestPayment) {
-
-      if(latestPayment.attributes.numeroFacture){
-        const numFacture = latestPayment.attributes.numeroFacture;
-        setnumFacture(parseInt(numFacture)+1);
-      }else{
-        setnumFacture(1);
-      }
-    
-    }
-
+    await axios.get(`${urls.StrapiUrl}api/numero-factures?sort=id:desc`)
+    .then((response) => {
+      setLastnumFacture(parseInt(response.data.data[0].attributes.numeroFacture)+1);
+    })
+   
   } catch (error) {
     console.error("An error occurred:", error);
-    // Handle error, show user-friendly message, etc.
+   
+    Swal.fire({
+      title: "Erreur!",
+      text: "Erreur de l'affichage des données facture,réessayer?",
+      icon: "error",
+      showCancelButton: false,
+      confirmButtonColor: "#3085d6",
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.reload()
+      }
+    });
+    
   }
-  
-  
+
+
 };
 
-export const InsertFacturePrint = (id,refFacture) => {
-      
-      try {
-        axios.post(`${urls.StrapiUrl}api/payements`, {
+export const InsertFacturePrint = (id, refFacture,handlePrint) => {
+
+  try {
+    axios.post(`${urls.StrapiUrl}api/payements`, {
+      data: {
+        commande: id,
+        refFacture: refFacture.toString(),
+        datePayement: formatDate(new Date()),
+        typePayement: 'Non-payé',
+        refPayement: '',
+        montantTotal: 0,
+        avance: 0
+
+      },
+    }).then( async ()=>{
+      await axios.post(`${urls.StrapiUrl}api/numero-factures`, {
+        data: {
+          numeroFacture: refFacture,
+        },
+      }).then(async ()=>{
+        await axios.put(`${urls.StrapiUrl}api/commandes/${id}`, {
           data: {
-            commande: id,
-            refFacture: refFacture.toString(),
-            datePayement:formatDate(new Date()),
-            typePayement:'Non-payé',
-            refPayement:'',
-            montantTotal:0,
-            avance:0
-
+            tofacture: true,
           },
-        })
+        }).then(()=>{
 
-      const response =  axios.post(`${urls.StrapiUrl}api/numero-factures`, {
-          data: {
-            numeroFacture: refFacture,
-          },
+          Swal.fire({
+            title: "Succès!",
+            text: "Facture enregistrée avec succès.",
+            icon: "success",
+            showCancelButton: false,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "OK",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              handlePrint()
+            }
+          });
+          
+          
         })
-        
-        if (response.status === 200) {
-          window.location.reload();
-        }   
-        
+      })
+    })
+  }
+  catch (error) {
+    console.error("An error occurred:", error);
+    Swal.fire({
+      title: "Erreur!",
+      text: "Erreur lors de l'enregistrement de la facture,veuillez réessayer.",
+      icon: "error",
+      showCancelButton: false,
+      confirmButtonColor: "#3085d6",
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.reload();
       }
-      catch (error) {
-        console.error("An error occurred:", error);
-      }
+    });
+  }
 
+}
+
+export const LastRefFacture = (id, refFacture) => {
+
+  try {
+    axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
+      data: {
+        refFacture: refFacture.toString(),
+      },
+    })
+
+    const response = axios.post(`${urls.StrapiUrl}api/numero-factures`, {
+      data: {
+        numeroFacture: refFacture,
+      },
+    })
+    if (response.status === 200) {
+      window.location.reload();
     }
 
-    export const LastRefFacture = (id,refFacture) => {
-      
-      try {
-        axios.put(`${urls.StrapiUrl}api/payements/${id}`, {
-          data: {
-            refFacture: refFacture.toString(),
-          },
-        })
+  }
+  catch (error) {
+    console.error("An error occurred:", error);
+  }
 
-        const response = axios.post(`${urls.StrapiUrl}api/numero-factures`, {
-          data: {
-            numeroFacture: refFacture,
-          },
-        })   
-        if (response.status === 200) {
-          window.location.reload();
-        } 
-        
-      }
-      catch (error) {
-        console.error("An error occurred:", error);
-      }
-
-    }
+}
 
 
 export default FetchAllCommande;

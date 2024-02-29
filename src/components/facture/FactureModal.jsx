@@ -12,25 +12,18 @@ import {
   Menu,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import checked from "../../assets/icons/checked.gif";
 import { useDisclosure } from "@mantine/hooks";
-import { IconBolt } from "@tabler/icons-react";
+import { IconCardsFilled, IconPrinter, IconArchive, IconFolderUp} from "@tabler/icons-react";
 import { useState, useEffect } from "react";
-import { FactureconfirmationModal } from "../../services/alertConfirmation";
 import { Link } from "react-router-dom";
 import {
   ArchiverCommandeConfirm,
   DesarchiverCommandeConfirm,
 } from "../../services/alertConfirmation";
 import { ArchiverCommande, DesarchiverCommande } from "./hanldeFacture";
-import { FindOneCommande, InsertFacture, UpdateFacture } from "./hanldeFacture";
+import { FindCommandeData, InsertFacture, UpdateFacture } from "./hanldeFacture";
 
 import {
-  IconPencil,
-  IconMessages,
-  IconNote,
-  IconReportAnalytics,
-  IconTrash,
   IconDots,
 } from "@tabler/icons-react";
 
@@ -61,7 +54,7 @@ export default function FactureModal(props) {
   });
 
   useEffect(() => {
-    FindOneCommande(
+    FindCommandeData(
       id,
       setDatasCommande,
       setPageInfo,
@@ -91,11 +84,11 @@ export default function FactureModal(props) {
           typePayement: datasPayement.attributes.typePayement,
         });
 
-      if(datasPayement.attributes.typePayement === "Totalement-payé"){       
-        setdatePayementIs(true);
-        setrefPayementIs(true);
-        settypePayementIs(true);
-      }
+        if (datasPayement.attributes.typePayement === "Totalement-payé") {
+          setdatePayementIs(true);
+          setrefPayementIs(true);
+          settypePayementIs(true);
+        }
 
       }
       setRefPayement(datasPayement.attributes.refPayement);
@@ -142,7 +135,7 @@ export default function FactureModal(props) {
       restePayement: difference >= 0 ? difference : 0,
     }));
 
-    setError(difference < 0 ? true : false);
+    setError(difference <= 0 ? true : false);
   };
 
   const handleMontantTotalChange = (value) => {
@@ -153,13 +146,13 @@ export default function FactureModal(props) {
   };
 
   const submitButton = async () => {
-    if(refPayement !== '' ){
+    if (refPayement !== '') {
       InsertFacture(id, FormData, refPayement, close);
     }
   };
 
   const submitButtonUpdate = async () => {
-      UpdateFacture(datasPayement.id, FormData, refPayement, close);
+    UpdateFacture(datasPayement.id, FormData, refPayement, close);
   };
 
   return (
@@ -177,31 +170,39 @@ export default function FactureModal(props) {
         </Menu.Target>
 
         <Menu.Dropdown>
-          <Menu.Item>
+          <Menu.Item color="blue" >
             {" "}
             <Link
-              style={{ textDecoration: "none" }}
+              style={{ textDecoration: "none", display: 'flex'}}
               to={{ pathname: `/facture/${id}` }}
             >
-              Facturation
+              <IconPrinter style={{ width: '20px', paddingRight: 10 }} /> <span>Imprimer la facture</span>
             </Link>
           </Menu.Item>
-          <Menu.Item onClick={() => open()}>Paiement</Menu.Item>
+          <Menu.Item onClick={() => open()}>
+            <div style={{ display: 'flex' }}>
+              <IconCardsFilled style={{ width: '20px', paddingRight: 10 }} /> <span> Paiement</span>
+            </div>
+          </Menu.Item>
           {archive ? (
             <Menu.Item
               onClick={() =>
                 DesarchiverCommandeConfirm(id, DesarchiverCommande)
               }
-              color="yellow"
+              color="green"
             >
-              Desarchiver
+              <div style={{ display: 'flex' }}>
+              <IconFolderUp style={{ width: '20px', paddingRight: 10 }} /> <span>Desarchiver</span>
+              </div>
             </Menu.Item>
           ) : (
             <Menu.Item
               onClick={() => ArchiverCommandeConfirm(id, ArchiverCommande)}
               color="yellow"
             >
-              Archiver
+              <div style={{ display: 'flex' }}>
+              <IconArchive style={{ width: '20px', paddingRight: 10 }} /> <span>Archiver</span>
+              </div>
             </Menu.Item>
           )}
         </Menu.Dropdown>
@@ -299,7 +300,7 @@ export default function FactureModal(props) {
                 mt="md"
               >
                 <Button onClick={submitButtonUpdate} type="submit">
-                  Sauvegarder la modification
+                  Sauvegarder
                 </Button>
               </Group>
             )}
