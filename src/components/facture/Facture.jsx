@@ -75,49 +75,49 @@ export default function Facture() {
   };
 
   const filteredRows = datasFacture
-    .filter(
-      (Facture) =>
-        Facture.reference
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-          Facture.raisonSocial.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-          Facture.responsableCommande
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-    )
-    
-    .map((Facture) => (
-      <tr key={Facture.idFacture}>
-        <td>{Facture.idFacture}</td>
-        <td>{Facture.raisonSocial}</td>
-        <td>{Facture.reference}</td>
-        <td>
-          Du {formatDate(Facture.startDate)} au{" "}
-          {formatDate(Facture.endDate)}
-        </td>
-        <td>{Facture.responsableCommande}</td>
-        <td>{Facture.refFacture}</td>
-        <td>
-          <Badge
-            color={
-              Facture.typePayement ==="Totalement-payé" ? "green"
-                  : Facture.typePayement === "Partiellement-payé"? "yellow" : "gray"
-            }
-            variant={theme.colorScheme === "dark" ? "light" : "filled"}
-          >
-            {Facture.typePayement}
-          </Badge>
-        </td>
-        <td>
-          <Group spacing={0} position="right">
-          <FactureModal
-              datas={{ id: Facture.id, archive: Facture.archive }}
-            />
-          </Group>
-        </td>
-      </tr>
+    .filter(Facture => {
+        const searchLowerCase = searchQuery.toLowerCase();
+        return (
+            (Facture.reference && Facture.reference.toLowerCase().includes(searchLowerCase)) ||
+            (Facture.raisonSocial && Facture.raisonSocial.toLowerCase().includes(searchLowerCase)) ||
+            (Facture.responsableCommande && Facture.responsableCommande.toLowerCase().includes(searchLowerCase))
+        );
+    })
+    .map(Facture => (
+        <tr key={Facture.idFacture}>
+            <td>{Facture.idFacture}</td>
+            <td>{Facture.raisonSocial}</td>
+            <td>{Facture.reference}</td>
+            <td>
+                Du {formatDate(Facture.startDate)} au{" "}
+                {formatDate(Facture.endDate)}
+            </td>
+            <td>{Facture.responsableCommande}</td>
+            <td>{Facture.refFacture}</td>
+            <td>
+                <Badge
+                    color={
+                        Facture.typePayement === "Totalement-payé" ? "green" :
+                            Facture.typePayement === "Partiellement-payé" ? "yellow" : "gray"
+                    }
+                    variant={theme.colorScheme === "dark" ? "light" : "filled"}
+                >
+                    {Facture.typePayement}
+                </Badge>
+            </td>
+            <td>
+                <Group spacing={0} position="right">
+                    {Facture.archive === false ? (
+                        <FactureModal datas={{ id: Facture.id, archive: Facture.archive }} />
+                    ) : (
+                        // Render some other component or null when archive is true
+                        null
+                    )}
+                </Group>
+            </td>
+        </tr>
     ));
+
 
   return (
     <div>

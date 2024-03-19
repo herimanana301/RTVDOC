@@ -26,16 +26,16 @@ const FetchAllFacture = (setDatasFacture, setPageInfo, page, setIsrefresh) => {
 
       const filteredCommandes = response.data.data
       .map(Facture => ({
-        id: Facture.attributes.commande.data.id,
+        id: Facture.attributes.commande?.data?.id,
         idFacture: Facture.id,
         refFacture: Facture.attributes.refFacture,
-        reference: Facture.attributes.commande.data.attributes.reference,
-        raisonSocial: Facture.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
-        startDate: Facture.attributes.commande.data.attributes.startDate,
-        endDate: Facture.attributes.commande.data.attributes.endDate,
-        responsableCommande: Facture.attributes.commande.data.attributes.responsableCommande,
+        reference: Facture.attributes.commande?.data?.attributes?.reference,
+        raisonSocial: Facture.attributes.commande?.data?.attributes?.client?.data?.attributes?.raisonsocial,
+        startDate: Facture.attributes.commande?.data?.attributes?.startDate,
+        endDate: Facture.attributes.commande?.data?.attributes?.endDate,
+        responsableCommande: Facture.attributes.commande?.data?.attributes?.responsableCommande,
         typePayement: Facture.attributes.typePayement,
-        archive: Facture.attributes.commande.data.attributes.archive
+        archive: Facture.attributes.commande?.data?.attributes?.archive
       })).filter(Facture => !Facture.archive);
          
       setDatasFacture(filteredCommandes);
@@ -59,16 +59,16 @@ export const FetchAllFactureArchived = (setDatasFactureArchived, setPageInfoArch
      
       const filteredCommandes = response.data.data
       .map(Facture => ({
-        id: Facture.attributes.commande.data.id,
+        id: Facture.attributes.commande?.data?.id,
         idFacture: Facture.id,
         refFacture: Facture.attributes.refFacture,
-        reference: Facture.attributes.commande.data.attributes.reference,
-        raisonSocial: Facture.attributes.commande.data.attributes.client.data.attributes.raisonsocial,
-        startDate: Facture.attributes.commande.data.attributes.startDate,
-        endDate: Facture.attributes.commande.data.attributes.endDate,
-        responsableCommande: Facture.attributes.commande.data.attributes.responsableCommande,
+        reference: Facture.attributes.commande?.data?.attributes?.reference,
+        raisonSocial: Facture.attributes.commande?.data?.attributes?.client?.data?.attributes?.raisonsocial,
+        startDate: Facture.attributes.commande?.data?.attributes?.startDate,
+        endDate: Facture.attributes.commande?.data?.attributes?.endDate,
+        responsableCommande: Facture.attributes.commande?.data?.attributes?.responsableCommande,
         typePayement: Facture.attributes.typePayement,
-        archive: Facture.attributes.commande.data.attributes.archive
+        archive: Facture.attributes.commande?.data?.attributes?.archive
       })).filter(Facture => Facture.archive);
          
       setDatasFactureArchived(filteredCommandes);
@@ -106,7 +106,7 @@ export const FindCommandeData = async (id, setDatasCommande, setDatasClient, set
     .get(`${urls.StrapiUrl}api/commandes/${id}?populate=*`)
     .then((response) => {
       setDatasCommande(response.data.data.attributes);
-      setDatasClient(response.data.data.attributes.client.data.attributes);
+      setDatasClient(response.data.data?.attributes?.client?.data?.attributes);
       setDatasPrestation(response.data.data.attributes.prestations.data);
       setDatasPayement(response.data.data.attributes.payement.data);
     })

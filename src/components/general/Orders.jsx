@@ -158,9 +158,11 @@ export default function Orders({
     return commandeData
       .filter(
         (item) =>
-          item.attributes.client.data.attributes.raisonsocial
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
+          (item.attributes.client.data &&
+            item.attributes.client.data.attributes.raisonsocial &&
+            item.attributes.client.data.attributes.raisonsocial
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
           item.attributes.responsableCommande
             .toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
@@ -176,18 +178,20 @@ export default function Orders({
             .includes(filterStatus.toLowerCase())
       )
       .map((item, index) => (
-        <>
-          <tr key={index}>
+        <React.Fragment key={index}>
+          <tr>
             <td>
               <Text size="sm"> {item.id} </Text>
             </td>
             <td>
               <Group spacing="sm">
                 <Text fz="sm" fw={500}>
-                  {item.attributes.client.data.attributes.raisonsocial.includes(
-                    " "
-                  )
-                    ? item.attributes.client.data.attributes.raisonsocial
+                  {item.attributes.client.data &&
+                  item.attributes.client.data.attributes.raisonsocial ?
+                    (item.attributes.client.data.attributes.raisonsocial.includes(
+                      " "
+                    ) ?
+                      item.attributes.client.data.attributes.raisonsocial
                         .split(" ")
                         .map((word, index) => (
                           <React.Fragment key={index}>
@@ -195,7 +199,8 @@ export default function Orders({
                             <br />
                           </React.Fragment>
                         ))
-                    : item.attributes.client.data.attributes.raisonsocial}
+                      : item.attributes.client.data.attributes.raisonsocial)
+                    : '-'}
                 </Text>
               </Group>
             </td>
@@ -269,10 +274,10 @@ export default function Orders({
               </Group>
             </td>
           </tr>
-        </>
+        </React.Fragment>
       ));
   }, [commandeData, searchQuery, filterStatus]);
-
+  
   return (
     <>
       <ScrollArea>
